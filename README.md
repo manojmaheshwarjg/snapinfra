@@ -8,7 +8,7 @@ RhinoBack is an AI-driven development platform that helps developers build backe
 
 ## Features
 
-### ✅ Implemented Features
+### Implemented Features
 - **Real AI Integration**: Chat interface powered by Groq AI for natural language backend generation
 - **Persistent Data Storage**: Projects and schemas persist across browser sessions using localStorage
 - **Interactive Schema Visualization**: Drag-and-drop database diagram with relationship mapping
@@ -16,7 +16,7 @@ RhinoBack is an AI-driven development platform that helps developers build backe
 - **Cloud Deployment**: Deploy to Vercel, Railway, Render, and Heroku with live deployment logs
 - **Dynamic Schema Management**: AI-powered database schema design and management
 
-### 🚧 Coming Soon
+### Coming Soon
 - **API Development Suite**: Advanced API endpoint generation and testing tools
 - **Real-Time Collaboration**: Team-based development with live editing
 - **Advanced Database Features**: Query builder, migrations, and performance optimization

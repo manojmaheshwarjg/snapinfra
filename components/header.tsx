@@ -36,7 +36,7 @@ export function Header() {
             <div className="h-5 sm:h-6 bg-white rounded-lg flex items-center justify-center flex-shrink-0 px-2">
               <Image 
                 src="/rhinom-logo.svg" 
-                alt="Rhinoback Logo" 
+                alt="Snapinfra Logo" 
                 width={70} 
                 height={15} 
                 className="h-full w-auto object-contain"
@@ -134,7 +134,7 @@ export function Header() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <div className="px-3 py-2 border-b">
                 <p className="text-sm font-medium">Manoj Maheshwar</p>
-                <p className="text-xs text-gray-500">manoj@rhinoback.com</p>
+                <p className="text-xs text-gray-500">manoj@Snapinfra.com</p>
               </div>
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />

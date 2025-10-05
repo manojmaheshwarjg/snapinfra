@@ -1,4 +1,4 @@
-# RhinoBack
+# Snapinfra
 
 An AI-powered backend generation platform that transforms natural language descriptions into production-ready backends with comprehensive AWS infrastructure.
 
@@ -26,7 +26,7 @@ An AI-powered backend generation platform that transforms natural language descr
 
 ## Overview
 
-RhinoBack is a full-stack application that leverages AI to generate backend code, database schemas, and infrastructure-as-code configurations. The platform features:
+Snapinfra is a full-stack application that leverages AI to generate backend code, database schemas, and infrastructure-as-code configurations. The platform features:
 
 - AI-powered backend and schema generation using Groq
 - Real-time code generation with streaming responses
@@ -41,7 +41,7 @@ RhinoBack is a full-stack application that leverages AI to generate backend code
 ## Project Structure
 
 ```
-RhinoBack/
+Snapinfra/
 ├── app/                          # Next.js frontend application
 │   ├── api/                      # API routes
 │   │   ├── ai/                   # AI generation endpoints
@@ -58,7 +58,7 @@ RhinoBack/
 │   ├── aws/                      # AWS CDK infrastructure
 │   │   └── cdk/
 │   │       ├── app.ts            # CDK app entry point
-│   │       └── rhinoback-stack.ts # Infrastructure stack
+│   │       └── Snapinfra-stack.ts # Infrastructure stack
 │   ├── src/
 │   │   ├── middleware/           # Express middleware
 │   │   │   ├── authMiddleware.ts # Clerk authentication
@@ -148,7 +148,7 @@ RhinoBack/
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd RhinoBack
+cd Snapinfra
 ```
 
 2. Install frontend dependencies:
@@ -205,13 +205,13 @@ AWS_ACCESS_KEY_ID=your_aws_access_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 
 # DynamoDB Tables
-DYNAMODB_PROJECTS_TABLE=rhinoback-projects
-DYNAMODB_USERS_TABLE=rhinoback-users
-DYNAMODB_SCHEMAS_TABLE=rhinoback-schemas
-DYNAMODB_DEPLOYMENTS_TABLE=rhinoback-deployments
+DYNAMODB_PROJECTS_TABLE=Snapinfra-projects
+DYNAMODB_USERS_TABLE=Snapinfra-users
+DYNAMODB_SCHEMAS_TABLE=Snapinfra-schemas
+DYNAMODB_DEPLOYMENTS_TABLE=Snapinfra-deployments
 
 # S3 Configuration
-S3_BUCKET_NAME=rhinoback-storage
+S3_BUCKET_NAME=Snapinfra-storage
 S3_BUCKET_REGION=us-east-1
 
 # AI Services Configuration
@@ -227,11 +227,11 @@ JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=7d
 
 # SQS Queues
-SQS_CODE_GENERATION_QUEUE=rhinoback-code-generation
-SQS_DEPLOYMENT_QUEUE=rhinoback-deployments
+SQS_CODE_GENERATION_QUEUE=Snapinfra-code-generation
+SQS_DEPLOYMENT_QUEUE=Snapinfra-deployments
 
 # SNS Topics
-SNS_DEPLOYMENT_NOTIFICATIONS=rhinoback-deployment-notifications
+SNS_DEPLOYMENT_NOTIFICATIONS=Snapinfra-deployment-notifications
 
 # Application Settings
 MAX_FILE_SIZE=10485760
@@ -351,21 +351,21 @@ The CDK stack provisions the following resources:
 
 ### DynamoDB Tables
 
-1. **rhinoback-projects**
+1. **Snapinfra-projects**
    - Partition Key: `id` (String)
    - Sort Key: `userId` (String)
    - GSI: `UserIdIndex` - Query projects by user
 
-2. **rhinoback-users**
+2. **Snapinfra-users**
    - Partition Key: `id` (String)
    - Stores user profiles and preferences
 
-3. **rhinoback-schemas**
+3. **Snapinfra-schemas**
    - Partition Key: `id` (String)
    - Sort Key: `projectId` (String)
    - GSI: `ProjectIdIndex` - Query schemas by project
 
-4. **rhinoback-deployments**
+4. **Snapinfra-deployments**
    - Partition Key: `id` (String)
    - Sort Key: `projectId` (String)
    - GSI: `ProjectIdIndex` - Query deployments by project
@@ -377,25 +377,25 @@ All tables use:
 
 ### S3 Bucket
 
-- Bucket name: `rhinoback-storage-{account}-{region}`
+- Bucket name: `Snapinfra-storage-{account}-{region}`
 - Versioning enabled
 - CORS configured for web access
 - Lifecycle policies for cost optimization
 
 ### SQS Queues
 
-1. **rhinoback-code-generation**
+1. **Snapinfra-code-generation**
    - Visibility timeout: 15 minutes
    - Dead letter queue for failed jobs
    - Message retention: 14 days
 
-2. **rhinoback-deployments**
+2. **Snapinfra-deployments**
    - Visibility timeout: 30 minutes
    - Message retention: 14 days
 
 ### SNS Topics
 
-- **rhinoback-deployment-notifications**
+- **Snapinfra-deployment-notifications**
   - Publishes deployment status updates
   - Can be subscribed to via email, SMS, Lambda, etc.
 

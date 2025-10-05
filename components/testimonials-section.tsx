@@ -21,7 +21,7 @@ export default function TestimonialsSection() {
 
   const testimonials = [
     {
-      quote: "I've built 6 MVPs in the time it used to take me to build 1. RhinoBack changed how I work.",
+      quote: "I've built 6 MVPs in the time it used to take me to build 1. Snapinfra changed how I work.",
       name: "Sarah Chen",
       company: "Solo Founder",
       image:

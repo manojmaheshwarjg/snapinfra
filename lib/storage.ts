@@ -2,10 +2,10 @@
 import type { Project, AppState } from './app-context'
 
 const STORAGE_KEYS = {
-  PROJECTS: 'rhinoback_projects',
-  CURRENT_PROJECT: 'rhinoback_current_project',
-  CHAT_HISTORY: 'rhinoback_chat_history',
-  USER_PREFERENCES: 'rhinoback_user_preferences',
+  PROJECTS: 'snapinfra_projects',
+  CURRENT_PROJECT: 'snapinfra_current_project',
+  CHAT_HISTORY: 'snapinfra_chat_history',
+  USER_PREFERENCES: 'snapinfra_user_preferences',
 } as const
 
 // Project storage
@@ -143,7 +143,7 @@ export function cleanupDemoProjects(): void {
       // Remove projects with generic demo names and empty schemas
       const isDemoProject = project.name === 'Demo Project' || 
                            project.name.startsWith('Demo Project') ||
-                           (project.description === 'A sample project to showcase RhinoBack capabilities' && project.schema.length === 0)
+                           (project.description === 'A sample project to showcase snapinfra capabilities' && project.schema.length === 0)
       return !isDemoProject
     })
     

@@ -19,9 +19,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const instrumentSerif = Instrument_Serif({ subsets: ['latin'], weight: ['400'], variable: '--font-instrument-serif' })
 
 export const metadata: Metadata = {
-  title: "Rhinoback - AI Backend Builder",
+  title: "Snapinfra - AI Backend Builder",
   description: "Build backends that absolutely slap with AI",
-  generator: "Rhinoback",
+  generator: "Snapinfra",
   viewport: "width=device-width, initial-scale=1, maximum-scale=5",
 }
 

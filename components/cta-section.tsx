@@ -31,7 +31,7 @@ export default function CTASection() {
             <div className="self-stretch text-center text-[#605A57] text-base leading-7 font-sans font-medium">
               That's why you learned to code in the first place.
               <br />
-              Try RhinoBack free. Generate one backend. See if it saves you even a day.
+              Try Snapinfra free. Generate one backend. See if it saves you even a day.
             </div>
           </div>
           <div className="w-full max-w-[497px] flex flex-col justify-center items-center gap-12">

@@ -4,7 +4,7 @@ require('dotenv').config();
 const BASE_URL = 'http://localhost:5000';
 
 async function testBackend() {
-  console.log('Starting RhinoBack Backend Tests\n');
+  console.log('Starting snapinfra Backend Tests\n');
   console.log('='.repeat(60));
   
   try {

@@ -16,7 +16,7 @@ const faqData: FAQItem[] = [
   {
     question: "AI can't understand complex backends.",
     answer:
-      "You're right to be skeptical. But you're also wrong. Try it with your most complex use case. RhinoBack handles authentication, database schemas, API endpoints, payment processing, and complex business logic.",
+      "You're right to be skeptical. But you're also wrong. Try it with your most complex use case. Snapinfra handles authentication, database schemas, API endpoints, payment processing, and complex business logic.",
   },
   {
     question: "I'll need to rewrite everything anyway.",

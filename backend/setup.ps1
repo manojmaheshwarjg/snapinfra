@@ -1,5 +1,5 @@
-# Simple RhinoBack AWS Setup Script
-Write-Host "RhinoBack AWS Setup Script" -ForegroundColor Green
+# Simple snapinfra AWS Setup Script
+Write-Host "snapinfra AWS Setup Script" -ForegroundColor Green
 Write-Host "===========================" -ForegroundColor Green
 Write-Host ""
 
@@ -101,7 +101,7 @@ if ($deploy -eq "y") {
         cdk bootstrap
         
         # Deploy the stack
-        Write-Host "Deploying RhinoBack stack..." -ForegroundColor Gray  
+        Write-Host "Deploying snapinfra stack..." -ForegroundColor Gray  
         cdk deploy --app "npx tsx aws/cdk/app.ts" --require-approval never
         
         Write-Host ""

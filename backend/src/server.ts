@@ -56,7 +56,7 @@ app.use('/api/deployments', deploymentRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'RhinoBack Backend API',
+    message: 'snapinfra Backend API',
     version: '1.0.0',
     status: 'running',
     timestamp: new Date().toISOString()
@@ -77,7 +77,7 @@ app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 RhinoBack Backend running on port ${PORT}`);
+  console.log(`🚀 snapinfra Backend running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌍 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
   console.log(`☁️  AWS Region: ${process.env.AWS_REGION || 'us-east-1'}`);

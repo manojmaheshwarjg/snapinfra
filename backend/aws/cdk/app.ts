@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { RhinoBackStack } from './rhinoback-stack';
+import { SnapinfraStack } from './snapinfra-stack';
 
 const app = new cdk.App();
 
-new RhinoBackStack(app, 'RhinoBackStack', {
+new SnapinfraStack(app, 'SnapinfraStack', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.AWS_REGION || 'us-east-1',
   },
   
   // Stack description
-  description: 'RhinoBack - AI-powered backend generation platform infrastructure',
+  description: 'Snapinfra - AI-powered backend generation platform infrastructure',
   
   // Tags for all resources
   tags: {
-    Project: 'RhinoBack',
+    Project: 'Snapinfra',
     Environment: process.env.NODE_ENV || 'development',
     ManagedBy: 'CDK'
   }

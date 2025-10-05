@@ -6,13 +6,13 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
-export class RhinoBackStack extends cdk.Stack {
+export class SnapinfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // DynamoDB Tables
     const projectsTable = new dynamodb.Table(this, 'ProjectsTable', {
-      tableName: 'rhinoback-projects',
+      tableName: 'Snapinfra-projects',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -29,7 +29,7 @@ export class RhinoBackStack extends cdk.Stack {
     });
 
     const usersTable = new dynamodb.Table(this, 'UsersTable', {
-      tableName: 'rhinoback-users',
+      tableName: 'Snapinfra-users',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -37,7 +37,7 @@ export class RhinoBackStack extends cdk.Stack {
     });
 
     const schemasTable = new dynamodb.Table(this, 'SchemasTable', {
-      tableName: 'rhinoback-schemas',
+      tableName: 'Snapinfra-schemas',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'projectId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -54,7 +54,7 @@ export class RhinoBackStack extends cdk.Stack {
     });
 
     const deploymentsTable = new dynamodb.Table(this, 'DeploymentsTable', {
-      tableName: 'rhinoback-deployments',
+      tableName: 'Snapinfra-deployments',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'projectId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -72,7 +72,7 @@ export class RhinoBackStack extends cdk.Stack {
 
     // S3 Bucket for file storage
     const storageBucket = new s3.Bucket(this, 'StorageBucket', {
-      bucketName: `rhinoback-storage-${this.account}-${this.region}`,
+      bucketName: `Snapinfra-storage-${this.account}-${this.region}`,
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true, // For development
@@ -88,32 +88,32 @@ export class RhinoBackStack extends cdk.Stack {
 
     // SQS Queues
     const codeGenerationQueue = new sqs.Queue(this, 'CodeGenerationQueue', {
-      queueName: 'rhinoback-code-generation',
+      queueName: 'Snapinfra-code-generation',
       visibilityTimeout: cdk.Duration.minutes(15), // Long timeout for AI processing
       retentionPeriod: cdk.Duration.days(14),
       deadLetterQueue: {
         queue: new sqs.Queue(this, 'CodeGenerationDLQ', {
-          queueName: 'rhinoback-code-generation-dlq'
+          queueName: 'Snapinfra-code-generation-dlq'
         }),
         maxReceiveCount: 3
       }
     });
 
     const deploymentQueue = new sqs.Queue(this, 'DeploymentQueue', {
-      queueName: 'rhinoback-deployments',
+      queueName: 'Snapinfra-deployments',
       visibilityTimeout: cdk.Duration.minutes(30), // Long timeout for deployments
       retentionPeriod: cdk.Duration.days(14)
     });
 
     // SNS Topics
     const deploymentNotifications = new sns.Topic(this, 'DeploymentNotifications', {
-      topicName: 'rhinoback-deployment-notifications',
-      displayName: 'RhinoBack Deployment Notifications'
+      topicName: 'Snapinfra-deployment-notifications',
+      displayName: 'Snapinfra Deployment Notifications'
     });
 
     // IAM Role for backend application
     const backendRole = new iam.Role(this, 'BackendRole', {
-      roleName: 'RhinoBackBackendRole',
+      roleName: 'SnapinfraBackendRole',
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'), // Can be changed for ECS
       inlinePolicies: {
         DynamoDBAccess: new iam.PolicyDocument({

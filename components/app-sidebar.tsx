@@ -15,7 +15,7 @@ import { useAppContext } from "@/lib/app-context"
 const RhinomLogo = ({ className }: { className?: string }) => (
   <Image 
     src="/rhinom-logo.svg" 
-    alt="Rhinoback Logo" 
+    alt="Snapinfra Logo" 
     width={32} 
     height={7} 
     className={`${className} object-contain`}
@@ -30,12 +30,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const staticData = {
     user: {
       name: "Manoj Maheshwar",
-      email: "manoj@rhinoback.com",
+      email: "manoj@Snapinfra.com",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     teams: [
       {
-        name: "Rhinoback",
+        name: "Snapinfra",
         logo: RhinomLogo,
         plan: "Pro",
       },

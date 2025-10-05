@@ -36,25 +36,25 @@ export const snsClient = new SNSClient(clientConfig);
 
 // Table names
 export const TABLES = {
-  PROJECTS: process.env.DYNAMODB_PROJECTS_TABLE || 'rhinoback-projects',
-  USERS: process.env.DYNAMODB_USERS_TABLE || 'rhinoback-users',
-  SCHEMAS: process.env.DYNAMODB_SCHEMAS_TABLE || 'rhinoback-schemas',
-  DEPLOYMENTS: process.env.DYNAMODB_DEPLOYMENTS_TABLE || 'rhinoback-deployments'
+  PROJECTS: process.env.DYNAMODB_PROJECTS_TABLE || 'snapinfra-projects',
+  USERS: process.env.DYNAMODB_USERS_TABLE || 'snapinfra-users',
+  SCHEMAS: process.env.DYNAMODB_SCHEMAS_TABLE || 'snapinfra-schemas',
+  DEPLOYMENTS: process.env.DYNAMODB_DEPLOYMENTS_TABLE || 'snapinfra-deployments'
 };
 
 // S3 Configuration
 export const S3_CONFIG = {
-  BUCKET_NAME: process.env.S3_BUCKET_NAME || 'rhinoback-storage',
+  BUCKET_NAME: process.env.S3_BUCKET_NAME || 'snapinfra-storage',
   BUCKET_REGION: process.env.S3_BUCKET_REGION || AWS_REGION
 };
 
 // SQS Queue URLs
 export const QUEUES = {
-  CODE_GENERATION: process.env.SQS_CODE_GENERATION_QUEUE || 'rhinoback-code-generation',
-  DEPLOYMENT: process.env.SQS_DEPLOYMENT_QUEUE || 'rhinoback-deployments'
+  CODE_GENERATION: process.env.SQS_CODE_GENERATION_QUEUE || 'snapinfra-code-generation',
+  DEPLOYMENT: process.env.SQS_DEPLOYMENT_QUEUE || 'snapinfra-deployments'
 };
 
 // SNS Topics
 export const TOPICS = {
-  DEPLOYMENT_NOTIFICATIONS: process.env.SNS_DEPLOYMENT_NOTIFICATIONS || 'rhinoback-deployment-notifications'
+  DEPLOYMENT_NOTIFICATIONS: process.env.SNS_DEPLOYMENT_NOTIFICATIONS || 'snapinfra-deployment-notifications'
 };

@@ -1,7 +1,7 @@
-# RhinoBack AWS Setup Script for Windows
-# This script will help you set up AWS services for your RhinoBack backend
+# snapinfra AWS Setup Script for Windows
+# This script will help you set up AWS services for your snapinfra backend
 
-Write-Host "🚀 RhinoBack AWS Setup Script" -ForegroundColor Green
+Write-Host "🚀 snapinfra AWS Setup Script" -ForegroundColor Green
 Write-Host "==============================" -ForegroundColor Green
 Write-Host ""
 
@@ -195,7 +195,7 @@ if ($awsConfigured) {
             cdk bootstrap
             
             # Deploy the stack
-            Write-Host "🚀 Deploying RhinoBack infrastructure..." -ForegroundColor Yellow
+            Write-Host "🚀 Deploying snapinfra infrastructure..." -ForegroundColor Yellow
             cdk deploy --app "npx tsx aws/cdk/app.ts" --require-approval never
             
             Write-Host ""
@@ -233,4 +233,4 @@ Write-Host "📚 For detailed guidance, see:" -ForegroundColor Cyan
 Write-Host "   - AWS_SETUP.md (complete setup guide)" -ForegroundColor White
 Write-Host "   - IMPLEMENTATION_STATUS.md (current status)" -ForegroundColor White
 Write-Host ""
-Write-Host "🚀 Your RhinoBack backend will be fully functional after these steps!" -ForegroundColor Green
+Write-Host "🚀 Your snapinfra backend will be fully functional after these steps!" -ForegroundColor Green

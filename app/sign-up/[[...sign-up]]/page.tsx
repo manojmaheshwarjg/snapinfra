@@ -26,7 +26,7 @@ export default function SignUpPage() {
                   <div className="flex justify-start items-center gap-2">
                     <ArrowLeft className="w-4 h-4 text-[rgba(49,45,43,0.80)] group-hover:text-[#37322F] transition-colors" />
                     <div className="flex flex-col justify-center text-[#2F3037] text-sm sm:text-base md:text-lg lg:text-xl font-medium leading-5 font-sans">
-                      RhinoBack
+                      Snapinfra
                     </div>
                   </div>
                 </Link>
@@ -101,7 +101,7 @@ export default function SignUpPage() {
 
                 {/* Bottom text */}
                 <div className="text-center text-[#605A57] text-xs sm:text-sm font-normal font-sans">
-                  By continuing, you agree to RhinoBack's{" "}
+                  By continuing, you agree to Snapinfra's{" "}
                   <Link href="/terms" className="text-[#0077ED] hover:text-[#0088FF] underline transition-colors">
                     Terms of Service
                   </Link>

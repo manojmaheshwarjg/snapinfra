@@ -1,5 +1,5 @@
 /**
- * API Client for RhinoBack Backend
+ * API Client for snapinfra Backend
  * Handles all communication with the Express backend (AWS DynamoDB)
  */
 

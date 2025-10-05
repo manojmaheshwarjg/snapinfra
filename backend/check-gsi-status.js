@@ -13,9 +13,9 @@ async function checkGSIStatus() {
   });
   
   const tables = [
-    { name: 'rhinoback-projects', expectedGSI: 'UserIdIndex' },
-    { name: 'rhinoback-schemas', expectedGSI: 'ProjectIdIndex' },
-    { name: 'rhinoback-deployments', expectedGSI: 'ProjectIdIndex' }
+    { name: 'snapinfra-projects', expectedGSI: 'UserIdIndex' },
+    { name: 'snapinfra-schemas', expectedGSI: 'ProjectIdIndex' },
+    { name: 'snapinfra-deployments', expectedGSI: 'ProjectIdIndex' }
   ];
   
   for (const table of tables) {

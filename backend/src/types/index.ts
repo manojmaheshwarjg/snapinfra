@@ -7,7 +7,6 @@ export interface User {
   lastName?: string;
   createdAt: string;
   updatedAt: string;
-  cognitoId: string;
 }
 
 // Project types
@@ -264,17 +263,12 @@ export interface Environment {
   JWT_EXPIRES_IN: string;
   GROQ_API_KEY?: string;
   OPENAI_API_KEY?: string;
-  BEDROCK_MODEL_ID: string;
-  BEDROCK_REGION: string;
   DYNAMODB_PROJECTS_TABLE: string;
   DYNAMODB_USERS_TABLE: string;
   DYNAMODB_SCHEMAS_TABLE: string;
   DYNAMODB_DEPLOYMENTS_TABLE: string;
   S3_BUCKET_NAME: string;
   S3_BUCKET_REGION: string;
-  COGNITO_USER_POOL_ID: string;
-  COGNITO_CLIENT_ID: string;
-  COGNITO_CLIENT_SECRET?: string;
   SQS_CODE_GENERATION_QUEUE: string;
   SQS_DEPLOYMENT_QUEUE: string;
   SNS_DEPLOYMENT_NOTIFICATIONS: string;

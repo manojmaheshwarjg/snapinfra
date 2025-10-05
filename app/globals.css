@@ -72,8 +72,9 @@
 }
 
 @theme inline {
-  /* switching to Geist font */
-  --font-sans: var(--font-geist);
+  /* switching to Inter and Instrument Serif */
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-instrument-serif);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -119,6 +120,21 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 /* Custom letter-spacing for titles */

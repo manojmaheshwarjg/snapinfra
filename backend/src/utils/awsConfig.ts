@@ -1,7 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { S3Client } from '@aws-sdk/client-s3';
-import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
-import { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { SNSClient } from '@aws-sdk/client-sns';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -10,13 +8,18 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 
 // Common AWS client configuration
-const clientConfig = {
-  region: AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-  }
+// Only include credentials if they are defined
+const clientConfig: any = {
+  region: AWS_REGION
 };
+
+// Add credentials only if both are available
+if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+  clientConfig.credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  };
+}
 
 // DynamoDB Client
 export const dynamodbClient = new DynamoDBClient(clientConfig);
@@ -24,15 +27,6 @@ export const docClient = DynamoDBDocumentClient.from(dynamodbClient);
 
 // S3 Client
 export const s3Client = new S3Client(clientConfig);
-
-// Cognito Client
-export const cognitoClient = new CognitoIdentityProviderClient(clientConfig);
-
-// Bedrock Client
-export const bedrockClient = new BedrockRuntimeClient({
-  ...clientConfig,
-  region: process.env.BEDROCK_REGION || AWS_REGION
-});
 
 // SQS Client
 export const sqsClient = new SQSClient(clientConfig);
@@ -63,17 +57,4 @@ export const QUEUES = {
 // SNS Topics
 export const TOPICS = {
   DEPLOYMENT_NOTIFICATIONS: process.env.SNS_DEPLOYMENT_NOTIFICATIONS || 'rhinoback-deployment-notifications'
-};
-
-// Bedrock Configuration
-export const BEDROCK_CONFIG = {
-  MODEL_ID: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0',
-  REGION: process.env.BEDROCK_REGION || AWS_REGION
-};
-
-// Cognito Configuration
-export const COGNITO_CONFIG = {
-  USER_POOL_ID: process.env.COGNITO_USER_POOL_ID!,
-  CLIENT_ID: process.env.COGNITO_CLIENT_ID!,
-  CLIENT_SECRET: process.env.COGNITO_CLIENT_SECRET
 };

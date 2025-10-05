@@ -12,6 +12,7 @@ import {
   loadUserPreferences,
   cleanupDemoProjects
 } from './storage'
+import { updateProject as updateProjectAPI, createProject as createProjectAPI, isBackendAvailable } from './api-client'
 
 // Types
 export interface User {
@@ -403,6 +404,7 @@ const AppContext = createContext<{
 // Provider
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState)
+  const syncTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
   
   // Load persisted data on mount
   useEffect(() => {
@@ -443,8 +445,206 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [state.projects])
   
+  // Sync current project to backend when it changes (with debouncing)
   useEffect(() => {
-    saveCurrentProject(state.currentProject)
+    const syncProjectToBackend = async () => {
+      if (!state.currentProject) {
+        saveCurrentProject(null)
+        return
+      }
+      
+      // Don't sync if project has no schema yet (happens during initialization)
+      if (!state.currentProject.schema || state.currentProject.schema.length === 0) {
+        console.log('⏸️ Skipping sync - project has no schema yet')
+        saveCurrentProject(state.currentProject)
+        return
+      }
+      
+      // Save to localStorage first (immediate)
+      saveCurrentProject(state.currentProject)
+      
+      // Debounce backend sync to avoid excessive API calls
+      // Clear any pending sync
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current)
+      }
+      
+      // Schedule a new sync after 1 second of inactivity
+      syncTimeoutRef.current = setTimeout(async () => {
+        try {
+          const backendAvailable = await isBackendAvailable()
+          if (!backendAvailable) {
+            console.log('📦 Backend unavailable, project saved locally only')
+            return
+          }
+          
+        // Check if project has been synced to backend before
+        const projectMeta = localStorage.getItem(`project-meta-${state.currentProject.id}`)
+        const meta = projectMeta ? JSON.parse(projectMeta) : {}
+        
+        // Sync to DynamoDB via backend API
+        console.log('🔄 Syncing project to backend:', state.currentProject.id)
+        
+        try {
+          if (meta.backendId) {
+            // Project exists in backend, update it
+            // Filter out tables without fields
+            const validTables = state.currentProject.schema.filter(t => 
+              t.fields && t.fields.length > 0
+            )
+            
+            if (validTables.length === 0) {
+              console.log('⚠️ No valid tables to sync (all tables missing fields)')
+              return
+            }
+            
+            await updateProjectAPI(meta.backendId, {
+              name: state.currentProject.name,
+              description: state.currentProject.description,
+              status: state.currentProject.status,
+              schema: {
+                name: state.currentProject.name,
+              tables: validTables.map(t => ({
+                  id: t.id,
+                  name: t.name,
+                  fields: t.fields.map(f => ({
+                    id: f.id,
+                    name: f.name,
+                    type: f.type,
+                    isPrimary: f.isPrimary || false,
+                    isRequired: f.isRequired || false,
+                    isUnique: f.isUnique || false,
+                    isForeignKey: f.isForeignKey || false,
+                    description: f.description || ''
+                  })),
+                  indexes: t.indexes || []
+                  // Note: relationships not allowed at table level per backend validation
+                })),
+                relationships: []
+              }
+            })
+            console.log('✅ Project updated in backend successfully')
+          } else {
+            // Project doesn't exist in backend yet, create it
+            console.log('📝 Creating project in backend for the first time...')
+            
+            // Prepare clean schema data for backend
+            // Filter out tables without fields (invalid)
+            const validTables = state.currentProject.schema.filter(t => 
+              t.fields && t.fields.length > 0
+            )
+            
+            if (validTables.length === 0) {
+              console.log('⚠️ No valid tables to sync (all tables missing fields)')
+              return
+            }
+            
+            const schemaPayload = {
+              name: state.currentProject.name,
+              description: state.currentProject.description || 'Synced from local storage',
+              schema: {
+                name: state.currentProject.name,
+                tables: validTables.map(t => ({
+                  id: t.id,
+                  name: t.name,
+                  fields: t.fields.map(f => ({
+                    id: f.id,
+                    name: f.name,
+                    type: f.type,
+                    isPrimary: f.isPrimary || false,
+                    isRequired: f.isRequired || false,
+                    isUnique: f.isUnique || false,
+                    isForeignKey: f.isForeignKey || false,
+                    description: f.description || ''
+                  })),
+                  indexes: t.indexes || []
+                  // Note: relationships not allowed at table level per backend validation
+                })),
+                relationships: []
+              }
+            }
+            
+            console.log('Schema payload:', JSON.stringify(schemaPayload, null, 2))
+            
+            try {
+              const newProject = await createProjectAPI(schemaPayload)
+              
+              // Store the backend-generated ID for future updates
+              localStorage.setItem(`project-meta-${state.currentProject.id}`, JSON.stringify({
+                backendId: newProject.id,
+                syncedAt: new Date().toISOString()
+              }))
+              
+              console.log('✅ Project created in backend successfully (ID:', newProject.id, ')')
+            } catch (createError: any) {
+              console.error('❌ Backend validation failed!')
+              console.error('Error:', createError.message)
+              console.error('Status:', createError.statusCode)
+              console.error('Details:', createError.details)
+              console.error('\nPayload that was sent:', JSON.stringify(schemaPayload, null, 2))
+              throw createError
+            }
+          }
+        } catch (syncError: any) {
+          // If we get 404 on update, the backend ID is stale - recreate
+          if (syncError.statusCode === 404 && meta.backendId) {
+            console.log('⚠️ Backend project not found, recreating...')
+            try {
+              const newProject = await createProjectAPI({
+                name: state.currentProject.name,
+                description: state.currentProject.description || 'Synced from local storage',
+                schema: {
+                  name: state.currentProject.name,
+                  tables: state.currentProject.schema.map(t => ({
+                    id: t.id,
+                    name: t.name,
+                  fields: t.fields.map(f => ({
+                      id: f.id,
+                      name: f.name,
+                      type: f.type,
+                      isPrimary: f.isPrimary || false,
+                      isRequired: f.isRequired || false,
+                      isUnique: f.isUnique || false,
+                      isForeignKey: f.isForeignKey || false,
+                      description: f.description || ''
+                    })),
+                    indexes: t.indexes || []
+                    // Note: relationships not allowed at table level per backend validation
+                  })),
+                  relationships: []
+                }
+              })
+              
+              // Update the stored backend ID
+              localStorage.setItem(`project-meta-${state.currentProject.id}`, JSON.stringify({
+                backendId: newProject.id,
+                syncedAt: new Date().toISOString()
+              }))
+              
+              console.log('✅ Project recreated in backend successfully')
+            } catch (recreateError) {
+              console.error('❌ Failed to recreate project:', recreateError)
+              throw recreateError
+            }
+          } else {
+            throw syncError
+          }
+        }
+        } catch (error) {
+          console.error('❌ Failed to sync project to backend:', error)
+          // Don't throw - project is still saved locally
+        }
+      }, 1000) // 1 second debounce
+    }
+    
+    syncProjectToBackend()
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current)
+      }
+    }
   }, [state.currentProject])
   
   // Load chat messages when current project changes

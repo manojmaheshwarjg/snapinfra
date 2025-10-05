@@ -1,7 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -21,6 +20,14 @@ export class RhinoBackStack extends cdk.Stack {
       pointInTimeRecovery: true
     });
 
+    // Add GSI for querying projects by userId
+    projectsTable.addGlobalSecondaryIndex({
+      indexName: 'UserIdIndex',
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'createdAt', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL
+    });
+
     const usersTable = new dynamodb.Table(this, 'UsersTable', {
       tableName: 'rhinoback-users',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
@@ -38,6 +45,14 @@ export class RhinoBackStack extends cdk.Stack {
       pointInTimeRecovery: true
     });
 
+    // Add GSI for querying schemas by projectId
+    schemasTable.addGlobalSecondaryIndex({
+      indexName: 'ProjectIdIndex',
+      partitionKey: { name: 'projectId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'createdAt', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL
+    });
+
     const deploymentsTable = new dynamodb.Table(this, 'DeploymentsTable', {
       tableName: 'rhinoback-deployments',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
@@ -45,6 +60,14 @@ export class RhinoBackStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       pointInTimeRecovery: true
+    });
+
+    // Add GSI for querying deployments by projectId
+    deploymentsTable.addGlobalSecondaryIndex({
+      indexName: 'ProjectIdIndex',
+      partitionKey: { name: 'projectId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'createdAt', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL
     });
 
     // S3 Bucket for file storage
@@ -61,38 +84,7 @@ export class RhinoBackStack extends cdk.Stack {
       }]
     });
 
-    // Cognito User Pool
-    const userPool = new cognito.UserPool(this, 'UserPool', {
-      userPoolName: 'rhinoback-users',
-      selfSignUpEnabled: true,
-      signInAliases: {
-        email: true,
-        username: true
-      },
-      autoVerify: {
-        email: true
-      },
-      passwordPolicy: {
-        minLength: 8,
-        requireLowercase: true,
-        requireUppercase: true,
-        requireDigits: true,
-        requireSymbols: false
-      },
-      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
-      removalPolicy: cdk.RemovalPolicy.DESTROY
-    });
-
-    const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
-      userPool,
-      userPoolClientName: 'rhinoback-client',
-      authFlows: {
-        adminUserPassword: true,
-        userPassword: true,
-        userSrp: true
-      },
-      generateSecret: true
-    });
+    // Cognito removed - using custom auth instead
 
     // SQS Queues
     const codeGenerationQueue = new sqs.Queue(this, 'CodeGenerationQueue', {
@@ -138,9 +130,12 @@ export class RhinoBackStack extends cdk.Stack {
               ],
               resources: [
                 projectsTable.tableArn,
+                `${projectsTable.tableArn}/index/*`,
                 usersTable.tableArn,
                 schemasTable.tableArn,
-                deploymentsTable.tableArn
+                `${schemasTable.tableArn}/index/*`,
+                deploymentsTable.tableArn,
+                `${deploymentsTable.tableArn}/index/*`
               ]
             })
           ]
@@ -159,18 +154,6 @@ export class RhinoBackStack extends cdk.Stack {
                 storageBucket.bucketArn,
                 `${storageBucket.bucketArn}/*`
               ]
-            })
-          ]
-        }),
-        BedrockAccess: new iam.PolicyDocument({
-          statements: [
-            new iam.PolicyStatement({
-              effect: iam.Effect.ALLOW,
-              actions: [
-                'bedrock:InvokeModel',
-                'bedrock:InvokeModelWithResponseStream'
-              ],
-              resources: ['*']
             })
           ]
         }),
@@ -206,16 +189,6 @@ export class RhinoBackStack extends cdk.Stack {
     });
 
     // Outputs
-    new cdk.CfnOutput(this, 'UserPoolId', {
-      value: userPool.userPoolId,
-      description: 'Cognito User Pool ID'
-    });
-
-    new cdk.CfnOutput(this, 'UserPoolClientId', {
-      value: userPoolClient.userPoolClientId,
-      description: 'Cognito User Pool Client ID'
-    });
-
     new cdk.CfnOutput(this, 'S3BucketName', {
       value: storageBucket.bucketName,
       description: 'S3 Storage Bucket Name'

@@ -44,12 +44,12 @@ export function Header() {
             </div>
             <div className="flex items-center gap-1 sm:gap-2 min-w-0">
               {/* Only show project name in dashboard, not in onboarding */}
-              {!isOnboarding && (
+              {!isOnboarding && isClient && (
                 <>
                   {currentProject ? (
-                    <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate" style={{ fontFamily: 'Instrument Serif, serif', letterSpacing: '0.025em' }}>{currentProject.name}</h1>
+                    <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate" style={{ fontFamily: 'Instrument Serif, serif', letterSpacing: '0.025em' }} suppressHydrationWarning>{currentProject.name}</h1>
                   ) : (
-                    <h1 className="text-base sm:text-lg text-gray-500" style={{ fontFamily: 'Instrument Serif, serif', letterSpacing: '0.025em' }}>New Project</h1>
+                    <h1 className="text-base sm:text-lg text-gray-500" style={{ fontFamily: 'Instrument Serif, serif', letterSpacing: '0.025em' }} suppressHydrationWarning>New Project</h1>
                   )}
                 </>
               )}

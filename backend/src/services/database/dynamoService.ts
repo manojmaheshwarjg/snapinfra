@@ -20,9 +20,9 @@ import { v4 as uuidv4 } from 'uuid';
 export class DynamoService {
   
   // User operations
-  static async createUser(userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> {
+  static async createUser(userData: Omit<User, 'createdAt' | 'updatedAt'> & { id?: string }): Promise<User> {
     const user: User = {
-      id: uuidv4(),
+      id: userData.id || uuidv4(),
       ...userData,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -48,33 +48,33 @@ export class DynamoService {
     return result.Item as User || null;
   }
 
-  static async getUserByCognitoId(cognitoId: string): Promise<User | null> {
-    const command = new ScanCommand({
-      TableName: TABLES.USERS,
-      FilterExpression: 'cognitoId = :cognitoId',
-      ExpressionAttributeValues: {
-        ':cognitoId': cognitoId
-      },
-      Limit: 1
-    });
-
-    const result = await docClient.send(command);
-    return result.Items?.[0] as User || null;
-  }
-
   static async updateUser(userId: string, updates: Partial<User>): Promise<User> {
     let updateExpression = 'SET updatedAt = :updatedAt';
     const expressionAttributeValues: Record<string, any> = {
       ':updatedAt': new Date().toISOString()
     };
+    const expressionAttributeNames: Record<string, string> = {};
 
     // Build dynamic update expression
     const updateFields = Object.keys(updates).filter(key => 
       key !== 'id' && key !== 'createdAt' && key !== 'updatedAt'
     );
 
+    // Common DynamoDB reserved keywords that need aliasing
+    const reservedKeywords = [
+      'name', 'status', 'data', 'timestamp', 'value', 'type', 'schema',
+      'description', 'size', 'date', 'time', 'year', 'month', 'day',
+      'percent', 'order', 'count', 'index', 'table', 'format'
+    ];
+
     updateFields.forEach(field => {
-      updateExpression += `, ${field} = :${field}`;
+      if (reservedKeywords.includes(field.toLowerCase())) {
+        const alias = `#${field}`;
+        updateExpression += `, ${alias} = :${field}`;
+        expressionAttributeNames[alias] = field;
+      } else {
+        updateExpression += `, ${field} = :${field}`;
+      }
       expressionAttributeValues[`:${field}`] = updates[field as keyof User];
     });
 
@@ -83,6 +83,7 @@ export class DynamoService {
       Key: { id: userId },
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: expressionAttributeValues,
+      ...(Object.keys(expressionAttributeNames).length > 0 && { ExpressionAttributeNames: expressionAttributeNames }),
       ReturnValues: 'ALL_NEW'
     });
 
@@ -152,13 +153,28 @@ export class DynamoService {
     const expressionAttributeValues: Record<string, any> = {
       ':updatedAt': new Date().toISOString()
     };
+    const expressionAttributeNames: Record<string, string> = {};
 
     const updateFields = Object.keys(updates).filter(key => 
       key !== 'id' && key !== 'userId' && key !== 'createdAt' && key !== 'updatedAt'
     );
 
+    // Common DynamoDB reserved keywords that need aliasing
+    const reservedKeywords = [
+      'name', 'status', 'data', 'timestamp', 'value', 'type', 'schema',
+      'description', 'size', 'date', 'time', 'year', 'month', 'day',
+      'percent', 'order', 'count', 'index', 'table', 'format'
+    ];
+
     updateFields.forEach(field => {
-      updateExpression += `, ${field} = :${field}`;
+      if (reservedKeywords.includes(field.toLowerCase())) {
+        // Use attribute name alias for reserved keywords
+        const alias = `#${field}`;
+        updateExpression += `, ${alias} = :${field}`;
+        expressionAttributeNames[alias] = field;
+      } else {
+        updateExpression += `, ${field} = :${field}`;
+      }
       expressionAttributeValues[`:${field}`] = updates[field as keyof Project];
     });
 
@@ -170,6 +186,7 @@ export class DynamoService {
       },
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: expressionAttributeValues,
+      ...(Object.keys(expressionAttributeNames).length > 0 && { ExpressionAttributeNames: expressionAttributeNames }),
       ReturnValues: 'ALL_NEW'
     });
 
@@ -246,13 +263,27 @@ export class DynamoService {
     const expressionAttributeValues: Record<string, any> = {
       ':updatedAt': new Date().toISOString()
     };
+    const expressionAttributeNames: Record<string, string> = {};
 
     const updateFields = Object.keys(updates).filter(key => 
       key !== 'id' && key !== 'projectId' && key !== 'createdAt' && key !== 'updatedAt'
     );
 
+    // Common DynamoDB reserved keywords that need aliasing
+    const reservedKeywords = [
+      'name', 'status', 'data', 'timestamp', 'value', 'type', 'schema',
+      'description', 'size', 'date', 'time', 'year', 'month', 'day',
+      'percent', 'order', 'count', 'index', 'table', 'format'
+    ];
+
     updateFields.forEach(field => {
-      updateExpression += `, ${field} = :${field}`;
+      if (reservedKeywords.includes(field.toLowerCase())) {
+        const alias = `#${field}`;
+        updateExpression += `, ${alias} = :${field}`;
+        expressionAttributeNames[alias] = field;
+      } else {
+        updateExpression += `, ${field} = :${field}`;
+      }
       expressionAttributeValues[`:${field}`] = updates[field as keyof DatabaseSchema];
     });
 
@@ -264,6 +295,7 @@ export class DynamoService {
       },
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: expressionAttributeValues,
+      ...(Object.keys(expressionAttributeNames).length > 0 && { ExpressionAttributeNames: expressionAttributeNames }),
       ReturnValues: 'ALL_NEW'
     });
 

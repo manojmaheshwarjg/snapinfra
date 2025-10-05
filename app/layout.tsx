@@ -1,20 +1,22 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { GeistSans } from 'geist/font/sans'
+import Link from "next/link"
+import { Inter, Instrument_Serif } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { AppProvider } from "@/lib/app-context"
+import { Button } from "@/components/ui/button"
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
 } from "@clerk/nextjs"
+import { Code2 } from "lucide-react"
 import "./globals.css"
 
-const geist = GeistSans
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const instrumentSerif = Instrument_Serif({ subsets: ['latin'], weight: ['400'], variable: '--font-instrument-serif' })
 
 export const metadata: Metadata = {
   title: "Rhinoback - AI Backend Builder",
@@ -34,16 +36,7 @@ export default function RootLayout({
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         </head>
-        <body className={`font-sans ${geist.variable} antialiased tracking-tight`}>
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
+        <body className={`font-sans ${inter.variable} ${instrumentSerif.variable} antialiased tracking-tight`}>
           <AppProvider>
             <Suspense fallback={null}>
               {children}

@@ -13,6 +13,7 @@ import { Sparkles, Database, Rocket, Network, Settings, Menu, X } from "lucide-r
 import { GridPattern } from "@/components/ui/shadcn-io/grid-pattern"
 import { useAppContext } from "@/lib/app-context"
 import type { Project, TableSchema, ChatMessage } from "@/lib/app-context"
+import { createProject as createProjectAPI, isBackendAvailable } from "@/lib/api-client"
 
 interface GeneratedData {
   projectName?: string
@@ -138,6 +139,8 @@ export function OnboardingFlow() {
     }
 
     try {
+      console.log('🚀 Creating project with backend integration...')
+      
       // Convert generated schemas to TableSchema format
       const tables: TableSchema[] = data.schemas?.map((schema: any, index: number) => ({
         id: `table_${Date.now()}_${index}`,
@@ -227,29 +230,101 @@ export function OnboardingFlow() {
         return candidateName
       }
 
-      // Create the project
-      const project: Project = {
-        id: `project_${Date.now()}`,
-        name: makeUniqueProjectName(generateProjectName(data.description || '')),
-        description: data.description || 'Generated from onboarding',
-        status: 'draft',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        schema: tables,
-        endpoints: Array.isArray(data.endpoints) ? data.endpoints : [],
-        database: {
-          type: data.database?.toLowerCase() || 'postgresql',
-          reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
-          confidence: 0.9,
-          features: ['ACID compliance', 'Complex queries', 'Scalability']
-        },
-        architecture: (data as any)?.architecture,
-        decisions: (data as any)?.decisions,
-        selectedTools: (data as any)?.selectedTools,
-        analysis: (data as any)?.analysis
+      // Generate project name
+      const projectName = makeUniqueProjectName(generateProjectName(data.description || ''))
+      
+      // Check if backend is available
+      const backendAvailable = await isBackendAvailable()
+      console.log('Backend availability:', backendAvailable)
+      
+      let project: Project
+      
+      if (backendAvailable) {
+        // Create project in backend (AWS DynamoDB)
+        try {
+          console.log('📡 Calling backend API to create project...')
+          const backendProject = await createProjectAPI({
+            name: projectName,
+            description: data.description || 'Generated from onboarding',
+            schema: {
+              name: projectName,
+              tables: tables.map(t => ({
+                id: t.id,
+                name: t.name,
+                fields: t.fields,
+                indexes: t.indexes
+              }))
+            }
+          })
+          
+          // Use the project from backend with server-generated ID
+          project = {
+            ...backendProject,
+            schema: tables,
+            endpoints: Array.isArray(data.endpoints) ? data.endpoints : [],
+            database: {
+              type: data.database?.toLowerCase() || 'postgresql',
+              reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
+              confidence: 0.9,
+              features: ['ACID compliance', 'Complex queries', 'Scalability']
+            },
+            architecture: (data as any)?.architecture,
+            decisions: (data as any)?.decisions,
+            selectedTools: (data as any)?.selectedTools,
+            analysis: (data as any)?.analysis
+          }
+          
+          console.log('✅ Project created in backend:', project.id)
+        } catch (error) {
+          console.error('❌ Backend project creation failed, falling back to local:', error)
+          // Fallback to local creation if backend fails
+          project = {
+            id: `project_${Date.now()}`,
+            name: projectName,
+            description: data.description || 'Generated from onboarding',
+            status: 'draft',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            schema: tables,
+            endpoints: Array.isArray(data.endpoints) ? data.endpoints : [],
+            database: {
+              type: data.database?.toLowerCase() || 'postgresql',
+              reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
+              confidence: 0.9,
+              features: ['ACID compliance', 'Complex queries', 'Scalability']
+            },
+            architecture: (data as any)?.architecture,
+            decisions: (data as any)?.decisions,
+            selectedTools: (data as any)?.selectedTools,
+            analysis: (data as any)?.analysis
+          }
+        }
+      } else {
+        // Backend not available - create project locally only
+        console.log('⚠️ Backend not available, creating project locally only')
+        project = {
+          id: `project_${Date.now()}`,
+          name: projectName,
+          description: data.description || 'Generated from onboarding',
+          status: 'draft',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          schema: tables,
+          endpoints: Array.isArray(data.endpoints) ? data.endpoints : [],
+          database: {
+            type: data.database?.toLowerCase() || 'postgresql',
+            reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
+            confidence: 0.9,
+            features: ['ACID compliance', 'Complex queries', 'Scalability']
+          },
+          architecture: (data as any)?.architecture,
+          decisions: (data as any)?.decisions,
+          selectedTools: (data as any)?.selectedTools,
+          analysis: (data as any)?.analysis
+        }
       }
 
-      // Add project to state
+      // Add project to state (this will also save to localStorage via app-context)
       dispatch({ type: 'ADD_PROJECT', payload: project })
 
       // Fire-and-forget: generate backend code and IaC by default; update project when ready

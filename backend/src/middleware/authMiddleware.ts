@@ -1,19 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { clerkClient, verifyToken } from '@clerk/clerk-sdk-node';
 import { DynamoService } from '@/services/database/dynamoService';
 import { User, AuthenticatedRequest } from '@/types';
 import { createError } from './errorHandler';
 
-interface JWTPayload {
-  sub: string; // Cognito user ID
+interface ClerkPayload {
+  sub: string; // Clerk user ID
   email?: string;
   username?: string;
-  'cognito:username'?: string;
-  exp: number;
-  iat: number;
+  firstName?: string;
+  lastName?: string;
 }
 
-// JWT Authentication Middleware
+// Clerk Authentication Middleware
 export const authenticateToken = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -27,23 +26,31 @@ export const authenticateToken = async (
       throw createError('Access token required', 401);
     }
 
-    // Verify JWT token
-    let decoded: JWTPayload;
+    // Verify Clerk token
+    let clerkUserId: string;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+      const payload = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!
+      });
+      clerkUserId = payload.sub;
     } catch (error) {
       throw createError('Invalid or expired token', 401);
     }
 
-    // Get user from database
-    let user = await DynamoService.getUserByCognitoId(decoded.sub);
+    // Get Clerk user details
+    const clerkUser = await clerkClient.users.getUser(clerkUserId);
 
-    // If user doesn't exist, create from JWT payload
+    // Get or create user in our database
+    let user = await DynamoService.getUserById(clerkUserId);
+
+    // If user doesn't exist, create from Clerk data
     if (!user) {
       user = await DynamoService.createUser({
-        email: decoded.email || decoded.username || 'unknown@example.com',
-        username: decoded['cognito:username'] || decoded.username || 'unknown',
-        cognitoId: decoded.sub
+        id: clerkUserId,
+        email: clerkUser.emailAddresses[0]?.emailAddress || 'unknown@example.com',
+        username: clerkUser.username || clerkUser.firstName || 'user',
+        firstName: clerkUser.firstName || undefined,
+        lastName: clerkUser.lastName || undefined
       });
     }
 
@@ -67,14 +74,20 @@ export const optionalAuth = async (
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
-        let user = await DynamoService.getUserByCognitoId(decoded.sub);
-
+        const payload = await verifyToken(token, {
+          secretKey: process.env.CLERK_SECRET_KEY!
+        });
+        const clerkUserId = payload.sub;
+        const clerkUser = await clerkClient.users.getUser(clerkUserId);
+        
+        let user = await DynamoService.getUserById(clerkUserId);
         if (!user) {
           user = await DynamoService.createUser({
-            email: decoded.email || decoded.username || 'unknown@example.com',
-            username: decoded['cognito:username'] || decoded.username || 'unknown',
-            cognitoId: decoded.sub
+            id: clerkUserId,
+            email: clerkUser.emailAddresses[0]?.emailAddress || 'unknown@example.com',
+            username: clerkUser.username || clerkUser.firstName || 'user',
+            firstName: clerkUser.firstName || undefined,
+            lastName: clerkUser.lastName || undefined
           });
         }
 
@@ -91,7 +104,7 @@ export const optionalAuth = async (
   }
 };
 
-// Development-only middleware for testing without Cognito
+// Development-only middleware for testing
 export const devAuth = (
   req: AuthenticatedRequest,
   res: Response,
@@ -102,12 +115,14 @@ export const devAuth = (
     throw createError('Development auth not allowed in production', 403);
   }
 
+  // Read user ID from header (for frontend integration) or use default
+  const userId = (req.headers['x-dev-user-id'] as string) || 'dev-user-123';
+
   // Create a mock user for development
   req.user = {
-    id: 'dev-user-123',
+    id: userId,
     email: 'dev@example.com',
     username: 'developer',
-    cognitoId: 'dev-cognito-123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -115,45 +130,6 @@ export const devAuth = (
   next();
 };
 
-// Cognito ID Token verification (for direct Cognito tokens)
-export const verifyCognitoToken = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-      throw createError('Access token required', 401);
-    }
-
-    // This would normally verify against Cognito's public keys
-    // For now, we'll use a simple JWT verification
-    // In production, you'd use AWS Cognito JWT verification
-    
-    const decoded = jwt.decode(token) as JWTPayload;
-    if (!decoded || !decoded.sub) {
-      throw createError('Invalid token format', 401);
-    }
-
-    // Get or create user
-    let user = await DynamoService.getUserByCognitoId(decoded.sub);
-    if (!user) {
-      user = await DynamoService.createUser({
-        email: decoded.email || 'unknown@example.com',
-        username: decoded['cognito:username'] || 'unknown',
-        cognitoId: decoded.sub
-      });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
 
 // Helper function to get current user ID (works with different auth methods)
 export const getCurrentUserId = (req: AuthenticatedRequest): string => {
@@ -162,9 +138,10 @@ export const getCurrentUserId = (req: AuthenticatedRequest): string => {
     return req.user.id;
   }
 
-  // Development fallback
+  // Development fallback - check header first
   if (process.env.NODE_ENV === 'development') {
-    return 'dev-user-123';
+    const headerUserId = req.headers['x-dev-user-id'] as string;
+    return headerUserId || 'dev-user-123';
   }
 
   throw createError('User not authenticated', 401);

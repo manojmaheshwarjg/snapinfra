@@ -1,7 +1,5 @@
 import Groq from 'groq-sdk';
 import OpenAI from 'openai';
-import { InvokeModelCommand, InvokeModelWithResponseStreamCommand } from '@aws-sdk/client-bedrock-runtime';
-import { bedrockClient, BEDROCK_CONFIG } from '@/utils/awsConfig';
 import { AIRequest, AIResponse, AIStreamChunk, AIGenerationOptions } from '@/types';
 
 // Initialize AI clients
@@ -31,9 +29,7 @@ export class AIService {
 
     try {
       // Route to appropriate service based on model or availability
-      if (finalOptions.model?.startsWith('claude') || finalOptions.model === 'bedrock') {
-        return await this.generateWithBedrock(prompt, systemMessage, finalOptions);
-      } else if (finalOptions.model?.startsWith('gpt') || finalOptions.model === 'openai') {
+      if (finalOptions.model?.startsWith('gpt') || finalOptions.model === 'openai') {
         return await this.generateWithOpenAI(prompt, systemMessage, finalOptions);
       } else if (finalOptions.model?.includes('groq') || finalOptions.model === 'groq') {
         return await this.generateWithGroq(prompt, systemMessage, finalOptions);
@@ -44,7 +40,7 @@ export class AIService {
         } else if (openaiClient) {
           return await this.generateWithOpenAI(prompt, systemMessage, finalOptions);
         } else {
-          return await this.generateWithBedrock(prompt, systemMessage, finalOptions);
+          throw new Error('No AI service available. Please configure GROQ_API_KEY or OPENAI_API_KEY.');
         }
       }
     } catch (error) {
@@ -59,16 +55,14 @@ export class AIService {
     
     try {
       // Route to streaming service
-      if (options.model?.startsWith('claude') || options.model === 'bedrock') {
-        yield* this.generateStreamWithBedrock(prompt, systemMessage, options);
-      } else if (options.model?.startsWith('gpt') || options.model === 'openai') {
+      if (options.model?.startsWith('gpt') || options.model === 'openai') {
         yield* this.generateStreamWithOpenAI(prompt, systemMessage, options);
       } else if (groqClient) {
         yield* this.generateStreamWithGroq(prompt, systemMessage, options);
       } else if (openaiClient) {
         yield* this.generateStreamWithOpenAI(prompt, systemMessage, options);
       } else {
-        yield* this.generateStreamWithBedrock(prompt, systemMessage, options);
+        throw new Error('No AI service available. Please configure GROQ_API_KEY or OPENAI_API_KEY.');
       }
     } catch (error) {
       yield {
@@ -227,113 +221,6 @@ export class AIService {
     }
   }
 
-  // AWS Bedrock implementation
-  private static async generateWithBedrock(
-    prompt: string,
-    systemMessage?: string,
-    options?: AIGenerationOptions
-  ): Promise<AIResponse> {
-    const messages = [];
-    if (systemMessage) {
-      messages.push({
-        role: 'user',
-        content: `System: ${systemMessage}\n\nUser: ${prompt}`
-      });
-    } else {
-      messages.push({
-        role: 'user',
-        content: prompt
-      });
-    }
-
-    const body = {
-      anthropic_version: 'bedrock-2023-05-31',
-      max_tokens: options?.maxTokens ?? 2048,
-      temperature: options?.temperature ?? 0.7,
-      top_p: options?.topP ?? 1,
-      messages
-    };
-
-    const command = new InvokeModelCommand({
-      modelId: BEDROCK_CONFIG.MODEL_ID,
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify(body)
-    });
-
-    const response = await bedrockClient.send(command);
-    const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-
-    return {
-      content: responseBody.content[0]?.text || '',
-      model: BEDROCK_CONFIG.MODEL_ID,
-      usage: responseBody.usage ? {
-        promptTokens: responseBody.usage.input_tokens,
-        completionTokens: responseBody.usage.output_tokens,
-        totalTokens: responseBody.usage.input_tokens + responseBody.usage.output_tokens
-      } : undefined,
-      finishReason: responseBody.stop_reason
-    };
-  }
-
-  // AWS Bedrock streaming
-  private static async* generateStreamWithBedrock(
-    prompt: string,
-    systemMessage?: string,
-    options?: AIGenerationOptions
-  ): AsyncGenerator<AIStreamChunk> {
-    const messages = [];
-    if (systemMessage) {
-      messages.push({
-        role: 'user',
-        content: `System: ${systemMessage}\n\nUser: ${prompt}`
-      });
-    } else {
-      messages.push({
-        role: 'user',
-        content: prompt
-      });
-    }
-
-    const body = {
-      anthropic_version: 'bedrock-2023-05-31',
-      max_tokens: options?.maxTokens ?? 2048,
-      temperature: options?.temperature ?? 0.7,
-      top_p: options?.topP ?? 1,
-      messages
-    };
-
-    const command = new InvokeModelWithResponseStreamCommand({
-      modelId: BEDROCK_CONFIG.MODEL_ID,
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify(body)
-    });
-
-    const response = await bedrockClient.send(command);
-
-    if (response.body) {
-      for await (const event of response.body) {
-        if (event.chunk?.bytes) {
-          const chunk = JSON.parse(new TextDecoder().decode(event.chunk.bytes));
-          
-          if (chunk.type === 'content_block_delta') {
-            yield {
-              content: chunk.delta?.text || '',
-              isComplete: false
-            };
-          } else if (chunk.type === 'message_stop') {
-            yield {
-              content: '',
-              isComplete: true
-            };
-            break;
-          }
-        }
-      }
-    }
-  }
-
   // Specialized methods for different use cases
   static async generateCode(
     description: string,
@@ -414,13 +301,11 @@ Please provide:
   static async healthCheck(): Promise<{
     groq: boolean;
     openai: boolean;
-    bedrock: boolean;
     available: string[];
   }> {
     const health = {
       groq: false,
       openai: false,
-      bedrock: false,
       available: [] as string[]
     };
 
@@ -452,25 +337,6 @@ Please provide:
       }
     } catch (error) {
       // OpenAI not available
-    }
-
-    // Test Bedrock
-    try {
-      const command = new InvokeModelCommand({
-        modelId: BEDROCK_CONFIG.MODEL_ID,
-        contentType: 'application/json',
-        accept: 'application/json',
-        body: JSON.stringify({
-          anthropic_version: 'bedrock-2023-05-31',
-          max_tokens: 1,
-          messages: [{ role: 'user', content: 'test' }]
-        })
-      });
-      await bedrockClient.send(command);
-      health.bedrock = true;
-      health.available.push('bedrock');
-    } catch (error) {
-      // Bedrock not available
     }
 
     return health;

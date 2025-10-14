@@ -232,7 +232,7 @@ export function RelationshipDiagram({ tables, onTableClick, onRelationshipClick 
           textAnchor="middle"
           className="cursor-pointer pointer-events-none select-none"
         >
-          {line.fromField} → {line.toField}
+          {line.fromField} Ã¢â€ â€™ {line.toField}
         </text>
       </g>
     )
@@ -453,7 +453,7 @@ export function RelationshipDiagram({ tables, onTableClick, onRelationshipClick 
       {/* Instructions */}
       <div className="px-4 pb-4">
         <p className="text-xs text-muted-foreground text-center">
-          Drag to pan • Scroll to zoom • Click tables to select • Click relationships for details
+          Drag to pan Ã¢â‚¬Â¢ Scroll to zoom Ã¢â‚¬Â¢ Click tables to select Ã¢â‚¬Â¢ Click relationships for details
         </p>
       </div>
     </div>

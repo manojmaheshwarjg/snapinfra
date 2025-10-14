@@ -127,9 +127,9 @@ export async function generateIaC(project: Project, options: IaCOptions): Promis
     const preferred = options.model || AI_CONFIG.model
     const fallbacks = [
       preferred,
-      'meta-llama/llama-4-scout-17b-16e-instruct',
+      'llama-3.1-8b-instant',
       'llama-3.3-70b-versatile',
-      'mixtral-8x7b-32768'
+      'gemma2-9b-it'
     ]
 
     let text = ''

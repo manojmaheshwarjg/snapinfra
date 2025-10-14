@@ -89,7 +89,7 @@ const DATABASE_INFO: Record<DatabaseType, {
   mongodb: {
     name: "MongoDB",
     icon: <Leaf className="w-5 h-5" />,
-    color: "text-green-600 bg-green-50 border-green-200",
+    color: "text-blue-600 bg-blue-50 border-blue-200",
     description: "NoSQL document database",
     defaultPort: 27017,
     useCases: ["Flexible schemas", "JSON documents", "Content management"],
@@ -356,7 +356,7 @@ export function DatabaseConfigPanel({ databaseConfig, onDatabaseChange }: Databa
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="flex items-center gap-2">
                       {connectionStatus === 'success' && (
-                        <div className="flex items-center gap-1 text-green-700">
+                        <div className="flex items-center gap-1 text-blue-700">
                           <CheckCircle className="w-4 h-4" />
                           <span className="text-sm">Connection successful</span>
                         </div>

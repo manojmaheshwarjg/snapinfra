@@ -313,7 +313,7 @@ export function DeploymentModal({ children }: DeploymentModalProps) {
                           onClick={() => removeEnvVariable(key)}
                           className="text-red-600 hover:text-red-700"
                         >
-                          ×
+                          Ã—
                         </Button>
                       </div>
                     ))}
@@ -341,7 +341,7 @@ export function DeploymentModal({ children }: DeploymentModalProps) {
                 <Terminal className="w-4 h-4" />
                 <h4 className="font-semibold text-sm">Deployment Logs</h4>
               </div>
-              <ScrollArea className="h-64 w-full border rounded-md bg-black text-green-400">
+              <ScrollArea className="h-64 w-full border rounded-md bg-black text-blue-400">
                 <div className="p-4 font-mono text-xs">
                   {currentLog.map((log, index) => (
                     <div key={index} className="mb-1">
@@ -362,16 +362,16 @@ export function DeploymentModal({ children }: DeploymentModalProps) {
             {deploymentResult && (
               <div className="space-y-4">
                 {deploymentResult.success ? (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
-                      <h4 className="font-semibold text-green-900">Deployment Successful!</h4>
+                      <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-blue-900">Deployment Successful!</h4>
                     </div>
-                    <p className="text-sm text-green-800 mb-3">
+                    <p className="text-sm text-blue-800 mb-3">
                       Your backend is now live and accessible at:
                     </p>
-                    <div className="flex items-center gap-2 p-2 bg-white border border-green-300 rounded-md">
-                      <Globe className="w-4 h-4 text-green-600" />
+                    <div className="flex items-center gap-2 p-2 bg-white border border-blue-300 rounded-md">
+                      <Globe className="w-4 h-4 text-blue-600" />
                       <span className="flex-1 font-mono text-sm">{deploymentResult.deploymentUrl}</span>
                       <Button
                         variant="ghost"

@@ -59,7 +59,7 @@ const DATABASE_INFO: Record<DatabaseType, {
   mongodb: {
     name: "MongoDB", 
     icon: <Leaf className="w-5 h-5" />,
-    color: "text-green-600 bg-green-100 border-green-200",
+    color: "text-blue-600 bg-blue-100 border-blue-200",
     description: "NoSQL document database",
     useCases: ["Flexible schemas", "JSON documents", "Content management"]
   },
@@ -127,7 +127,7 @@ export function DatabaseSelection({ databaseConfig, onDatabaseChange }: Database
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">{currentDb.name}</span>
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
                   <Zap className="w-3 h-3 mr-1" />
                   AI Selected
                 </Badge>

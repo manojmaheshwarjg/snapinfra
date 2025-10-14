@@ -77,7 +77,7 @@ export function NavProjects({
                     <Badge
                       variant="secondary"
                       className={`text-xs px-1.5 py-0.5 shrink-0 ${
-                        item.status === 'deployed' ? 'bg-green-100 text-green-700' :
+                        item.status === 'deployed' ? 'bg-blue-100 text-blue-700' :
                         item.status === 'building' ? 'bg-orange-100 text-orange-700' :
                         item.status === 'error' ? 'bg-red-100 text-red-700' :
                         'bg-gray-100 text-gray-700'
@@ -111,7 +111,7 @@ export function NavProjects({
                     )}
                     {typeof item.endpoints === "number" && (
                       <div className="flex items-center gap-1">
-                        <span>•</span>
+                        <span>â€¢</span>
                         <span>{item.endpoints} endpoints</span>
                       </div>
                     )}

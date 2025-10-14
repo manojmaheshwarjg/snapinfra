@@ -25,7 +25,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
   const getMethodColor = (method: string) => {
     const colors: Record<string, string> = {
       GET: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      POST: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      POST: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
       PUT: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
       DELETE: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
       PATCH: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
@@ -47,7 +47,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
       Search: Search,
     }
     const Icon = icons[groupName] || Globe
-    return <Icon className="h-4 w-4 text-[#107a4d]" />
+    return <Icon className="h-4 w-4 text-[#005BE3]" />
   }
 
   const totalEndpoints = data.endpoints.reduce((acc: number, group: any) => acc + group.endpoints.length, 0)
@@ -181,7 +181,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
     <div className="w-full max-w-7xl mx-auto py-6 px-6 space-y-12">
       {/* Header */}
       <div className="text-center space-y-4 max-w-[900px] mx-auto mb-2">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#107a4d]/10 text-[#107a4d] text-xs font-medium mb-2">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#005BE3]/10 text-[#005BE3] text-xs font-medium mb-2">
           <Code className="w-3 h-3" />
           API Explorer
         </div>
@@ -190,17 +190,17 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
         </h1>
         <div className="flex items-center justify-center gap-6 text-sm text-[#605A57]">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse"></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse"></div>
             <span>{totalEndpoints} endpoints</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse" style={{ animationDelay: '150ms' }}></div>
             <span>{data.endpoints.length} API groups</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse" style={{ animationDelay: '300ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse" style={{ animationDelay: '300ms' }}></div>
             <span>REST API</span>
           </div>
         </div>
@@ -208,24 +208,24 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Stats - Clean Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-[900px] mx-auto">
-        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#107a4d]/30 hover:shadow-lg">
+        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-lg">
           <div className="text-2xl font-bold text-[#1d1d1f]">{totalEndpoints}</div>
           <div className="text-xs text-[#605A57] mt-2">Total Endpoints</div>
         </div>
-        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#107a4d]/30 hover:shadow-lg">
+        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-lg">
           <div className="text-2xl font-bold text-[#1d1d1f]">{data.endpoints.length}</div>
           <div className="text-xs text-[#605A57] mt-2">API Groups</div>
         </div>
-        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#107a4d]/30 hover:shadow-lg">
+        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-lg">
           <div className="text-2xl font-bold text-[#1d1d1f]">REST</div>
           <div className="text-xs text-[#605A57] mt-2">API Standard</div>
         </div>
-        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#107a4d]/30 hover:shadow-lg">
+        <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-lg">
           <div className="text-2xl font-bold text-[#1d1d1f]">JSON</div>
           <div className="text-xs text-[#605A57] mt-2">Response Format</div>
         </div>
@@ -233,7 +233,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Section Header */}
@@ -262,22 +262,22 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
           
           <div className="space-y-3 max-h-[650px] overflow-y-auto pr-2">
             {filteredEndpoints.map((group: any, groupIndex: number) => (
-              <div key={groupIndex} className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl overflow-hidden transition-all duration-300 hover:border-[#107a4d]/30 hover:shadow-md">
+              <div key={groupIndex} className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl overflow-hidden transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-md">
                 <button 
-                  className="w-full p-4 cursor-pointer hover:bg-[#107a4d]/5 transition-colors flex items-center justify-between text-left"
+                  className="w-full p-4 cursor-pointer hover:bg-[#005BE3]/5 transition-colors flex items-center justify-between text-left"
                   onClick={() => toggleGroup(group.group)}
                 >
                   <div className="flex items-center gap-3">
                     {expandedGroups.has(group.group) ? 
-                      <ChevronDown className="h-4 w-4 text-[#107a4d]" /> : 
+                      <ChevronDown className="h-4 w-4 text-[#005BE3]" /> : 
                       <ChevronRight className="h-4 w-4 text-[#605A57]" />
                     }
-                    <div className="p-1.5 rounded-lg bg-[#107a4d]/10">
+                    <div className="p-1.5 rounded-lg bg-[#005BE3]/10">
                       {getGroupIcon(group.group)}
                     </div>
                     <span className="font-semibold text-sm text-[#1d1d1f]">{group.group}</span>
                   </div>
-                  <div className="px-2 py-1 rounded-full bg-[#107a4d]/10 text-[#107a4d] text-xs font-medium">
+                  <div className="px-2 py-1 rounded-full bg-[#005BE3]/10 text-[#005BE3] text-xs font-medium">
                     {group.endpoints.length}
                   </div>
                 </button>
@@ -289,8 +289,8 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                         key={endpointIndex}
                         className={`w-full p-4 cursor-pointer border-b border-[rgba(55,50,47,0.04)] last:border-b-0 transition-all duration-200 text-left ${
                           selectedEndpoint?.path === endpoint.path && selectedEndpoint?.method === endpoint.method
-                            ? 'bg-gradient-to-r from-[#e8f5f0] to-[#d4ede4] border-l-4 border-l-[#107a4d]'
-                            : 'hover:bg-[#107a4d]/5'
+                            ? 'bg-gradient-to-r from-[#e8f4ff] to-[#d4e9ff] border-l-4 border-l-[#005BE3]'
+                            : 'hover:bg-[#005BE3]/5'
                         }`}
                         onClick={() => selectEndpoint(group, endpoint)}
                       >
@@ -335,14 +335,14 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                   
                   {/* Quick Info Pills */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className="px-3 py-1 rounded-full bg-[#107a4d]/10 text-[#107a4d] text-xs font-medium">
-                      ⚡ Auto-generated
+                    <div className="px-3 py-1 rounded-full bg-[#005BE3]/10 text-[#005BE3] text-xs font-medium">
+                      ÃƒÂ¢Ã…Â¡Ã‚Â¡ Auto-generated
                     </div>
                     <div className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
-                      🔒 Authenticated
+                      ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢ Authenticated
                     </div>
                     <div className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-medium">
-                      📊 JSON Response
+                      ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  JSON Response
                     </div>
                   </div>
                 </div>
@@ -350,21 +350,21 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                 {/* Request Configuration */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-5 bg-[#107a4d] rounded-full"></div>
+                    <div className="w-1 h-5 bg-[#005BE3] rounded-full"></div>
                     <h3 className="text-base font-semibold text-[#1d1d1f]">Test Configuration</h3>
                   </div>
                   
                   {/* URL Parameters */}
                   {selectedEndpoint.params && (
-                    <div className="space-y-3 p-4 bg-[#107a4d]/5 rounded-lg border border-[#107a4d]/10">
+                    <div className="space-y-3 p-4 bg-[#005BE3]/5 rounded-lg border border-[#005BE3]/10">
                       <h4 className="text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#107a4d]"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#005BE3]"></div>
                         URL Parameters
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {Object.entries(selectedEndpoint.params).map(([key, type]) => (
                           <div key={key} className="space-y-1.5">
-                            <label className="text-xs font-medium text-[#605A57]">{key} <span className="text-[#107a4d]">*</span></label>
+                            <label className="text-xs font-medium text-[#605A57]">{key} <span className="text-[#005BE3]">*</span></label>
                             <Input 
                               placeholder={`Enter ${type as string}`}
                               onChange={(e) => setTestData({...testData, [key]: e.target.value})}
@@ -417,7 +417,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                     <Button 
                       onClick={simulateApiCall} 
                       disabled={loading}
-                      className="w-full bg-gradient-to-r from-[#107a4d] to-[#0d6340] hover:from-[#0d6340] hover:to-[#107a4d] transition-all duration-300"
+                      className="w-full bg-gradient-to-r from-[#005BE3] to-[#004BC9] hover:from-[#004BC9] hover:to-[#005BE3] transition-all duration-300"
                       size="lg"
                     >
                       {loading ? (
@@ -439,14 +439,14 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                 {response && (
                   <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
                     <div className="flex items-center gap-2">
-                      <div className="w-1 h-5 bg-green-600 rounded-full"></div>
+                      <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
                       <h3 className="text-base font-semibold text-[#1d1d1f]">Response</h3>
                     </div>
                     
                     {/* Response Header */}
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg border border-green-200">
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-50 rounded-t-lg border border-blue-200">
                       <div className="flex items-center gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        <CheckCircle2 className="w-5 h-5 text-blue-600" />
                         <div>
                           <p className="text-sm font-semibold text-[#1d1d1f]">Request Successful</p>
                           <p className="text-xs text-[#605A57]">Response time: ~1.2s</p>
@@ -464,7 +464,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                         >
                           {copied ? (
                             <>
-                              <Check className="h-3 w-3 mr-1 text-green-600" />
+                              <Check className="h-3 w-3 mr-1 text-blue-600" />
                               Copied
                             </>
                           ) : (
@@ -479,7 +479,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                     
                     {/* Response Body */}
                     <div className="relative">
-                      <pre className="bg-[#1e1e1e] text-[#d4d4d4] p-5 rounded-b-lg overflow-auto text-xs font-mono border border-t-0 border-green-200 max-h-[400px]">
+                      <pre className="bg-[#1e1e1e] text-[#d4d4d4] p-5 rounded-b-lg overflow-auto text-xs font-mono border border-t-0 border-blue-200 max-h-[400px]">
                         <code>{JSON.stringify(response, null, 2)}</code>
                       </pre>
                       <div className="absolute top-3 right-3">
@@ -493,13 +493,13 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
               </div>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-[#f8fffe] to-[#f0f9f6] border-2 border-[#107a4d]/20 rounded-xl p-12 text-center h-full flex items-center justify-center">
+            <div className="bg-gradient-to-br from-[#f8fffe] to-[#f0f9f6] border-2 border-[#005BE3]/20 rounded-xl p-12 text-center h-full flex items-center justify-center">
               <div className="space-y-6 max-w-2xl">
                 <div className="relative">
-                  <div className="p-4 bg-gradient-to-br from-[#107a4d] to-[#0d6340] rounded-full w-20 h-20 mx-auto flex items-center justify-center shadow-lg">
+                  <div className="p-4 bg-gradient-to-br from-[#005BE3] to-[#004BC9] rounded-full w-20 h-20 mx-auto flex items-center justify-center shadow-lg">
                     <Code className="h-10 w-10 text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center animate-pulse">
                     <Zap className="h-3 w-3 text-white" />
                   </div>
                 </div>
@@ -510,37 +510,37 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm text-left mt-8">
-                  <div className="p-4 bg-white rounded-lg border border-[#107a4d]/10 space-y-2 hover:shadow-md transition-shadow">
+                  <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                        <span className="text-lg">✓</span>
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-lg">ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“</span>
                       </div>
-                      <h4 className="font-semibold text-green-700">CRUD Operations</h4>
+                      <h4 className="font-semibold text-blue-700">CRUD Operations</h4>
                     </div>
                     <p className="text-xs text-[#605A57] leading-relaxed">Complete Create, Read, Update, Delete for all tables</p>
                   </div>
-                  <div className="p-4 bg-white rounded-lg border border-[#107a4d]/10 space-y-2 hover:shadow-md transition-shadow">
+                  <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-lg">🔒</span>
+                        <span className="text-lg">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢</span>
                       </div>
                       <h4 className="font-semibold text-blue-700">Authentication</h4>
                     </div>
                     <p className="text-xs text-[#605A57] leading-relaxed">Login, register, logout, password reset</p>
                   </div>
-                  <div className="p-4 bg-white rounded-lg border border-[#107a4d]/10 space-y-2 hover:shadow-md transition-shadow">
+                  <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span className="text-lg">📁</span>
+                        <span className="text-lg">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â</span>
                       </div>
                       <h4 className="font-semibold text-purple-700">File Uploads</h4>
                     </div>
                     <p className="text-xs text-[#605A57] leading-relaxed">Avatar, post images, general media</p>
                   </div>
-                  <div className="p-4 bg-white rounded-lg border border-[#107a4d]/10 space-y-2 hover:shadow-md transition-shadow">
+                  <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                        <span className="text-lg">⚡</span>
+                        <span className="text-lg">ÃƒÂ¢Ã…Â¡Ã‚Â¡</span>
                       </div>
                       <h4 className="font-semibold text-orange-700">Business Logic</h4>
                     </div>
@@ -555,7 +555,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Navigation */}

@@ -503,7 +503,7 @@ What would you like to explore next?`,
             </Link>
             <div className="h-4 w-px bg-[rgba(55,50,47,0.2)]"></div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse"></div>
+              <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse"></div>
               <span className="text-sm text-[#37322F] font-medium">New Project</span>
             </div>
           </div>
@@ -515,9 +515,9 @@ What would you like to explore next?`,
                 key={step}
                 className={`transition-all duration-300 rounded-full ${
                   step < currentStep
-                    ? 'w-2 h-2 bg-[#107a4d]'
+                    ? 'w-2 h-2 bg-[#005BE3]'
                     : step === currentStep
-                      ? 'w-8 h-2 bg-[#107a4d]'
+                      ? 'w-8 h-2 bg-[#005BE3]'
                       : 'w-2 h-2 bg-[rgba(55,50,47,0.2)]'
                 }`}
               />

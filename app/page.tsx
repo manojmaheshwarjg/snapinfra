@@ -29,8 +29,8 @@ function StreamingCode() {
   const mountedRef = useRef(true)
 
   const codeLines = [
-    { num: 1, code: <><span className="text-purple-600">import</span> <span className="text-gray-700">&#123; validateToken, generateJWT &#125;</span> <span className="text-purple-600">from</span> <span className="text-green-600">'@/lib/auth'</span>;</> },
-    { num: 2, code: <><span className="text-purple-600">import</span> <span className="text-gray-700">&#123; TenantService &#125;</span> <span className="text-purple-600">from</span> <span className="text-green-600">'@/services'</span>;</> },
+    { num: 1, code: <><span className="text-purple-600">import</span> <span className="text-gray-700">&#123; validateToken, generateJWT &#125;</span> <span className="text-purple-600">from</span> <span className="text-blue-600">'@/lib/auth'</span>;</> },
+    { num: 2, code: <><span className="text-purple-600">import</span> <span className="text-gray-700">&#123; TenantService &#125;</span> <span className="text-purple-600">from</span> <span className="text-blue-600">'@/services'</span>;</> },
     { num: 3, code: <></> },
     { num: 4, code: <span className="text-gray-500">/** Multi-tenant authentication with RBAC */</span> },
     { num: 5, code: <><span className="text-purple-600">export</span> <span className="text-purple-600">class</span> <span className="text-blue-600 font-semibold">AuthService</span> &#123;</> },
@@ -94,7 +94,7 @@ function StreamingCode() {
                 <span>{line.code}</span>
               )}
               {isActive && currentChar < lineText.length && (
-                <span className="inline-block w-1.5 h-3.5 bg-[#107a4d] ml-0.5 animate-pulse"></span>
+                <span className="inline-block w-1.5 h-3.5 bg-[#005BE3] ml-0.5 animate-pulse"></span>
               )}
             </div>
           </div>
@@ -137,12 +137,12 @@ function InteractivePromptBox() {
   return (
     <div className="w-full relative">
       {/* Solid primary border */}
-      <div className="absolute inset-0 rounded-2xl p-[2px] bg-[#107a4d]">
+      <div className="absolute inset-0 rounded-2xl p-[2px] bg-[#005BE3]">
         <div className="w-full h-full rounded-2xl"></div>
       </div>
       
       {/* Background glow effect */}
-      <div className={`absolute -inset-2 bg-[#107a4d]/30 rounded-2xl blur-xl transition-opacity duration-300 ${
+      <div className={`absolute -inset-2 bg-[#005BE3]/30 rounded-2xl blur-xl transition-opacity duration-300 ${
         isFocused ? 'opacity-100' : 'opacity-40'
       }`}></div>
       
@@ -170,7 +170,7 @@ function InteractivePromptBox() {
             disabled={!prompt.trim()}
             className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 ${
               prompt.trim()
-                ? 'bg-[#107a4d] hover:bg-[#0d6340] shadow-[0_2px_8px_rgba(16,122,77,0.4)] cursor-pointer hover:shadow-[0_4px_12px_rgba(16,122,77,0.5)] hover:scale-105'
+                ? 'bg-[#005BE3] hover:bg-[#004BC9] shadow-[0_2px_8px_rgba(0,91,227,0.4)] cursor-pointer hover:shadow-[0_4px_12px_rgba(0,91,227,0.5)] hover:scale-105'
                 : 'bg-white/10 cursor-not-allowed'
             }`}
           >
@@ -229,16 +229,16 @@ function FeatureCard({
     <div
       className={`w-full md:flex-1 self-stretch px-6 py-6 rounded-2xl overflow-hidden flex flex-col justify-start items-start gap-4 cursor-pointer relative transition-all duration-500 group ${
         isActive
-          ? "bg-white shadow-[0_8px_30px_rgba(16,122,77,0.15),0_0_0_2px_rgba(16,122,77,0.2)] scale-[1.02] md:scale-105"
+          ? "bg-white shadow-[0_8px_30px_rgba(0,91,227,0.15),0_0_0_2px_rgba(0,91,227,0.2)] scale-[1.02] md:scale-105"
           : "bg-white/60 hover:bg-white hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:scale-[1.01]"
       }`}
       onClick={onClick}
     >
       {/* Progress bar */}
       {isActive && (
-        <div className="absolute top-0 left-0 w-full h-1 bg-[#107a4d]/10 rounded-t-lg overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-[#005BE3]/10 rounded-t-lg overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-[#107a4d] to-[#0d6340] transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(16,122,77,0.6)]"
+            className="h-full bg-gradient-to-r from-[#005BE3] to-[#004BC9] transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(0,91,227,0.6)]"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -247,15 +247,15 @@ function FeatureCard({
       {/* Icon */}
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
         isActive 
-          ? 'bg-[#107a4d] text-white shadow-[0_4px_12px_rgba(16,122,77,0.3)]' 
-          : 'bg-[#107a4d]/10 text-[#107a4d] group-hover:bg-[#107a4d]/20'
+          ? 'bg-[#005BE3] text-white shadow-[0_4px_12px_rgba(0,91,227,0.3)]' 
+          : 'bg-[#005BE3]/10 text-[#005BE3] group-hover:bg-[#005BE3]/20'
       }`}>
         {icon}
       </div>
 
       {/* Title */}
       <div className={`self-stretch text-base md:text-lg font-semibold leading-tight font-sans transition-colors duration-300 ${
-        isActive ? 'text-[#107a4d]' : 'text-[#37322F] group-hover:text-[#107a4d]'
+        isActive ? 'text-[#005BE3]' : 'text-[#37322F] group-hover:text-[#005BE3]'
       }`}>
         {title}
       </div>
@@ -267,8 +267,8 @@ function FeatureCard({
 
       {/* Active indicator */}
       {isActive && (
-        <div className="flex items-center gap-2 text-[#107a4d] text-xs font-medium mt-auto">
-          <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse"></div>
+        <div className="flex items-center gap-2 text-[#005BE3] text-xs font-medium mt-auto">
+          <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse"></div>
           <span>Active</span>
         </div>
       )}
@@ -316,7 +316,7 @@ export default function LandingPage() {
         className="z-0 absolute inset-0 size-full"
         squareSize={4}
         gridGap={6}
-        color="#107a4d"
+        color="#005BE3"
         maxOpacity={0.1}
         flickerChance={0.3}
       />
@@ -348,22 +348,22 @@ export default function LandingPage() {
                 {/* Right side - Nav Links and Auth Buttons */}
                 <div className="flex items-center gap-8">
                   <div className="hidden md:flex items-center gap-6">
-                    <a href="#pricing" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#107a4d] transition-colors cursor-pointer">
+                    <a href="#pricing" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#005BE3] transition-colors cursor-pointer">
                       Pricing
                     </a>
-                    <a href="#enterprise" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#107a4d] transition-colors cursor-pointer">
+                    <a href="#enterprise" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#005BE3] transition-colors cursor-pointer">
                       Enterprise
                     </a>
-                    <a href="#resources" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#107a4d] transition-colors cursor-pointer">
+                    <a href="#resources" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#005BE3] transition-colors cursor-pointer">
                       Resources
                     </a>
-                    <a href="#blog" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#107a4d] transition-colors cursor-pointer">
+                    <a href="#blog" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#005BE3] transition-colors cursor-pointer">
                       Blog
                     </a>
-                    <a href="#docs" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#107a4d] transition-colors cursor-pointer">
+                    <a href="#docs" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#005BE3] transition-colors cursor-pointer">
                       Docs
                     </a>
-                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#107a4d] transition-colors cursor-pointer flex items-center gap-1.5">
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-[#37322F] text-sm font-medium font-sans hover:text-[#005BE3] transition-colors cursor-pointer flex items-center gap-1.5">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"></path>
                       </svg>
@@ -378,7 +378,7 @@ export default function LandingPage() {
                       </button>
                     </Link>
                     <Link href="/sign-up">
-                      <button className="px-5 py-2 bg-[#107a4d] hover:bg-[#0d6340] text-white text-sm font-medium font-sans shadow-sm transition-all duration-200">
+                      <button className="px-5 py-2 bg-[#005BE3] hover:bg-[#004BC9] text-white text-sm font-medium font-sans shadow-sm transition-all duration-200">
                         Sign Up
                       </button>
                     </Link>
@@ -393,7 +393,7 @@ export default function LandingPage() {
                 <div className="self-stretch rounded-[3px] flex flex-col justify-center items-center gap-3 sm:gap-4 md:gap-5">
               <div className="w-full max-w-[700px] text-center flex justify-center flex-col text-[36px] xs:text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] font-normal leading-[1.15] sm:leading-[1.15] md:leading-[1.15] font-serif px-2 sm:px-4 md:px-0" style={{ letterSpacing: '-0.04em' }}>
                     <span className="text-[#1d1d1f]">Enterprise infrastructure in</span>
-                    <span className={`text-[#107a4d] font-normal italic ${instrumentSerif.className}`}>one prompt.</span>
+                    <span className={`text-[#005BE3] font-normal italic ${instrumentSerif.className}`}>one prompt.</span>
                   </div>
                   <div className="w-full max-w-[700px] text-center flex justify-center flex-col text-[rgba(55,50,47,0.80)] text-[15px] sm:text-[16px] leading-[1.6] font-sans px-2 sm:px-4 md:px-0 font-normal">
                     Multi-tenant architecture. Database schemas. API layers. Security built-in.
@@ -417,7 +417,7 @@ export default function LandingPage() {
                     <div className="flex items-center gap-2 mb-4 px-3">
                       <div className="w-3 h-3 rounded-full bg-[#ff5f56] shadow-sm"></div>
                       <div className="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-sm"></div>
-                      <div className="w-3 h-3 rounded-full bg-[#27c93f] shadow-sm"></div>
+                      <div className="w-3 h-3 rounded-full bg-[#005BE3] shadow-sm"></div>
                     </div>
                     
                     {/* Screen Content */}
@@ -432,8 +432,8 @@ export default function LandingPage() {
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
                                   <div className="relative flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-[#107a4d]/20 rounded-full animate-ping"></div>
-                                    <div className="relative w-2 h-2 bg-[#107a4d] rounded-full"></div>
+                                    <div className="absolute inset-0 bg-[#005BE3]/20 rounded-full animate-ping"></div>
+                                    <div className="relative w-2 h-2 bg-[#005BE3] rounded-full"></div>
                                   </div>
                                   <span className="text-[#1d1d1f] text-sm font-medium font-sans">AI generating your backend...</span>
                                 </div>
@@ -451,17 +451,17 @@ export default function LandingPage() {
                               <StreamingCode />
                               
                               {/* AI Generation Indicator */}
-                              <div className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-[#107a4d]/10 rounded-full border border-[#107a4d]/20">
-                                <svg className="w-3 h-3 text-[#107a4d] animate-spin" fill="none" viewBox="0 0 24 24">
+                              <div className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-[#005BE3]/10 rounded-full border border-[#005BE3]/20">
+                                <svg className="w-3 h-3 text-[#005BE3] animate-spin" fill="none" viewBox="0 0 24 24">
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                <span className="text-[#107a4d] text-[10px] font-medium font-sans">Generating...</span>
+                                <span className="text-[#005BE3] text-[10px] font-medium font-sans">Generating...</span>
                               </div>
                             </div>
                             
                             {/* Bottom Status Bar */}
-                            <div className="h-6 bg-[#107a4d] flex items-center justify-between px-4 text-[10px] text-white">
+                            <div className="h-6 bg-[#005BE3] flex items-center justify-between px-4 text-[10px] text-white">
                               <div className="flex items-center gap-4">
                                 <span className="font-mono">TypeScript</span>
                                 <span className="opacity-70">UTF-8</span>
@@ -482,7 +482,7 @@ export default function LandingPage() {
                   <div className="h-1 bg-gradient-to-b from-[#d1d1d6] to-[#b8b8bd] mx-auto" style={{ width: '60%' }}></div>
                   
                   {/* Subtle Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#107a4d]/10 to-transparent rounded-xl blur-3xl -z-10"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#005BE3]/10 to-transparent rounded-xl blur-3xl -z-10"></div>
                 </div>
               </div>
 
@@ -570,8 +570,8 @@ export default function LandingPage() {
                     {/* Right side - The Solution */}
                     <div className="flex flex-col gap-6">
                       <div className="inline-flex">
-                        <div className="px-3 py-1.5 bg-[#107a4d]/10 rounded-full border border-[#107a4d]/20">
-                          <span className="text-[#107a4d] text-xs font-semibold">The Solution</span>
+                        <div className="px-3 py-1.5 bg-[#005BE3]/10 rounded-full border border-[#005BE3]/20">
+                          <span className="text-[#005BE3] text-xs font-semibold">The Solution</span>
                         </div>
                       </div>
                       <h2 className="text-[#37322F] text-2xl sm:text-3xl md:text-4xl font-normal leading-tight font-serif">
@@ -579,7 +579,7 @@ export default function LandingPage() {
                       </h2>
                       <div className="flex flex-col gap-4">
                         <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#107a4d] flex items-center justify-center mt-0.5">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#005BE3] flex items-center justify-center mt-0.5">
                             <Check className="w-4 h-4 text-white" />
                           </div>
                           <div>
@@ -590,7 +590,7 @@ export default function LandingPage() {
                           </div>
                         </div>
                         <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#107a4d] flex items-center justify-center mt-0.5">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#005BE3] flex items-center justify-center mt-0.5">
                             <Check className="w-4 h-4 text-white" />
                           </div>
                           <div>
@@ -601,7 +601,7 @@ export default function LandingPage() {
                           </div>
                         </div>
                         <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#107a4d] flex items-center justify-center mt-0.5">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#005BE3] flex items-center justify-center mt-0.5">
                             <Check className="w-4 h-4 text-white" />
                           </div>
                           <div>
@@ -667,7 +667,7 @@ export default function LandingPage() {
                         key={index}
                         className="p-6 md:p-8 lg:p-10 border-b border-r border-[rgba(55,50,47,0.12)] last:border-r-0 flex flex-col gap-4 group hover:bg-white/50 transition-all duration-300"
                       >
-                        <div className="w-12 h-12 rounded-xl bg-[#107a4d]/10 flex items-center justify-center text-[#107a4d] group-hover:bg-[#107a4d]/20 group-hover:shadow-[0_4px_12px_rgba(16,122,77,0.15)] transition-all duration-300">
+                        <div className="w-12 h-12 rounded-xl bg-[#005BE3]/10 flex items-center justify-center text-[#005BE3] group-hover:bg-[#005BE3]/20 group-hover:shadow-[0_4px_12px_rgba(0,91,227,0.15)] transition-all duration-300">
                           {feature.icon}
                         </div>
                         <div>

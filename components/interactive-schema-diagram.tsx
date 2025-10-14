@@ -303,7 +303,7 @@ export function InteractiveSchemaDiagram({
         return 'bg-blue-100 text-blue-700'
       case 'number':
       case 'decimal':
-        return 'bg-green-100 text-green-700'
+        return 'bg-blue-100 text-blue-700'
       case 'boolean':
         return 'bg-purple-100 text-purple-700'
       case 'date':
@@ -319,7 +319,7 @@ export function InteractiveSchemaDiagram({
   const getFieldIcon = (field: FieldSchema) => {
     if (field.isPrimary) return <Key className="w-3 h-3 text-yellow-600" />
     if (field.isForeignKey) return <Link className="w-3 h-3 text-blue-600" />
-    if (field.hasIndex) return <Zap className="w-3 h-3 text-green-600" />
+    if (field.hasIndex) return <Zap className="w-3 h-3 text-blue-600" />
     return null
   }
 
@@ -664,7 +664,7 @@ export function InteractiveSchemaDiagram({
             )}
             <span className="text-gray-400 hidden md:inline">|</span>
             <span className="text-gray-400 hidden md:inline">
-              Ctrl +/- zoom • Arrows pan • Ctrl 0 reset
+              Ctrl +/- zoom â€¢ Arrows pan â€¢ Ctrl 0 reset
             </span>
           </div>
         </div>

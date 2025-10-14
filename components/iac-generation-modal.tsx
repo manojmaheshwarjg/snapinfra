@@ -236,7 +236,7 @@ export function IacGenerationModal({ children }: { children: React.ReactNode }) 
                             <span className="font-mono text-sm">{file.path}</span>
                           </div>
                           <Button variant="ghost" size="sm" onClick={() => handleCopy(file.path, file.content)} className="flex items-center gap-2">
-                            {copiedPath === file.path ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                            {copiedPath === file.path ? <Check className="w-4 h-4 text-blue-600" /> : <Copy className="w-4 h-4" />}
                           </Button>
                         </div>
                         <div className="p-3">

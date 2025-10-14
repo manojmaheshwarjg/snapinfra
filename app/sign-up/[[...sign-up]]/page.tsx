@@ -55,7 +55,7 @@ export default function SignUpPage() {
                 {/* Sign Up Card */}
                 <div className="w-full relative">
                   {/* Subtle border */}
-                  <div className="absolute inset-0 rounded-2xl bg-[rgba(16,122,77,0.1)] p-[1px]">
+                  <div className="absolute inset-0 rounded-2xl bg-[rgba(0,91,227,0.1)] p-[1px]">
                     <div className="w-full h-full rounded-2xl bg-white"></div>
                   </div>
                   
@@ -75,16 +75,16 @@ export default function SignUpPage() {
                             dividerLine: "bg-[rgba(55,50,47,0.12)]",
                             dividerText: "text-[#605A57] font-sans text-sm",
                             formButtonPrimary: 
-                              "bg-[#107a4d] hover:bg-[#0d6340] text-white font-sans font-semibold shadow-[0_2px_8px_rgba(16,122,77,0.3)] hover:shadow-[0_4px_12px_rgba(16,122,77,0.4)] transition-all duration-200 normal-case",
+                              "bg-[#005BE3] hover:bg-[#004BC9] text-white font-sans font-semibold shadow-[0_2px_8px_rgba(0,91,227,0.3)] hover:shadow-[0_4px_12px_rgba(0,91,227,0.4)] transition-all duration-200 normal-case",
                             formFieldLabel: "text-[#37322F] font-sans font-medium text-sm",
                             formFieldInput: 
-                              "border-[rgba(55,50,47,0.12)] bg-white focus:border-[#107a4d] focus:ring-[#107a4d]/20 text-[#37322F] font-sans placeholder:text-[#605A57]/50 rounded-lg transition-all duration-200",
-                            footerActionLink: "text-[#107a4d] hover:text-[#0d6340] font-sans font-medium transition-colors duration-200",
+                              "border-[rgba(55,50,47,0.12)] bg-white focus:border-[#005BE3] focus:ring-[#005BE3]/20 text-[#37322F] font-sans placeholder:text-[#605A57]/50 rounded-lg transition-all duration-200",
+                            footerActionLink: "text-[#005BE3] hover:text-[#004BC9] font-sans font-medium transition-colors duration-200",
                             formFieldInputShowPasswordButton: "text-[#605A57] hover:text-[#37322F]",
                             identityPreviewText: "text-[#37322F] font-sans",
-                            identityPreviewEditButton: "text-[#107a4d] hover:text-[#0d6340]",
-                            formResendCodeLink: "text-[#107a4d] hover:text-[#0d6340] font-sans font-medium",
-                            otpCodeFieldInput: "border-[rgba(55,50,47,0.12)] focus:border-[#107a4d] focus:ring-[#107a4d]/20 text-[#37322F]",
+                            identityPreviewEditButton: "text-[#005BE3] hover:text-[#004BC9]",
+                            formResendCodeLink: "text-[#005BE3] hover:text-[#004BC9] font-sans font-medium",
+                            otpCodeFieldInput: "border-[rgba(55,50,47,0.12)] focus:border-[#005BE3] focus:ring-[#005BE3]/20 text-[#37322F]",
                           }
                         }}
                         routing="path"
@@ -99,11 +99,11 @@ export default function SignUpPage() {
                 {/* Bottom text */}
                 <div className="text-center text-[#605A57] text-xs sm:text-sm font-normal font-sans">
                   By continuing, you agree to Snapinfra's{" "}
-                  <Link href="/terms" className="text-[#107a4d] hover:text-[#0d6340] underline transition-colors">
+                  <Link href="/terms" className="text-[#005BE3] hover:text-[#004BC9] underline transition-colors">
                     Terms of Service
                   </Link>
                   {" "}and{" "}
-                  <Link href="/privacy" className="text-[#107a4d] hover:text-[#0d6340] underline transition-colors">
+                  <Link href="/privacy" className="text-[#005BE3] hover:text-[#004BC9] underline transition-colors">
                     Privacy Policy
                   </Link>
                 </div>

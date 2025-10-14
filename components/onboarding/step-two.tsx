@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -29,8 +29,8 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
   const getFieldTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       'uuid': 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-      'varchar': 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-      'text': 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+      'varchar': 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+      'text': 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
       'integer': 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
       'bigint': 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
       'decimal': 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
@@ -146,7 +146,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
     <div className="w-full max-w-7xl mx-auto py-6 px-6 space-y-12">
       {/* Hero Title with Animated Stats */}
       <div className="text-center space-y-4 max-w-[900px] mx-auto mb-2">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#107a4d]/10 text-[#107a4d] text-xs font-medium mb-2">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#005BE3]/10 text-[#005BE3] text-xs font-medium mb-2">
           <Check className="w-3 h-3" />
           Schema Generated
         </div>
@@ -155,17 +155,17 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
         </h1>
         <div className="flex items-center justify-center gap-6 text-sm text-[#605A57]">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse"></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse"></div>
             <span>{data.schemas.length} tables</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse" style={{ animationDelay: '150ms' }}></div>
             <span>{relationships.length} relationships</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse" style={{ animationDelay: '300ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse" style={{ animationDelay: '300ms' }}></div>
             <span>{data.schemas.reduce((acc: number, schema: any) => acc + schema.fields.length, 0)} fields</span>
           </div>
         </div>
@@ -173,7 +173,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Key Stats - Superior Interactive Cards */}
@@ -183,20 +183,20 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
           onClick={() => setExpandedSection(expandedSection === 'database' ? null : 'database')}
           className={`group relative p-6 rounded-xl transition-all duration-300 overflow-hidden ${
             expandedSection === 'database'
-              ? 'bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] shadow-xl shadow-[#107a4d]/15 scale-[1.02] border-2 border-[#107a4d]/30'
-              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/30 hover:shadow-lg'
+              ? 'bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] shadow-xl shadow-[#005BE3]/15 scale-[1.02] border-2 border-[#005BE3]/30'
+              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/30 hover:shadow-lg'
           }`}
         >
           {/* Subtle pattern overlay */}
           <div className={`absolute inset-0 opacity-[0.03] ${
-            expandedSection === 'database' ? 'bg-[radial-gradient(circle_at_30%_50%,_#107a4d_1px,_transparent_1px)] bg-[length:20px_20px]' : ''
+            expandedSection === 'database' ? 'bg-[radial-gradient(circle_at_30%_50%,_#005BE3_1px,_transparent_1px)] bg-[length:20px_20px]' : ''
           }`}></div>
           
           <div className="relative">
             <div className="flex items-center justify-center mb-3">
-              <Database className={`w-6 h-6 ${expandedSection === 'database' ? 'text-[#107a4d]' : 'text-[#107a4d]'}`} />
+              <Database className={`w-6 h-6 ${expandedSection === 'database' ? 'text-[#005BE3]' : 'text-[#005BE3]'}`} />
             </div>
-            <div className={`text-2xl font-bold mb-2 ${expandedSection === 'database' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'}`}>
+            <div className={`text-2xl font-bold mb-2 ${expandedSection === 'database' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'}`}>
               {dbRecommendations[0]?.name || 'PostgreSQL'}
             </div>
             <div className={`text-xs mb-2 ${expandedSection === 'database' ? 'text-[#605A57]' : 'text-[#605A57]'}`}>
@@ -204,13 +204,13 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
             </div>
             {/* Progress indicator */}
             <div className="mt-3">
-              <div className={`h-1.5 rounded-full overflow-hidden ${expandedSection === 'database' ? 'bg-[#107a4d]/15' : 'bg-[#107a4d]/10'}`}>
+              <div className={`h-1.5 rounded-full overflow-hidden ${expandedSection === 'database' ? 'bg-[#005BE3]/15' : 'bg-[#005BE3]/10'}`}>
                 <div 
-                  className={`h-full rounded-full transition-all duration-1000 ${expandedSection === 'database' ? 'bg-[#107a4d]' : 'bg-[#107a4d]'}`}
+                  className={`h-full rounded-full transition-all duration-1000 ${expandedSection === 'database' ? 'bg-[#005BE3]' : 'bg-[#005BE3]'}`}
                   style={{ width: `${dbRecommendations[0]?.score || 95}%` }}
                 ></div>
               </div>
-              <div className={`text-[10px] font-semibold mt-1 ${expandedSection === 'database' ? 'text-[#107a4d]' : 'text-[#107a4d]'}`}>
+              <div className={`text-[10px] font-semibold mt-1 ${expandedSection === 'database' ? 'text-[#005BE3]' : 'text-[#005BE3]'}`}>
                 {dbRecommendations[0]?.score || 95}% compatibility
               </div>
             </div>
@@ -222,29 +222,29 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
           onClick={() => setExpandedSection(expandedSection === 'complexity' ? null : 'complexity')}
           className={`group relative p-6 rounded-xl transition-all duration-300 overflow-hidden ${
             expandedSection === 'complexity'
-              ? 'bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] shadow-xl shadow-[#107a4d]/15 scale-[1.02] border-2 border-[#107a4d]/30'
-              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/30 hover:shadow-lg'
+              ? 'bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] shadow-xl shadow-[#005BE3]/15 scale-[1.02] border-2 border-[#005BE3]/30'
+              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/30 hover:shadow-lg'
           }`}
         >
           <div className={`absolute inset-0 opacity-[0.03] ${
-            expandedSection === 'complexity' ? 'bg-[radial-gradient(circle_at_30%_50%,_#107a4d_1px,_transparent_1px)] bg-[length:20px_20px]' : ''
+            expandedSection === 'complexity' ? 'bg-[radial-gradient(circle_at_30%_50%,_#005BE3_1px,_transparent_1px)] bg-[length:20px_20px]' : ''
           }`}></div>
           
           <div className="relative">
             <div className="flex items-center justify-center mb-3">
-              <Layers className={`w-6 h-6 ${expandedSection === 'complexity' ? 'text-[#107a4d]' : 'text-[#107a4d]'}`} />
+              <Layers className={`w-6 h-6 ${expandedSection === 'complexity' ? 'text-[#005BE3]' : 'text-[#005BE3]'}`} />
             </div>
-            <div className={`text-2xl font-bold capitalize mb-2 ${expandedSection === 'complexity' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'}`}>
+            <div className={`text-2xl font-bold capitalize mb-2 ${expandedSection === 'complexity' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'}`}>
               {complexity}
             </div>
             <div className={`text-xs ${expandedSection === 'complexity' ? 'text-[#605A57]' : 'text-[#605A57]'}`}>
               Project Complexity
             </div>
             <div className={`mt-3 flex items-center gap-1 text-[10px] font-semibold ${
-              expandedSection === 'complexity' ? 'text-[#107a4d]' : 'text-[#107a4d]'
+              expandedSection === 'complexity' ? 'text-[#005BE3]' : 'text-[#005BE3]'
             }`}>
               <span>{data.schemas.length} tables</span>
-              <span className="opacity-50">•</span>
+              <span className="opacity-50">�</span>
               <span>{relationships.length} relations</span>
             </div>
           </div>
@@ -255,26 +255,26 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
           onClick={() => setExpandedSection(expandedSection === 'load' ? null : 'load')}
           className={`group relative p-6 rounded-xl transition-all duration-300 overflow-hidden ${
             expandedSection === 'load'
-              ? 'bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] shadow-xl shadow-[#107a4d]/15 scale-[1.02] border-2 border-[#107a4d]/30'
-              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/30 hover:shadow-lg'
+              ? 'bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] shadow-xl shadow-[#005BE3]/15 scale-[1.02] border-2 border-[#005BE3]/30'
+              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/30 hover:shadow-lg'
           }`}
         >
           <div className={`absolute inset-0 opacity-[0.03] ${
-            expandedSection === 'load' ? 'bg-[radial-gradient(circle_at_30%_50%,_#107a4d_1px,_transparent_1px)] bg-[length:20px_20px]' : ''
+            expandedSection === 'load' ? 'bg-[radial-gradient(circle_at_30%_50%,_#005BE3_1px,_transparent_1px)] bg-[length:20px_20px]' : ''
           }`}></div>
           
           <div className="relative">
             <div className="flex items-center justify-center mb-3">
-              <TrendingUp className={`w-6 h-6 ${expandedSection === 'load' ? 'text-[#107a4d]' : 'text-[#107a4d]'}`} />
+              <TrendingUp className={`w-6 h-6 ${expandedSection === 'load' ? 'text-[#005BE3]' : 'text-[#005BE3]'}`} />
             </div>
-            <div className={`text-2xl font-bold mb-2 ${expandedSection === 'load' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'}`}>
+            <div className={`text-2xl font-bold mb-2 ${expandedSection === 'load' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'}`}>
               {scalingInsights.expectedLoad || 'Medium'}
             </div>
             <div className={`text-xs ${expandedSection === 'load' ? 'text-[#605A57]' : 'text-[#605A57]'}`}>
               Expected Load
             </div>
             <div className={`mt-3 text-[10px] font-semibold ${
-              expandedSection === 'load' ? 'text-[#107a4d]' : 'text-[#107a4d]'
+              expandedSection === 'load' ? 'text-[#005BE3]' : 'text-[#005BE3]'
             }`}>
               {scalingInsights.readWriteRatio || '70:30'} read/write
             </div>
@@ -284,7 +284,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
       
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Schema Tables - Superior Grid */}
@@ -302,32 +302,32 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
               onClick={() => setSelectedTable(selectedTable === schema.name ? null : schema.name)}
               className={`group relative p-5 rounded-xl transition-all duration-300 text-left overflow-hidden ${
                 selectedTable === schema.name
-                  ? 'bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] shadow-xl shadow-[#107a4d]/10 scale-[1.02] border-2 border-[#107a4d]/30'
-                  : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/30 hover:shadow-lg hover:scale-[1.01]'
+                  ? 'bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] shadow-xl shadow-[#005BE3]/10 scale-[1.02] border-2 border-[#005BE3]/30'
+                  : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/30 hover:shadow-lg hover:scale-[1.01]'
               }`}
             >
               {/* Subtle pattern overlay */}
               <div className={`absolute inset-0 opacity-[0.03] ${
-                selectedTable === schema.name ? 'bg-[radial-gradient(circle_at_30%_50%,_#107a4d_1px,_transparent_1px)] bg-[length:15px_15px]' : ''
+                selectedTable === schema.name ? 'bg-[radial-gradient(circle_at_30%_50%,_#005BE3_1px,_transparent_1px)] bg-[length:15px_15px]' : ''
               }`}></div>
               <div className="space-y-2 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <div className={`p-1.5 rounded-lg ${
-                      selectedTable === schema.name ? 'bg-[#107a4d]/15' : 'bg-[#107a4d]/10'
+                      selectedTable === schema.name ? 'bg-[#005BE3]/15' : 'bg-[#005BE3]/10'
                     }`}>
                       <Table className={`w-3.5 h-3.5 ${
-                        selectedTable === schema.name ? 'text-[#107a4d]' : 'text-[#107a4d]'
+                        selectedTable === schema.name ? 'text-[#005BE3]' : 'text-[#005BE3]'
                       }`} />
                     </div>
                     <h4 className={`font-semibold text-sm capitalize ${
-                      selectedTable === schema.name ? 'text-[#107a4d]' : 'text-[#1d1d1f]'
+                      selectedTable === schema.name ? 'text-[#005BE3]' : 'text-[#1d1d1f]'
                     }`}>
                       {schema.name}
                     </h4>
                   </div>
                   <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${
-                    selectedTable === schema.name ? 'bg-[#107a4d]/15 text-[#107a4d]' : 'bg-[#107a4d]/10 text-[#107a4d]'
+                    selectedTable === schema.name ? 'bg-[#005BE3]/15 text-[#005BE3]' : 'bg-[#005BE3]/10 text-[#005BE3]'
                   }`}>
                     {schema.fields.length} fields
                   </div>
@@ -362,7 +362,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Architecture Insights - Enterprise Focus */}
@@ -376,7 +376,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
         {/* Database Recommendation Details - Conditionally shown */}
         {expandedSection === 'database' && (
         <div className="animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="bg-white border border-[#107a4d]/20 rounded-lg p-6 shadow-lg">
+        <div className="bg-white border border-[#005BE3]/20 rounded-lg p-6 shadow-lg">
           <h3 className="text-sm font-semibold text-[#1d1d1f] mb-4">Database Selection</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -385,7 +385,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
               <div className="mt-3 space-y-1">
                 {(dbRecommendations[0]?.pros || ['ACID compliance', 'Advanced indexing', 'JSON support']).slice(0, 3).map((pro: string, i: number) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-[#605A57]">
-                    <Check className="w-3 h-3 text-[#107a4d]" />
+                    <Check className="w-3 h-3 text-[#005BE3]" />
                     <span>{pro}</span>
                   </div>
                 ))}
@@ -413,22 +413,22 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
         {/* Complexity Analysis Details - Conditionally shown */}
         {expandedSection === 'complexity' && (
         <div className="animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="bg-white border border-[#107a4d]/20 rounded-lg p-6 shadow-lg">
+        <div className="bg-white border border-[#005BE3]/20 rounded-lg p-6 shadow-lg">
           <h3 className="text-sm font-semibold text-[#1d1d1f] mb-4">Complexity Analysis</h3>
           <div className="space-y-4">
             <div>
               <p className="text-xs text-[#605A57] mb-2">Your project is classified as <span className="font-semibold text-[#1d1d1f] capitalize">{complexity}</span> complexity</p>
               <div className="space-y-2 mt-3">
                 <div className="flex items-center gap-2 text-xs text-[#605A57]">
-                  <Check className="w-3 h-3 text-[#107a4d]" />
+                  <Check className="w-3 h-3 text-[#005BE3]" />
                   <span>{data.schemas.length} interconnected tables</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#605A57]">
-                  <Check className="w-3 h-3 text-[#107a4d]" />
+                  <Check className="w-3 h-3 text-[#005BE3]" />
                   <span>{relationships.length} foreign key relationships</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#605A57]">
-                  <Check className="w-3 h-3 text-[#107a4d]" />
+                  <Check className="w-3 h-3 text-[#005BE3]" />
                   <span>Enterprise-grade schema design</span>
                 </div>
               </div>
@@ -441,7 +441,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
         {/* Scaling Strategy - Conditionally shown */}
         {expandedSection === 'load' && (
         <div className="animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="bg-white border border-[#107a4d]/20 rounded-lg p-6 shadow-lg">
+        <div className="bg-white border border-[#005BE3]/20 rounded-lg p-6 shadow-lg">
           <h3 className="text-sm font-semibold text-[#1d1d1f] mb-4">Scaling Strategy for {scalingInsights.expectedLoad} Load</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -465,27 +465,27 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
             onClick={() => setExpandedSection(expandedSection === 'relationships' ? null : 'relationships')}
             className={`w-full text-left rounded-lg p-6 transition-all duration-300 ${
               expandedSection === 'relationships'
-                ? 'bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] shadow-xl border-2 border-[#107a4d]/30'
-                : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/30 hover:shadow-lg'
+                ? 'bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] shadow-xl border-2 border-[#005BE3]/30'
+                : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/30 hover:shadow-lg'
             }`}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${
-                  expandedSection === 'relationships' ? 'bg-[#107a4d]/15' : 'bg-[#107a4d]/10'
+                  expandedSection === 'relationships' ? 'bg-[#005BE3]/15' : 'bg-[#005BE3]/10'
                 }`}>
                   <Link className={`w-4 h-4 ${
-                    expandedSection === 'relationships' ? 'text-[#107a4d]' : 'text-[#107a4d]'
+                    expandedSection === 'relationships' ? 'text-[#005BE3]' : 'text-[#005BE3]'
                   }`} />
                 </div>
                 <h3 className={`text-sm font-semibold ${
-                  expandedSection === 'relationships' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'
+                  expandedSection === 'relationships' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'
                 }`}>
                   Key Relationships ({relationships.length})
                 </h3>
               </div>
               <div className={`text-xs font-medium px-3 py-1 rounded-full ${
-                expandedSection === 'relationships' ? 'bg-[#107a4d]/15 text-[#107a4d]' : 'bg-[#107a4d]/10 text-[#107a4d]'
+                expandedSection === 'relationships' ? 'bg-[#005BE3]/15 text-[#005BE3]' : 'bg-[#005BE3]/10 text-[#005BE3]'
               }`}>
                 {expandedSection === 'relationships' ? 'Click to collapse' : 'Click to expand'}
               </div>
@@ -494,7 +494,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
             {expandedSection === 'relationships' ? (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                 {relationships.map((rel, i) => (
-                  <div key={i} className="flex items-center gap-3 text-xs py-2 border-b border-[#107a4d]/10 last:border-0">
+                  <div key={i} className="flex items-center gap-3 text-xs py-2 border-b border-[#005BE3]/10 last:border-0">
                     <span className="text-[#1d1d1f] font-medium">{rel.from}</span>
                     <ArrowRight className="w-3 h-3 text-[#605A57]" />
                     <span className="text-[#605A57]">{rel.field}</span>
@@ -528,27 +528,27 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
             onClick={() => setExpandedSection(expandedSection === 'recommendations' ? null : 'recommendations')}
             className={`w-full text-left rounded-lg p-6 transition-all duration-300 ${
               expandedSection === 'recommendations'
-                ? 'bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] shadow-xl border-2 border-[#107a4d]/30'
-                : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/30 hover:shadow-lg'
+                ? 'bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] shadow-xl border-2 border-[#005BE3]/30'
+                : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/30 hover:shadow-lg'
             }`}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${
-                  expandedSection === 'recommendations' ? 'bg-[#107a4d]/15' : 'bg-[#107a4d]/10'
+                  expandedSection === 'recommendations' ? 'bg-[#005BE3]/15' : 'bg-[#005BE3]/10'
                 }`}>
                   <AlertTriangle className={`w-4 h-4 ${
-                    expandedSection === 'recommendations' ? 'text-[#107a4d]' : 'text-[#107a4d]'
+                    expandedSection === 'recommendations' ? 'text-[#005BE3]' : 'text-[#005BE3]'
                   }`} />
                 </div>
                 <h3 className={`text-sm font-semibold ${
-                  expandedSection === 'recommendations' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'
+                  expandedSection === 'recommendations' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'
                 }`}>
                   Critical Recommendations
                 </h3>
               </div>
               <div className={`text-xs font-medium px-3 py-1 rounded-full ${
-                expandedSection === 'recommendations' ? 'bg-[#107a4d]/15 text-[#107a4d]' : 'bg-[#107a4d]/10 text-[#107a4d]'
+                expandedSection === 'recommendations' ? 'bg-[#005BE3]/15 text-[#005BE3]' : 'bg-[#005BE3]/10 text-[#005BE3]'
               }`}>
                 {expandedSection === 'recommendations' ? 'Click to collapse' : 'Click to expand'}
               </div>
@@ -559,7 +559,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
                 <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                   {/* ALL High Priority Security */}
                   {securityRecs.filter((r: any) => r.priority === 'High').map((rec: any, i: number) => (
-                    <div key={`sec-${i}`} className="flex items-start gap-3 p-3 bg-white/60 border border-[#107a4d]/20 rounded-lg">
+                    <div key={`sec-${i}`} className="flex items-start gap-3 p-3 bg-white/60 border border-[#005BE3]/20 rounded-lg">
                       <Shield className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -573,7 +573,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
                   
                   {/* ALL High Impact Performance */}
                   {optimizations.filter((o: any) => o.impact === 'High').map((opt: any, i: number) => (
-                    <div key={`opt-${i}`} className="flex items-start gap-3 p-3 bg-white/60 border border-[#107a4d]/20 rounded-lg">
+                    <div key={`opt-${i}`} className="flex items-start gap-3 p-3 bg-white/60 border border-[#005BE3]/20 rounded-lg">
                       <Zap className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -587,8 +587,8 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
 
                   {/* ALL Architecture Recommendations */}
                   {smartRecs.filter((r: any) => r.priority === 'high' || r.priority === 'medium').map((rec: any, i: number) => (
-                    <div key={`smart-${i}`} className="flex items-start gap-3 p-3 bg-white/60 border border-[#107a4d]/20 rounded-lg">
-                      <Lightbulb className="w-4 h-4 text-[#107a4d] mt-0.5 flex-shrink-0" />
+                    <div key={`smart-${i}`} className="flex items-start gap-3 p-3 bg-white/60 border border-[#005BE3]/20 rounded-lg">
+                      <Lightbulb className="w-4 h-4 text-[#005BE3] mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-xs font-semibold text-[#1d1d1f]">{rec.title}</p>
@@ -650,27 +650,27 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
           onClick={() => setExpandedSection(expandedSection === 'indexing' ? null : 'indexing')}
           className={`w-full text-left rounded-lg p-6 transition-all duration-300 ${
             expandedSection === 'indexing'
-              ? 'bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] shadow-xl border-2 border-[#107a4d]/30'
-              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/30 hover:shadow-lg'
+              ? 'bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] shadow-xl border-2 border-[#005BE3]/30'
+              : 'bg-white border-2 border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/30 hover:shadow-lg'
           }`}
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${
-                expandedSection === 'indexing' ? 'bg-[#107a4d]/15' : 'bg-[#107a4d]/10'
+                expandedSection === 'indexing' ? 'bg-[#005BE3]/15' : 'bg-[#005BE3]/10'
               }`}>
                 <Zap className={`w-4 h-4 ${
-                  expandedSection === 'indexing' ? 'text-[#107a4d]' : 'text-[#107a4d]'
+                  expandedSection === 'indexing' ? 'text-[#005BE3]' : 'text-[#005BE3]'
                 }`} />
               </div>
               <h3 className={`text-sm font-semibold ${
-                expandedSection === 'indexing' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'
+                expandedSection === 'indexing' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'
               }`}>
                 Indexing & Performance
               </h3>
             </div>
             <div className={`text-xs font-medium px-3 py-1 rounded-full ${
-              expandedSection === 'indexing' ? 'bg-[#107a4d]/15 text-[#107a4d]' : 'bg-[#107a4d]/10 text-[#107a4d]'
+              expandedSection === 'indexing' ? 'bg-[#005BE3]/15 text-[#005BE3]' : 'bg-[#005BE3]/10 text-[#005BE3]'
             }`}>
               {expandedSection === 'indexing' ? 'Click to collapse' : 'Click to expand'}
             </div>
@@ -682,7 +682,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
                 expandedSection === 'indexing' ? 'text-[#605A57]' : 'text-[#605A57]'
               }`}>Total Indexes</p>
               <p className={`text-2xl font-bold ${
-                expandedSection === 'indexing' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'
+                expandedSection === 'indexing' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'
               }`}>{data.schemas.reduce((acc: number, schema: any) => acc + (schema.indexes?.length || 0), 0)}</p>
             </div>
             <div>
@@ -690,7 +690,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
                 expandedSection === 'indexing' ? 'text-[#605A57]' : 'text-[#605A57]'
               }`}>Primary Keys</p>
               <p className={`text-2xl font-bold ${
-                expandedSection === 'indexing' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'
+                expandedSection === 'indexing' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'
               }`}>{data.schemas.length}</p>
             </div>
             <div>
@@ -698,28 +698,28 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
                 expandedSection === 'indexing' ? 'text-[#605A57]' : 'text-[#605A57]'
               }`}>Foreign Keys</p>
               <p className={`text-2xl font-bold ${
-                expandedSection === 'indexing' ? 'text-[#107a4d]' : 'text-[#1d1d1f]'
+                expandedSection === 'indexing' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'
               }`}>{relationships.length}</p>
             </div>
           </div>
           
           {expandedSection === 'indexing' && (
-            <div className="mt-4 pt-4 border-t border-[#107a4d]/20 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="mt-4 pt-4 border-t border-[#005BE3]/20 animate-in fade-in slide-in-from-top-2 duration-300">
               <div className="space-y-3">
                 <p className="text-xs text-[#605A57] leading-relaxed">
                   Auto-indexed on primary keys, foreign keys, and frequently queried fields. Consider composite indexes for multi-column lookups.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                  <div className="bg-white/60 border border-[#107a4d]/20 rounded-lg p-3">
+                  <div className="bg-white/60 border border-[#005BE3]/20 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Check className="w-3 h-3 text-[#107a4d]" />
+                      <Check className="w-3 h-3 text-[#005BE3]" />
                       <p className="text-xs font-semibold text-[#1d1d1f]">Optimized Queries</p>
                     </div>
                     <p className="text-xs text-[#605A57]">B-tree indexes on all primary and foreign keys for fast lookups</p>
                   </div>
-                  <div className="bg-white/60 border border-[#107a4d]/20 rounded-lg p-3">
+                  <div className="bg-white/60 border border-[#005BE3]/20 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Check className="w-3 h-3 text-[#107a4d]" />
+                      <Check className="w-3 h-3 text-[#005BE3]" />
                       <p className="text-xs font-semibold text-[#1d1d1f]">Composite Indexes</p>
                     </div>
                     <p className="text-xs text-[#605A57]">Multi-column indexes recommended for complex WHERE clauses</p>
@@ -734,7 +734,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Action Buttons - Clean and Centered */}

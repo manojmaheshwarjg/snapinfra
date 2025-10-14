@@ -46,7 +46,7 @@ export function EnterpriseMetricCard({
   className,
 }: EnterpriseMetricCardProps) {
   const statusColors = {
-    success: 'bg-green-50 text-green-700 border-green-200',
+    success: 'bg-blue-50 text-blue-700 border-blue-200',
     warning: 'bg-yellow-50 text-yellow-700 border-yellow-200',
     error: 'bg-red-50 text-red-700 border-red-200',
     info: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -79,7 +79,7 @@ export function EnterpriseMetricCard({
                     change.isPositive === undefined
                       ? 'bg-gray-100 text-gray-600'
                       : change.isPositive
-                      ? 'bg-green-50 text-green-700'
+                      ? 'bg-blue-50 text-blue-700'
                       : 'bg-red-50 text-red-700'
                   )}
                 >
@@ -157,7 +157,7 @@ export function StatsGrid({ title, description, stats, columns = 4 }: StatsGridP
                     <span
                       className={cn(
                         'text-xs font-medium',
-                        stat.change > 0 ? 'text-green-600' : stat.change < 0 ? 'text-red-600' : 'text-gray-500'
+                        stat.change > 0 ? 'text-blue-600' : stat.change < 0 ? 'text-red-600' : 'text-gray-500'
                       )}
                     >
                       {stat.change > 0 && '+'}
@@ -196,7 +196,7 @@ interface ActivityTimelineProps {
 export function ActivityTimeline({ items, className }: ActivityTimelineProps) {
   const getTypeConfig = (type: TimelineItem['type']) => {
     const configs = {
-      success: { icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' },
+      success: { icon: CheckCircle2, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
       warning: { icon: AlertTriangle, color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' },
       error: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
       info: { icon: Info, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
@@ -326,7 +326,7 @@ interface StatusOverviewProps {
 
 export function StatusOverview({ title, items }: StatusOverviewProps) {
   const statusConfig = {
-    operational: { color: 'bg-green-500', label: 'Operational', textColor: 'text-green-700' },
+    operational: { color: 'bg-blue-500', label: 'Operational', textColor: 'text-blue-700' },
     degraded: { color: 'bg-yellow-500', label: 'Degraded', textColor: 'text-yellow-700' },
     down: { color: 'bg-red-500', label: 'Down', textColor: 'text-red-700' },
     maintenance: { color: 'bg-blue-500', label: 'Maintenance', textColor: 'text-blue-700' },

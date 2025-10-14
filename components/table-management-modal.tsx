@@ -80,8 +80,8 @@ const FIELD_TYPE_ICONS: Record<FieldType, React.ReactNode> = {
 const FIELD_TYPE_COLORS: Record<FieldType, string> = {
   'Text': 'bg-blue-100 text-blue-700',
   'Textarea': 'bg-blue-100 text-blue-700',
-  'Number': 'bg-green-100 text-green-700',
-  'Decimal': 'bg-green-100 text-green-700',
+  'Number': 'bg-blue-100 text-blue-700',
+  'Decimal': 'bg-blue-100 text-blue-700',
   'Email': 'bg-purple-100 text-purple-700',
   'Password': 'bg-red-100 text-red-700',
   'Date': 'bg-orange-100 text-orange-700',
@@ -143,7 +143,7 @@ export function TableManagementModal({
     if (field.isForeignKey) badges.push({ text: 'FK', color: 'bg-blue-100 text-blue-700', icon: <Link className="w-3 h-3" /> })
     if (field.isRequired) badges.push({ text: 'Required', color: 'bg-red-100 text-red-700', icon: <Shield className="w-3 h-3" /> })
     if (field.isUnique) badges.push({ text: 'Unique', color: 'bg-purple-100 text-purple-700', icon: <Hash className="w-3 h-3" /> })
-    if (field.hasIndex) badges.push({ text: 'Indexed', color: 'bg-green-100 text-green-700', icon: <Database className="w-3 h-3" /> })
+    if (field.hasIndex) badges.push({ text: 'Indexed', color: 'bg-blue-100 text-blue-700', icon: <Database className="w-3 h-3" /> })
     return badges
   }
 

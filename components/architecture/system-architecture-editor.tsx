@@ -207,14 +207,14 @@ export function SystemArchitectureEditor({
       type: edge.type || 'smoothstep',
       animated: true,
       style: {
-        stroke: '#107a4d',
+        stroke: '#005BE3',
         strokeWidth: 2,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 20,
         height: 20,
-        color: '#107a4d',
+        color: '#005BE3',
       },
       labelStyle: {
         fontSize: '12px',
@@ -306,14 +306,14 @@ export function SystemArchitectureEditor({
       animated: true,
       label: newEdge.label,
       style: {
-        stroke: '#107a4d',
+        stroke: '#005BE3',
         strokeWidth: 2,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 20,
         height: 20,
-        color: '#107a4d',
+        color: '#005BE3',
       },
     }, eds))
   }, [setEdges, architecture, onArchitectureChange, readonly])
@@ -405,7 +405,7 @@ export function SystemArchitectureEditor({
               variant="ghost"
               size="sm"
               onClick={() => setShowConnections(!showConnections)}
-              className="h-8 px-3 text-xs hover:bg-[#107a4d]/5"
+              className="h-8 px-3 text-xs hover:bg-[#005BE3]/5"
             >
               {showConnections ? <Eye className="w-3.5 h-3.5 mr-1.5" /> : <EyeOff className="w-3.5 h-3.5 mr-1.5" />}
               Connections
@@ -415,7 +415,7 @@ export function SystemArchitectureEditor({
               variant="ghost"
               size="sm"
               onClick={() => setShowMiniMap(!showMiniMap)}
-              className="h-8 px-3 text-xs hover:bg-[#107a4d]/5"
+              className="h-8 px-3 text-xs hover:bg-[#005BE3]/5"
             >
               <Grid className="w-3.5 h-3.5 mr-1.5" />
               Minimap
@@ -426,7 +426,7 @@ export function SystemArchitectureEditor({
                 <Button
                   onClick={() => setShowAddNodeDialog(true)}
                   size="sm"
-                  className="h-8 px-3 text-xs bg-[#107a4d] hover:bg-[#0d6340]"
+                  className="h-8 px-3 text-xs bg-[#005BE3] hover:bg-[#004BC9]"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1.5" />
                   Add Node
@@ -437,7 +437,7 @@ export function SystemArchitectureEditor({
                     variant="ghost"
                     onClick={onSave}
                     size="sm"
-                    className="h-8 px-3 text-xs hover:bg-[#107a4d]/5"
+                    className="h-8 px-3 text-xs hover:bg-[#005BE3]/5"
                   >
                     <Save className="w-3.5 h-3.5 mr-1.5" />
                     Save

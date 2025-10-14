@@ -163,9 +163,9 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
         <div className="text-center space-y-6 max-w-[900px] mx-auto">
           <div className="flex justify-center">
             <div className="relative">
-              <div className="w-20 h-20 border-4 border-[#107a4d]/20 border-t-[#107a4d] rounded-full animate-spin"></div>
+              <div className="w-20 h-20 border-4 border-[#005BE3]/20 border-t-[#005BE3] rounded-full animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Network className="w-8 h-8 text-[#107a4d]" />
+                <Network className="w-8 h-8 text-[#005BE3]" />
               </div>
             </div>
           </div>
@@ -179,7 +179,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
           </div>
           <div className="flex justify-center gap-6 text-sm">
             <span className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
               <span className="text-[#605A57]">Database Analysis</span>
             </span>
             <span className="flex items-center gap-2">
@@ -220,7 +220,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
     <div className="w-full max-w-7xl mx-auto py-6 px-6 space-y-12">
       {/* Header */}
       <div className="text-center space-y-4 max-w-[900px] mx-auto mb-2">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#107a4d]/10 text-[#107a4d] text-xs font-medium mb-2">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#005BE3]/10 text-[#005BE3] text-xs font-medium mb-2">
           <Network className="w-3 h-3" />
           System Architecture
         </div>
@@ -229,17 +229,17 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
         </h1>
         <div className="flex items-center justify-center gap-6 text-sm text-[#605A57]">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse"></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse"></div>
             <span>{insights?.componentsCount || 0} components</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse" style={{ animationDelay: '150ms' }}></div>
             <span>{insights?.connectionsCount || 0} connections</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#107a4d] animate-pulse" style={{ animationDelay: '300ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse" style={{ animationDelay: '300ms' }}></div>
             <span>{insights?.complexity} complexity</span>
           </div>
         </div>
@@ -247,7 +247,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Enhanced Stats Grid - Monochrome */}
@@ -314,8 +314,8 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
         <div className="bg-white border border-[rgba(55,50,47,0.12)] rounded-xl overflow-hidden shadow-lg">
           <div className="px-5 py-3.5 bg-gradient-to-r from-[#fafafa] to-white border-b border-[rgba(55,50,47,0.08)] flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-[#107a4d]/10 rounded-md">
-                <Network className="w-4 h-4 text-[#107a4d]" />
+              <div className="p-2 bg-[#005BE3]/10 rounded-md">
+                <Network className="w-4 h-4 text-[#005BE3]" />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-[#1d1d1f]">Architecture Canvas</h3>
@@ -323,14 +323,14 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="h-8 text-xs px-3 hover:bg-[#107a4d]/5">
+              <Button variant="ghost" size="sm" className="h-8 text-xs px-3 hover:bg-[#005BE3]/5">
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
                 Preview
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-8 text-xs px-3 hover:bg-[#107a4d]/5"
+                className="h-8 text-xs px-3 hover:bg-[#005BE3]/5"
                 onClick={handleExportPNG}
                 disabled={isExporting}
               >
@@ -370,9 +370,9 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
         {/* Bottom Row - Insights & Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Quick Actions */}
-          <div className="bg-gradient-to-br from-[#e8f5f0] to-[#d4ede4] rounded-lg p-5 border border-[#107a4d]/20">
+          <div className="bg-gradient-to-br from-[#e8f4ff] to-[#d4e9ff] rounded-lg p-5 border border-[#005BE3]/20">
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-4 h-4 text-[#107a4d]" />
+              <Zap className="w-4 h-4 text-[#005BE3]" />
               <h3 className="text-sm font-semibold text-[#1d1d1f]">Quick Actions</h3>
             </div>
             <div className="space-y-2.5">
@@ -384,7 +384,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 className="w-full justify-between px-4 py-2.5 bg-white/60 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#1d1d1f] text-sm font-medium group h-auto"
               >
                 <span>Add Component</span>
-                <ChevronRight className="w-3.5 h-3.5 text-[#107a4d] group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#005BE3] group-hover:translate-x-0.5 transition-transform" />
               </Button>
               <Button
                 onClick={() => {
@@ -394,7 +394,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 className="w-full justify-between px-4 py-2.5 bg-white/60 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#1d1d1f] text-sm font-medium group h-auto"
               >
                 <span>Auto-Optimize</span>
-                <ChevronRight className="w-3.5 h-3.5 text-[#107a4d] group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#005BE3] group-hover:translate-x-0.5 transition-transform" />
               </Button>
               <Button
                 onClick={() => {
@@ -406,7 +406,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 className="w-full justify-between px-4 py-2.5 bg-white/60 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#1d1d1f] text-sm font-medium group h-auto"
               >
                 <span>Share Diagram</span>
-                <ChevronRight className="w-3.5 h-3.5 text-[#107a4d] group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#005BE3] group-hover:translate-x-0.5 transition-transform" />
               </Button>
             </div>
           </div>
@@ -415,10 +415,10 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
           <div className="bg-white border border-[rgba(55,50,47,0.12)] rounded-lg p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-[#1d1d1f]">Architecture Score</h3>
-              <Badge variant="default" className="bg-[#107a4d] text-xs h-6 px-2.5">Live</Badge>
+              <Badge variant="default" className="bg-[#005BE3] text-xs h-6 px-2.5">Live</Badge>
             </div>
             <div className="text-center mb-4">
-              <div className="text-4xl font-bold text-[#107a4d] mb-1">
+              <div className="text-4xl font-bold text-[#005BE3] mb-1">
                 {insights && insights.hasCache && insights.hasLoadBalancer && insights.hasAuth ? '95' : 
                  insights && ((insights.hasCache && insights.hasAuth) || (insights.hasLoadBalancer && insights.hasAuth)) ? '82' :
                  insights && (insights.hasCache || insights.hasLoadBalancer || insights.hasAuth) ? '65' : '48'}
@@ -436,7 +436,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-[#107a4d] to-emerald-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-[#005BE3] to-blue-500 rounded-full transition-all duration-500"
                     style={{ 
                       width: insights && insights.hasCache && insights.hasLoadBalancer ? '95%' : 
                              insights && (insights.hasCache || insights.hasLoadBalancer) ? '75%' : '60%'
@@ -451,7 +451,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-[#107a4d] to-emerald-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-[#005BE3] to-blue-500 rounded-full transition-all duration-500"
                     style={{ width: insights?.hasAuth ? '90%' : '40%' }}
                   ></div>
                 </div>
@@ -465,7 +465,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-[#107a4d] to-emerald-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-[#005BE3] to-blue-500 rounded-full transition-all duration-500"
                     style={{ width: insights && insights.hasCache ? '88%' : '62%' }}
                   ></div>
                 </div>
@@ -477,35 +477,35 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
           <div className="bg-white border border-[rgba(55,50,47,0.12)] rounded-lg p-5">
             <h3 className="text-sm font-semibold text-[#1d1d1f] mb-4">Component Status</h3>
             <div className="space-y-2.5">
-              <div className="flex items-center justify-between p-2.5 bg-[#107a4d]/5 rounded-md">
+              <div className="flex items-center justify-between p-2.5 bg-[#005BE3]/5 rounded-md">
                 <div className="flex items-center gap-2.5">
-                  <Shield className="w-4 h-4 text-[#107a4d]" />
+                  <Shield className="w-4 h-4 text-[#005BE3]" />
                   <span className="text-xs text-[#605A57]">Authentication</span>
                 </div>
                 {insights?.hasAuth ? (
-                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
                 ) : (
                   <AlertTriangle className="w-4 h-4 text-yellow-600" />
                 )}
               </div>
-              <div className="flex items-center justify-between p-2.5 hover:bg-[#107a4d]/5 rounded-md transition-colors">
+              <div className="flex items-center justify-between p-2.5 hover:bg-[#005BE3]/5 rounded-md transition-colors">
                 <div className="flex items-center gap-2.5">
                   <Zap className="w-4 h-4 text-blue-600" />
                   <span className="text-xs text-[#605A57]">Caching</span>
                 </div>
                 {insights?.hasCache ? (
-                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
                 ) : (
                   <AlertTriangle className="w-4 h-4 text-yellow-600" />
                 )}
               </div>
-              <div className="flex items-center justify-between p-2.5 hover:bg-[#107a4d]/5 rounded-md transition-colors">
+              <div className="flex items-center justify-between p-2.5 hover:bg-[#005BE3]/5 rounded-md transition-colors">
                 <div className="flex items-center gap-2.5">
                   <Network className="w-4 h-4 text-purple-600" />
                   <span className="text-xs text-[#605A57]">Load Balancer</span>
                 </div>
                 {insights?.hasLoadBalancer ? (
-                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
                 ) : (
                   <AlertTriangle className="w-4 h-4 text-yellow-600" />
                 )}
@@ -544,7 +544,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Navigation */}

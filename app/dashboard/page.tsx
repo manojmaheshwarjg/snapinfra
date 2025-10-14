@@ -84,7 +84,7 @@ export default function Dashboard() {
         counts.set(key, (counts.get(key) || 0) + 1)
       })
     })
-    const palette = ["#e11d48", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#a855f7", "#f43f5e"]
+    const palette = ["#e11d48", "#f97316", "#eab308", "#005BE3", "#3b82f6", "#a855f7", "#f43f5e"]
     const entries = Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
     const top = entries.slice(0, 5)

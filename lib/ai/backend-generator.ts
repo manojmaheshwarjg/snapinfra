@@ -78,10 +78,10 @@ export interface BackendGenerationResult {
 
 // Available Groq models for backend generation
 export const AVAILABLE_MODELS = [
-  { id: 'llama-3.1-70b-versatile', name: 'Llama 3.1 70B (Recommended)', description: 'Most capable model with good balance of speed and quality' },
-  { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', description: 'Fast and efficient with large context window' },
-  { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant', description: 'Fastest model for quick generation' },
-  { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', description: 'Latest model with enhanced capabilities' }
+  { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant (Recommended)', description: 'Fast and reliable model for quick generation' },
+  { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', description: 'Latest model with enhanced capabilities' },
+  { id: 'llama3-groq-70b-8192-tool-use-preview', name: 'Llama 3 70B Tool Use', description: 'Optimized for function calling and tool use' },
+  { id: 'gemma2-9b-it', name: 'Gemma 2 9B', description: 'Google Gemma model for instruction following' }
 ] as const;
 
 const DATABASE_GENERATION_PROMPT = `You are a senior database architect with expertise in designing scalable, comprehensive database systems. Generate a complete database schema with REST API endpoints.
@@ -225,9 +225,9 @@ export async function generateBackend(
   // Available models with fallback order
   const availableModels = [
     options.model || AI_CONFIG.model,
-    'llama-3.1-70b-versatile',
-    'mixtral-8x7b-32768',
-    'llama-3.1-8b-instant'
+    'llama-3.1-8b-instant',
+    'llama-3.3-70b-versatile', 
+    'gemma2-9b-it'
   ];
 
   let lastError: Error | null = null;

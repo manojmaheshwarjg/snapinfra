@@ -151,7 +151,7 @@ function ArchitectureNodeComponent({ data, selected, type }: NodeProps<Architect
   return (
     <Card
       className={`w-56 sm:w-64 shadow-md hover:shadow-xl transition-all duration-200 bg-white border ${
-        selected ? 'ring-2 ring-[#107a4d] border-[#107a4d]' : 'border-[rgba(55,50,47,0.12)] hover:border-[rgba(55,50,47,0.2)]'
+        selected ? 'ring-2 ring-[#005BE3] border-[#005BE3]' : 'border-[rgba(55,50,47,0.12)] hover:border-[rgba(55,50,47,0.2)]'
       }`}
       style={{
         borderTopColor: nodeColor,

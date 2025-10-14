@@ -299,12 +299,12 @@ export function StepOne({ onComplete }: StepOneProps) {
       <div className="w-full max-w-[800px]">
         <div className="relative">
           {/* Solid primary border */}
-          <div className="absolute inset-0 rounded-2xl p-[2px] bg-[#107a4d]">
+          <div className="absolute inset-0 rounded-2xl p-[2px] bg-[#005BE3]">
             <div className="w-full h-full rounded-2xl"></div>
           </div>
           
           {/* Background glow effect */}
-          <div className="absolute -inset-2 bg-[#107a4d]/30 rounded-2xl blur-xl opacity-40"></div>
+          <div className="absolute -inset-2 bg-[#005BE3]/30 rounded-2xl blur-xl opacity-40"></div>
           
           {/* Main input container */}
           <div className="relative rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden" style={{ margin: '2px' }}>
@@ -338,7 +338,7 @@ export function StepOne({ onComplete }: StepOneProps) {
                 disabled={!description.trim() || isGenerating}
                 className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 ${
                   description.trim()
-                    ? 'bg-[#107a4d] hover:bg-[#0d6340] shadow-[0_2px_8px_rgba(16,122,77,0.4)] cursor-pointer hover:shadow-[0_4px_12px_rgba(16,122,77,0.5)] hover:scale-105'
+                    ? 'bg-[#005BE3] hover:bg-[#004BC9] shadow-[0_2px_8px_rgba(0,91,227,0.4)] cursor-pointer hover:shadow-[0_4px_12px_rgba(0,91,227,0.5)] hover:scale-105'
                     : 'bg-white/10 cursor-not-allowed'
                 }`}
               >
@@ -389,8 +389,8 @@ export function StepOne({ onComplete }: StepOneProps) {
               <div className="text-center space-y-2">
                 <div className="inline-flex items-center gap-2">
                   <div className="relative flex items-center justify-center">
-                    <div className="absolute inset-0 bg-[#107a4d]/20 rounded-full animate-ping"></div>
-                    <div className="relative w-2 h-2 bg-[#107a4d] rounded-full"></div>
+                    <div className="absolute inset-0 bg-[#005BE3]/20 rounded-full animate-ping"></div>
+                    <div className="relative w-2 h-2 bg-[#005BE3] rounded-full"></div>
                   </div>
                   <span className="text-[#1d1d1f] text-base font-medium">Generating your enterprise backend...</span>
                 </div>
@@ -413,9 +413,9 @@ export function StepOne({ onComplete }: StepOneProps) {
                       key={stage.id}
                       className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 ${
                         stage.status === 'completed'
-                          ? 'bg-[#107a4d]/5 text-[#107a4d]'
+                          ? 'bg-[#005BE3]/5 text-[#005BE3]'
                           : stage.status === 'loading'
-                            ? 'bg-[#107a4d]/10 text-[#107a4d]'
+                            ? 'bg-[#005BE3]/10 text-[#005BE3]'
                             : 'bg-transparent text-[#605A57] opacity-40'
                       }`}
                     >
@@ -448,7 +448,7 @@ export function StepOne({ onComplete }: StepOneProps) {
                 key={index}
                 onClick={() => setDescription(example)}
                 disabled={isGenerating}
-                className="p-4 text-left text-sm bg-white hover:bg-[#107a4d]/5 border border-[rgba(55,50,47,0.08)] hover:border-[#107a4d]/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#37322F]"
+                className="p-4 text-left text-sm bg-white hover:bg-[#005BE3]/5 border border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#37322F]"
               >
                 {example}
               </button>

@@ -67,7 +67,7 @@ const RELATIONSHIP_ICONS = {
 
 const RELATIONSHIP_COLORS = {
   'one-to-one': 'bg-blue-100 text-blue-700 border-blue-200',
-  'one-to-many': 'bg-green-100 text-green-700 border-green-200',  
+  'one-to-many': 'bg-blue-100 text-blue-700 border-blue-200',  
   'many-to-many': 'bg-purple-100 text-purple-700 border-purple-200'
 }
 

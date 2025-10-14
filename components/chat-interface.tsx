@@ -47,17 +47,17 @@ function generateResponseMessage(analysis: any, input: string): string {
   const { entities, suggestedDatabase, reasoning, features } = analysis
   
   const dbEmojis = {
-    postgresql: '🐘',
-    mongodb: '🍃', 
-    redis: '🚀',
-    pinecone: '🌲',
-    influxdb: '📊',
-    elasticsearch: '🔍',
-    mysql: '🐬',
-    sqlite: '📁'
+    postgresql: 'ðŸ˜',
+    mongodb: 'ðŸƒ', 
+    redis: 'ðŸš€',
+    pinecone: 'ðŸŒ²',
+    influxdb: 'ðŸ“Š',
+    elasticsearch: 'ðŸ”',
+    mysql: 'ðŸ¬',
+    sqlite: 'ðŸ“'
   }
   
-  const emoji = dbEmojis[suggestedDatabase] || '💾'
+  const emoji = dbEmojis[suggestedDatabase] || 'ðŸ’¾'
   
   return `Perfect! I've analyzed your requirements and I'm building something amazing! ${emoji}
 
@@ -67,7 +67,7 @@ function generateResponseMessage(analysis: any, input: string): string {
 **Generated Tables:** ${entities.join(', ')}
 **Key Features:** ${features.join(', ')}
 
-I've created a comprehensive schema with proper relationships, indexes, and field validations. Your backend is going to be rock solid! 🏗️`
+I've created a comprehensive schema with proper relationships, indexes, and field validations. Your backend is going to be rock solid! ðŸ—ï¸`
 }
 
 // Enhanced AI schema generation is now handled by schema-generator.ts
@@ -267,7 +267,7 @@ Keep responses conversational but informative.`,
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
+            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
               Online
             </Badge>
             {currentProject && (
@@ -371,7 +371,7 @@ Keep responses conversational but informative.`,
                     {message.metadata && (
                       <div className="flex flex-wrap gap-2 pt-1">
                         {message.metadata.tablesGenerated && (
-                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
+                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
                             <Database className="w-3 h-3 mr-1" />
                             {message.metadata.tablesGenerated} tables generated
                           </Badge>

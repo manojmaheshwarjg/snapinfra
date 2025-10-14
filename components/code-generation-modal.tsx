@@ -272,8 +272,8 @@ export function CodeGenerationModal({ children }: CodeGenerationModalProps) {
           <div className="space-y-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-green-600" />
-                <span className="font-semibold text-green-600">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+                <span className="font-semibold text-blue-600">
                   Code Generated Successfully!
                 </span>
               </div>
@@ -317,7 +317,7 @@ export function CodeGenerationModal({ children }: CodeGenerationModalProps) {
                             className="flex items-center gap-2"
                           >
                             {copiedFile === file.path ? (
-                              <Check className="w-4 h-4 text-green-600" />
+                              <Check className="w-4 h-4 text-blue-600" />
                             ) : (
                               <Copy className="w-4 h-4" />
                             )}

@@ -83,7 +83,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 py-20 md:py-32">
           <div className="max-w-5xl mx-auto text-center space-y-12">
             <div className="inline-block">
-              <span className="text-green-600 dark:text-green-400 text-sm font-semibold tracking-wider uppercase">Solution</span>
+              <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold tracking-wider uppercase">Solution</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif leading-tight">

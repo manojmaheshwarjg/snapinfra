@@ -105,7 +105,7 @@ export function SchemaSummary() {
   const getFieldIcon = (field: any) => {
     if (field.isPrimary) return <Key className="w-3 h-3 text-yellow-600" />
     if (field.isForeignKey) return <Link2 className="w-3 h-3 text-blue-600" />
-    if (field.hasIndex) return <Zap className="w-3 h-3 text-green-600" />
+    if (field.hasIndex) return <Zap className="w-3 h-3 text-blue-600" />
     return null
   }
 
@@ -124,7 +124,7 @@ export function SchemaSummary() {
           </p>
           <div className="space-y-3 mb-6">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-left">
-              <p className="text-sm font-medium text-gray-900 mb-1">💬 Example prompts:</p>
+              <p className="text-sm font-medium text-gray-900 mb-1">Ã°Å¸â€™Â¬ Example prompts:</p>
               <div className="space-y-1">
                 <p className="text-xs text-gray-700">"Build a social media app with users and posts"</p>
                 <p className="text-xs text-gray-700">"Create an e-commerce backend with products and orders"</p>
@@ -161,7 +161,7 @@ export function SchemaSummary() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Badge 
               variant="secondary" 
-              className="bg-green-100 text-green-700 border-green-200 px-2 py-1 text-xs"
+              className="bg-blue-100 text-blue-700 border-blue-200 px-2 py-1 text-xs"
             >
               <Activity className="w-3 h-3 mr-1" />
               Live
@@ -226,16 +226,16 @@ export function SchemaSummary() {
                       </div>
                     </div>
                     
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-2 sm:p-3">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-2 sm:p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-lg sm:text-2xl font-bold text-green-700">
+                          <p className="text-lg sm:text-2xl font-bold text-blue-700">
                             {currentProject.schema.reduce((acc, table) => acc + table.fields.length, 0)}
                           </p>
-                          <p className="text-xs font-medium text-green-600 mt-1">Fields</p>
+                          <p className="text-xs font-medium text-blue-600 mt-1">Fields</p>
                         </div>
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-200 rounded-md flex items-center justify-center">
-                          <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-green-700" />
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-200 rounded-md flex items-center justify-center">
+                          <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-blue-700" />
                         </div>
                       </div>
                     </div>
@@ -254,7 +254,7 @@ export function SchemaSummary() {
                       </p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-600">Confidence:</span>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">
                           {Math.round((currentProject.database.confidence || 0.9) * 100)}%
                         </Badge>
                       </div>
@@ -277,8 +277,8 @@ export function SchemaSummary() {
                 <Card className="bg-white shadow-sm border border-gray-200">
                   <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
                     <CardTitle className="flex items-center gap-2 text-sm sm:text-base font-semibold">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-md flex items-center justify-center">
-                        <Database className="w-3 h-3 text-green-600" />
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 rounded-md flex items-center justify-center">
+                        <Database className="w-3 h-3 text-blue-600" />
                       </div>
                       Tables ({currentProject.schema.length})
                     </CardTitle>

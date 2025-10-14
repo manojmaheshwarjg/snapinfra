@@ -49,7 +49,7 @@ const getFieldTypeColor = (type: string) => {
       return 'bg-blue-100 text-blue-700'
     case 'number':
     case 'decimal':
-      return 'bg-green-100 text-green-700'
+      return 'bg-blue-100 text-blue-700'
     case 'boolean':
       return 'bg-purple-100 text-purple-700'
     case 'date':
@@ -65,7 +65,7 @@ const getFieldTypeColor = (type: string) => {
 const getFieldIcon = (field: TableNodeData['fields'][0]) => {
   if (field.isPrimary) return <Key className="w-3 h-3 text-yellow-600" />
   if (field.isForeignKey) return <Link className="w-3 h-3 text-blue-600" />
-  if (field.hasIndex) return <Zap className="w-3 h-3 text-green-600" />
+  if (field.hasIndex) return <Zap className="w-3 h-3 text-blue-600" />
   return null
 }
 

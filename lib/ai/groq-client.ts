@@ -9,7 +9,7 @@ export const groq = createGroq({
 });
 
 export const AI_CONFIG = {
-  model: process.env.AI_MODEL || 'meta-llama/llama-4-scout-17b-16e-instruct',
+  model: process.env.AI_MODEL || 'llama-3.1-8b-instant',
   temperature: Number(process.env.AI_TEMPERATURE) || 1,
   maxTokens: Number(process.env.AI_MAX_TOKENS) || 8192,
   topP: Number(process.env.AI_TOP_P) || 1,

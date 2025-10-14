@@ -261,10 +261,10 @@ const PRIORITY_CONFIG = {
 
 // Issue type configuration
 const ISSUE_TYPE_CONFIG = {
-  story: { label: 'Story', icon: '📖', color: 'bg-green-500' },
-  task: { label: 'Task', icon: '✓', color: 'bg-blue-500' },
-  bug: { label: 'Bug', icon: '🐛', color: 'bg-red-500' },
-  epic: { label: 'Epic', icon: '⚡', color: 'bg-purple-500' },
+  story: { label: 'Story', icon: 'ðŸ“–', color: 'bg-blue-500' },
+  task: { label: 'Task', icon: 'âœ“', color: 'bg-blue-500' },
+  bug: { label: 'Bug', icon: 'ðŸ›', color: 'bg-red-500' },
+  epic: { label: 'Epic', icon: 'âš¡', color: 'bg-purple-500' },
 }
 
 export function EnterpriseSprintBoard() {
@@ -341,7 +341,7 @@ export function EnterpriseSprintBoard() {
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mt-1">
-              {filteredIssues.length} issues · {completedStoryPoints}/{totalStoryPoints} points complete
+              {filteredIssues.length} issues Â· {completedStoryPoints}/{totalStoryPoints} points complete
             </p>
           </div>
         </div>
@@ -715,7 +715,7 @@ function IssueCard({ issue }: { issue: Issue }) {
                         className={cn(
                           'h-3.5 w-3.5',
                           issue.subtasks.completed === issue.subtasks.total
-                            ? 'text-green-600'
+                            ? 'text-blue-600'
                             : 'text-gray-400'
                         )}
                       />

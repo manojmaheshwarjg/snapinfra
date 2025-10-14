@@ -243,7 +243,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
 
   const getTypeColor = (type: ToolRecommendation['type']) => {
     switch (type) {
-      case 'open-source': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      case 'open-source': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
       case 'commercial': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
       case 'managed-service': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
@@ -260,7 +260,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
 
   const getComplexityColor = (complexity: ToolRecommendation['complexity']) => {
     switch (complexity) {
-      case 'low': return 'text-green-600'
+      case 'low': return 'text-blue-600'
       case 'medium': return 'text-yellow-600'
       case 'high': return 'text-red-600'
     }
@@ -274,9 +274,9 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
             key={step}
             className={`transition-all duration-300 rounded-full ${
               step < 5
-                ? 'w-2.5 h-2.5 bg-[#107a4d]'
+                ? 'w-2.5 h-2.5 bg-[#005BE3]'
                 : step === 5
-                  ? 'w-10 h-2.5 bg-[#107a4d]'
+                  ? 'w-10 h-2.5 bg-[#005BE3]'
                   : 'w-2.5 h-2.5 bg-[rgba(55,50,47,0.2)]'
             }`}
           />
@@ -405,9 +405,9 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
           {/* Spinner */}
           <div className="flex justify-center">
             <div className="relative">
-              <div className="w-20 h-20 border-4 border-[rgba(55,50,47,0.1)] border-t-[#107a4d] rounded-full animate-spin"></div>
+              <div className="w-20 h-20 border-4 border-[rgba(55,50,47,0.1)] border-t-[#005BE3] rounded-full animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-[#107a4d]" />
+                <BarChart3 className="w-8 h-8 text-[#005BE3]" />
               </div>
             </div>
           </div>
@@ -425,43 +425,43 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
           {/* Processing Steps */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
             <div className="flex flex-col items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded-full bg-[#107a4d]/10 flex items-center justify-center">
-                <Search className="w-5 h-5 text-[#107a4d]" />
+              <div className="w-10 h-10 rounded-full bg-[#005BE3]/10 flex items-center justify-center">
+                <Search className="w-5 h-5 text-[#005BE3]" />
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-[#1d1d1f]">Tool Analysis</p>
                 <div className="flex items-center justify-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse"></div>
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded-full bg-[#107a4d]/10 flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-[#107a4d]" />
+              <div className="w-10 h-10 rounded-full bg-[#005BE3]/10 flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-[#005BE3]" />
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-[#1d1d1f]">Cost Estimation</p>
                 <div className="flex items-center justify-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse"></div>
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded-full bg-[#107a4d]/10 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-[#107a4d]" />
+              <div className="w-10 h-10 rounded-full bg-[#005BE3]/10 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-[#005BE3]" />
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-[#1d1d1f]">Risk Assessment</p>
                 <div className="flex items-center justify-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse"></div>
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-1.5 h-1.5 bg-[#107a4d] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-[#005BE3] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 </div>
               </div>
             </div>
@@ -500,7 +500,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
       <div className="text-left space-y-4 mb-6">
         <div className="flex items-center justify-between">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#107a4d]/10 text-[#107a4d] text-xs font-medium mb-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#005BE3]/10 text-[#005BE3] text-xs font-medium mb-2">
               <Building2 className="w-3.5 h-3.5" />
               Tool Selection
             </div>
@@ -539,7 +539,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto mb-6">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Enterprise Context & Key Metrics - Monochrome */}
@@ -650,7 +650,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="p-6 border-[rgba(55,50,47,0.12)] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-[#1d1d1f]">
-                <DollarSign className="w-5 h-5 text-[#107a4d]" />
+                <DollarSign className="w-5 h-5 text-[#005BE3]" />
                 Cost Breakdown
               </h3>
               <div className="space-y-4">
@@ -669,7 +669,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                 <Separator className="bg-[rgba(55,50,47,0.12)]" />
                 <div className="flex justify-between items-center pt-2">
                   <span className="font-semibold text-sm text-[#1d1d1f]">Total First Year</span>
-                  <span className="font-bold text-xl text-[#107a4d]">
+                  <span className="font-bold text-xl text-[#005BE3]">
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
                       currency: 'USD',
@@ -682,7 +682,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
 
             <Card className="p-6 border-[rgba(55,50,47,0.12)] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-[#1d1d1f]">
-                <TrendingUp className="w-5 h-5 text-[#107a4d]" />
+                <TrendingUp className="w-5 h-5 text-[#005BE3]" />
                 Tool Distribution
               </h3>
               <div className="space-y-4">
@@ -713,11 +713,11 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
           {showCelebration && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
               <Card className="p-8 max-w-md mx-4 text-center space-y-4 animate-in zoom-in duration-500">
-                <CheckCircle className="w-16 h-16 text-[#107a4d] mx-auto" />
+                <CheckCircle className="w-16 h-16 text-[#005BE3] mx-auto" />
                 <h3 className="text-2xl font-bold text-[#1d1d1f]">Architecture Complete!</h3>
                 <p className="text-[#605A57]">You've successfully designed your entire tech stack.</p>
                 <div className="flex items-center justify-center gap-4 pt-4">
-                  <Badge className="text-base px-4 py-2 bg-[#107a4d] text-white">
+                  <Badge className="text-base px-4 py-2 bg-[#005BE3] text-white">
                     {totalScore} Points
                   </Badge>
                 </div>
@@ -733,7 +733,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-[#1d1d1f]">Progress</span>
-                    <CheckCircle className="w-5 h-5 text-[#107a4d]" />
+                    <CheckCircle className="w-5 h-5 text-[#005BE3]" />
                   </div>
                   <div className="text-3xl font-bold text-[#1d1d1f]">
                     {Math.round((completedDecisions.size / (decisions?.decisions.length || 1)) * 100)}%
@@ -753,7 +753,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-[#1d1d1f]">Score</span>
-                    <Star className="w-5 h-5 text-[#107a4d]" />
+                    <Star className="w-5 h-5 text-[#005BE3]" />
                   </div>
                   <div className="text-3xl font-bold text-[#1d1d1f]">
                     {totalScore}
@@ -769,7 +769,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-[#1d1d1f]">Monthly Cost</span>
-                    <DollarSign className="w-5 h-5 text-[#107a4d]" />
+                    <DollarSign className="w-5 h-5 text-[#005BE3]" />
                   </div>
                   <div className="text-3xl font-bold text-[#1d1d1f]">
                     ${calculateTotalMonthlyCost()}
@@ -909,12 +909,12 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                             </Badge>
                           </div>
                           <p className="text-sm text-[#605A57] leading-relaxed">{decision.description}</p>
-                          <p className="text-sm text-[#107a4d] font-medium">{decision.reasoning}</p>
+                          <p className="text-sm text-[#005BE3] font-medium">{decision.reasoning}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           {decision.impact === 'high' && <AlertCircle className="w-5 h-5 text-red-500" />}
                           {decision.impact === 'medium' && <Info className="w-5 h-5 text-yellow-500" />}
-                          {decision.impact === 'low' && <CheckCircle className="w-5 h-5 text-green-500" />}
+                          {decision.impact === 'low' && <CheckCircle className="w-5 h-5 text-blue-500" />}
                         </div>
                       </div>
 
@@ -927,8 +927,8 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                               key={tool.id}
                               className={`relative p-4 cursor-pointer transition-all duration-300 border group ${
                                 isSelected 
-                                  ? 'ring-2 ring-[#107a4d] border-[#107a4d] bg-gradient-to-br from-[#107a4d]/10 to-[#107a4d]/5 shadow-lg scale-105' 
-                                  : 'border-[rgba(55,50,47,0.12)] hover:shadow-lg hover:border-[#107a4d]/50 hover:scale-102'
+                                  ? 'ring-2 ring-[#005BE3] border-[#005BE3] bg-gradient-to-br from-[#005BE3]/10 to-[#005BE3]/5 shadow-lg scale-105' 
+                                  : 'border-[rgba(55,50,47,0.12)] hover:shadow-lg hover:border-[#005BE3]/50 hover:scale-102'
                               }`}
                               onClick={(e) => {
                                 e.preventDefault()
@@ -939,8 +939,8 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                               {/* Selection Checkmark */}
                               {isSelected && (
                                 <div className="absolute -top-2 -left-2 z-10">
-                                  <div className="w-8 h-8 rounded-full bg-[#107a4d] flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
-                                    <CheckCircle className="w-5 h-5 text-white fill-[#107a4d]" />
+                                  <div className="w-8 h-8 rounded-full bg-[#005BE3] flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+                                    <CheckCircle className="w-5 h-5 text-white fill-[#005BE3]" />
                                   </div>
                                 </div>
                               )}
@@ -949,7 +949,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                                 <div className="flex items-start justify-between">
                                   <div className="space-y-1.5 flex-1">
                                     <div className="flex items-center gap-2">
-                                      <h4 className="font-bold text-sm text-[#1d1d1f] group-hover:text-[#107a4d] transition-colors">{tool.name}</h4>
+                                      <h4 className="font-bold text-sm text-[#1d1d1f] group-hover:text-[#005BE3] transition-colors">{tool.name}</h4>
                                     </div>
                                     <div className="flex items-center gap-1.5 flex-wrap">
                                       <Badge className={`${getTypeColor(tool.type)} text-[10px] h-5 px-2 font-medium`} variant="secondary">
@@ -975,7 +975,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                                 <div className="bg-[#fafafa] p-3 rounded-lg border border-[rgba(55,50,47,0.08)]">
                                   <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-1.5">
-                                      <DollarSign className="w-4 h-4 text-[#107a4d]" />
+                                      <DollarSign className="w-4 h-4 text-[#005BE3]" />
                                       <span className="text-xs font-medium text-[#605A57]">Monthly Cost</span>
                                     </div>
                                     <span className="font-bold text-base text-[#1d1d1f]">{tool.pricing.cost || 'Free'}</span>
@@ -992,14 +992,14 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                                 <div className="flex flex-col gap-1.5">
                                   {tool.pros.slice(0, 2).map((pro, i) => (
                                     <div key={i} className="flex items-center gap-1.5">
-                                      <ThumbsUp className="w-3 h-3 text-green-600 flex-shrink-0" />
-                                      <span className="text-xs text-green-700">{pro}</span>
+                                      <ThumbsUp className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                                      <span className="text-xs text-blue-700">{pro}</span>
                                     </div>
                                   ))}
                                 </div>
                                 
                                 {tool.metadata.website && (
-                                  <div className="flex items-center gap-2 pt-2 border-t border-[rgba(55,50,47,0.08)] text-[#605A57] hover:text-[#107a4d] transition-colors">
+                                  <div className="flex items-center gap-2 pt-2 border-t border-[rgba(55,50,47,0.08)] text-[#605A57] hover:text-[#005BE3] transition-colors">
                                     <ExternalLink className="w-3 h-3" />
                                     <span className="text-xs font-medium">Learn more</span>
                                     {tool.metadata.github && <Github className="w-3 h-3" />}
@@ -1025,10 +1025,10 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                 <div className="space-y-5">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold text-[#1d1d1f] flex items-center gap-2">
-                      <BarChart3 className="w-6 h-6 text-[#107a4d]" />
+                      <BarChart3 className="w-6 h-6 text-[#005BE3]" />
                       Stack Summary
                     </h3>
-                    <Badge className="bg-[#107a4d] text-white px-4 py-2 text-base">
+                    <Badge className="bg-[#005BE3] text-white px-4 py-2 text-base">
                       {totalScore} Points
                     </Badge>
                   </div>
@@ -1037,7 +1037,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                     {/* Monthly Cost */}
                     <div className="bg-white rounded-lg p-4 border border-[rgba(55,50,47,0.12)] shadow-sm">
                       <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="w-5 h-5 text-[#107a4d]" />
+                        <DollarSign className="w-5 h-5 text-[#005BE3]" />
                         <span className="text-sm font-medium text-[#605A57]">Monthly Cost</span>
                       </div>
                       <div className="text-2xl font-bold text-[#1d1d1f]">
@@ -1066,7 +1066,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                     {/* Tool Breakdown */}
                     <div className="bg-white rounded-lg p-4 border border-[rgba(55,50,47,0.12)] shadow-sm">
                       <div className="flex items-center gap-2 mb-2">
-                        <Package className="w-5 h-5 text-[#107a4d]" />
+                        <Package className="w-5 h-5 text-[#005BE3]" />
                         <span className="text-sm font-medium text-[#605A57]">Tool Mix</span>
                       </div>
                       <div className="space-y-2">
@@ -1090,7 +1090,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                     {/* Performance Stats */}
                     <div className="bg-white rounded-lg p-4 border border-[rgba(55,50,47,0.12)] shadow-sm">
                       <div className="flex items-center gap-2 mb-2">
-                        <Zap className="w-5 h-5 text-[#107a4d]" />
+                        <Zap className="w-5 h-5 text-[#005BE3]" />
                         <span className="text-sm font-medium text-[#605A57]">Performance</span>
                       </div>
                       <div className="space-y-2">
@@ -1132,7 +1132,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                   {achievements.length > 0 && (
                     <div className="bg-[#fafafa] p-4 rounded-lg border border-[rgba(55,50,47,0.12)]">
                       <h4 className="text-sm font-semibold text-[#1d1d1f] mb-3 flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-[#107a4d]" />
+                        <CheckCircle className="w-4 h-4 text-[#005BE3]" />
                         Achievements Unlocked
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -1164,7 +1164,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
           <div className="space-y-6">
             <Card className="p-6 border-[rgba(55,50,47,0.12)] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-[#1d1d1f]">
-                <Calendar className="w-5 h-5 text-[#107a4d]" />
+                <Calendar className="w-5 h-5 text-[#005BE3]" />
                 Implementation Roadmap
               </h3>
               <div className="space-y-6">
@@ -1198,8 +1198,8 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                   </p>
                 </div>
                 
-                <div className="bg-green-50 border border-green-200 rounded-lg p-5">
-                  <h4 className="font-semibold text-sm text-green-700 mb-3 flex items-center gap-2">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
+                  <h4 className="font-semibold text-sm text-blue-700 mb-3 flex items-center gap-2">
                     <Target className="w-4 h-4" />
                     Phase 3: Optional Components
                   </h4>
@@ -1208,7 +1208,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                       <Badge key={i} variant="secondary" className="text-xs h-6 px-2.5">{item}</Badge>
                     ))}
                   </div>
-                  <p className="text-sm text-green-600 font-medium">
+                  <p className="text-sm text-blue-600 font-medium">
                     Timeline: {decisions.architecture.timeline.scale}
                   </p>
                 </div>
@@ -1280,7 +1280,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
             {/* Compliance Framework Assessment */}
             <Card className="p-6 border-[rgba(55,50,47,0.12)] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-[#1d1d1f]">
-                <Shield className="w-5 h-5 text-[#107a4d]" />
+                <Shield className="w-5 h-5 text-[#005BE3]" />
                 Compliance Framework Assessment
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1306,7 +1306,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                       </div>
                       <div className="flex items-center gap-2">
                         {hasCompliantTools ? (
-                          <CheckSquare className="w-4 h-4 text-green-500" />
+                          <CheckSquare className="w-4 h-4 text-blue-500" />
                         ) : (
                           <AlertCircle className="w-4 h-4 text-yellow-500" />
                         )}
@@ -1323,12 +1323,12 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
             {/* Security Best Practices */}
             <Card className="p-6 border-[rgba(55,50,47,0.12)] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-[#1d1d1f]">
-                <Lock className="w-5 h-5 text-[#107a4d]" />
+                <Lock className="w-5 h-5 text-[#005BE3]" />
                 Security Best Practices
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-sm font-semibold mb-4 text-[#107a4d]">Implemented Practices</h4>
+                  <h4 className="text-sm font-semibold mb-4 text-[#005BE3]">Implemented Practices</h4>
                   <div className="space-y-2.5">
                     {[
                       'End-to-end encryption in transit',
@@ -1339,7 +1339,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                       'Audit logging and monitoring'
                     ].map((practice, i) => (
                       <div key={i} className="flex items-center gap-3">
-                        <CheckSquare className="w-4 h-4 text-[#107a4d] flex-shrink-0" />
+                        <CheckSquare className="w-4 h-4 text-[#005BE3] flex-shrink-0" />
                         <span className="text-sm text-[#525252]">{practice}</span>
                       </div>
                     ))}
@@ -1420,12 +1420,12 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
             {/* Cost Optimization */}
             <Card className="p-6 border-[rgba(55,50,47,0.12)] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-[#1d1d1f]">
-                <TrendingUp className="w-5 h-5 text-[#107a4d]" />
+                <TrendingUp className="w-5 h-5 text-[#005BE3]" />
                 Cost Optimization Strategies
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div className="space-y-3.5">
-                  <h4 className="text-sm font-semibold text-[#107a4d]">Short-term (0-6 months)</h4>
+                  <h4 className="text-sm font-semibold text-[#005BE3]">Short-term (0-6 months)</h4>
                   <div className="space-y-2.5">
                     {[
                       'Right-size compute resources',
@@ -1434,7 +1434,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
                       'Optimize data storage tiers'
                     ].map((strategy, i) => (
                       <div key={i} className="flex items-start gap-2.5">
-                        <Target className="w-4 h-4 text-[#107a4d] mt-0.5 flex-shrink-0" />
+                        <Target className="w-4 h-4 text-[#005BE3] mt-0.5 flex-shrink-0" />
                         <span className="text-sm text-[#525252]">{strategy}</span>
                       </div>
                     ))}
@@ -1480,7 +1480,7 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
 
       {/* Subtle Divider */}
       <div className="max-w-[1000px] mx-auto mt-8 mb-6">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#107a4d]/20 to-transparent"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
       {/* Navigation */}

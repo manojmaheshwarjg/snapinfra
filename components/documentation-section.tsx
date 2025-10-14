@@ -121,7 +121,7 @@ export default function DocumentationSection() {
                     ? "bg-gradient-to-br from-blue-50 to-blue-100"
                     : activeCard === 1
                       ? "bg-gradient-to-br from-purple-50 to-purple-100"
-                      : "bg-gradient-to-br from-green-50 to-green-100"
+                      : "bg-gradient-to-br from-blue-50 to-blue-100"
                 }`}
               />
             </div>

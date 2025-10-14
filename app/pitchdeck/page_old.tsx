@@ -103,13 +103,13 @@ export default function PitchDeck() {
                 <div className="flex gap-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                 </div>
                 <span className="text-gray-600 font-mono text-sm">rhinoback.ai/builder</span>
               </div>
               
               <div className="bg-black rounded-lg p-6 font-mono text-sm">
-                <div className="text-green-400 mb-4">$ rhinoback create</div>
+                <div className="text-blue-400 mb-4">$ rhinoback create</div>
                 <div className="text-gray-300 mb-4">
                   <span className="text-blue-400">RhinoBack:</span> What kind of application would you like to build?
                 </div>
@@ -123,31 +123,31 @@ export default function PitchDeck() {
                 
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-green-400">User management → PostgreSQL tables</span>
+                    <CheckCircle className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400">User management Ã¢â€ â€™ PostgreSQL tables</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-green-400">Real-time cart features → Redis cache</span>
+                    <CheckCircle className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400">Real-time cart features Ã¢â€ â€™ Redis cache</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-green-400">Product search → Elasticsearch</span>
+                    <CheckCircle className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400">Product search Ã¢â€ â€™ Elasticsearch</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-green-400">File storage → S3 integration</span>
+                    <CheckCircle className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400">File storage Ã¢â€ â€™ S3 integration</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-green-400">Payment processing → Stripe webhooks</span>
+                    <CheckCircle className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400">Payment processing Ã¢â€ â€™ Stripe webhooks</span>
                   </div>
                 </div>
                 
-                <div className="text-green-400">
-                  ✅ Backend generated successfully!<br />
-                  🚀 Deployed to: https://your-app.rhinoback.dev<br />
-                  📚 API docs: https://your-app.rhinoback.dev/docs
+                <div className="text-blue-400">
+                  Ã¢Å“â€¦ Backend generated successfully!<br />
+                  Ã°Å¸Å¡â‚¬ Deployed to: https://your-app.rhinoback.dev<br />
+                  Ã°Å¸â€œÅ¡ API docs: https://your-app.rhinoback.dev/docs
                 </div>
               </div>
             </div>
@@ -169,9 +169,9 @@ export default function PitchDeck() {
                 </CardHeader>
               </Card>
               
-              <Card className="bg-white border-2 border-green-200 shadow-lg text-center">
+              <Card className="bg-white border-2 border-blue-200 shadow-lg text-center">
                 <CardHeader>
-                  <div className="text-6xl font-bold text-green-600 mb-4">500K+</div>
+                  <div className="text-6xl font-bold text-blue-600 mb-4">500K+</div>
                   <CardTitle className="text-2xl text-gray-900">Development Agencies</CardTitle>
                   <CardDescription className="text-lg">Building client applications</CardDescription>
                 </CardHeader>
@@ -193,39 +193,39 @@ export default function PitchDeck() {
                   <div className="text-3xl font-bold text-gray-900 mb-2">Free</div>
                   <div className="text-gray-600 mb-4 text-lg">Starter</div>
                   <div className="text-gray-700">
-                    • Basic apps<br />
-                    • 10K requests/month<br />
-                    • Community support
+                    Ã¢â‚¬Â¢ Basic apps<br />
+                    Ã¢â‚¬Â¢ 10K requests/month<br />
+                    Ã¢â‚¬Â¢ Community support
                   </div>
                 </div>
                 <div className="text-center border-l-2 border-gray-200 pl-8">
                   <div className="text-3xl font-bold text-blue-600 mb-2">$25</div>
                   <div className="text-gray-600 mb-4 text-lg">Pro / month</div>
                   <div className="text-gray-700">
-                    • Production apps<br />
-                    • 100K requests/month<br />
-                    • Custom domains<br />
-                    • Priority support
+                    Ã¢â‚¬Â¢ Production apps<br />
+                    Ã¢â‚¬Â¢ 100K requests/month<br />
+                    Ã¢â‚¬Â¢ Custom domains<br />
+                    Ã¢â‚¬Â¢ Priority support
                   </div>
                 </div>
                 <div className="text-center border-l-2 border-gray-200 pl-8">
-                  <div className="text-3xl font-bold text-green-600 mb-2">$99</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">$99</div>
                   <div className="text-gray-600 mb-4 text-lg">Team / month</div>
                   <div className="text-gray-700">
-                    • Team collaboration<br />
-                    • 500K requests/month<br />
-                    • Advanced features<br />
-                    • Dedicated support
+                    Ã¢â‚¬Â¢ Team collaboration<br />
+                    Ã¢â‚¬Â¢ 500K requests/month<br />
+                    Ã¢â‚¬Â¢ Advanced features<br />
+                    Ã¢â‚¬Â¢ Dedicated support
                   </div>
                 </div>
                 <div className="text-center border-l-2 border-gray-200 pl-8">
                   <div className="text-3xl font-bold text-purple-600 mb-2">Custom</div>
                   <div className="text-gray-600 mb-4 text-lg">Enterprise</div>
                   <div className="text-gray-700">
-                    • On-premise deployment<br />
-                    • Unlimited requests<br />
-                    • SLA guarantees<br />
-                    • White-label options
+                    Ã¢â‚¬Â¢ On-premise deployment<br />
+                    Ã¢â‚¬Â¢ Unlimited requests<br />
+                    Ã¢â‚¬Â¢ SLA guarantees<br />
+                    Ã¢â‚¬Â¢ White-label options
                   </div>
                 </div>
               </div>
@@ -306,7 +306,7 @@ export default function PitchDeck() {
             <h2 className="text-6xl font-bold mb-12 text-center text-gray-900">
               <span className="text-blue-600">Describe Your App.</span>
               <br />
-              <span className="text-green-600">Get a Production Backend.</span>
+              <span className="text-blue-600">Get a Production Backend.</span>
             </h2>
             
             <div className="grid md:grid-cols-2 gap-16 items-center max-w-7xl">
@@ -324,7 +324,7 @@ export default function PitchDeck() {
                     <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center text-white font-bold text-xl">2</div>
                     <div>
                       <h4 className="text-2xl font-semibold text-gray-900 mb-3">AI Analysis</h4>
-                      <p className="text-lg text-gray-700">AI detects needs: User management → PostgreSQL, Real-time cart → Redis, Product search → Elasticsearch</p>
+                      <p className="text-lg text-gray-700">AI detects needs: User management Ã¢â€ â€™ PostgreSQL, Real-time cart Ã¢â€ â€™ Redis, Product search Ã¢â€ â€™ Elasticsearch</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-6">
@@ -365,7 +365,7 @@ export default function PitchDeck() {
                     <Separator className="bg-gray-300" />
                     
                     <div>
-                      <h4 className="text-green-600 font-bold mb-4 text-xl">RhinoBack Timeline (5-30 minutes)</h4>
+                      <h4 className="text-blue-600 font-bold mb-4 text-xl">RhinoBack Timeline (5-30 minutes)</h4>
                       <div className="space-y-2 text-gray-700">
                         <div>Minutes 1-5: Describe app requirements</div>
                         <div>Minutes 5-15: AI generates complete backend</div>
@@ -374,7 +374,7 @@ export default function PitchDeck() {
                     </div>
                     
                     <div className="text-center">
-                      <Badge className="bg-green-100 text-green-800 border-green-300 text-lg px-4 py-2">
+                      <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-lg px-4 py-2">
                         100x Faster Development
                       </Badge>
                     </div>
@@ -407,7 +407,7 @@ export default function PitchDeck() {
                 <tbody>
                   <tr className="border-b border-gray-200">
                     <td className="p-6 text-gray-900 font-medium text-lg">AI-Powered Architecture</td>
-                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-green-600 mx-auto" /></td>
+                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-blue-600 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
@@ -415,15 +415,15 @@ export default function PitchDeck() {
                   </tr>
                   <tr className="border-b border-gray-200">
                     <td className="p-6 text-gray-900 font-medium text-lg">Multi-Database Support</td>
-                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-green-600 mx-auto" /></td>
+                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-blue-600 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
-                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-green-600 mx-auto" /></td>
+                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-blue-600 mx-auto" /></td>
                   </tr>
                   <tr className="border-b border-gray-200">
                     <td className="p-6 text-gray-900 font-medium text-lg">Natural Language Input</td>
-                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-green-600 mx-auto" /></td>
+                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-blue-600 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
@@ -431,15 +431,15 @@ export default function PitchDeck() {
                   </tr>
                   <tr className="border-b border-gray-200">
                     <td className="p-6 text-gray-900 font-medium text-lg">Fair Usage Pricing</td>
-                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-green-600 mx-auto" /></td>
+                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-blue-600 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
-                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-green-600 mx-auto" /></td>
+                    <td className="p-6 text-center"><CheckCircle className="w-6 h-6 text-blue-600 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                     <td className="p-6 text-center"><XCircle className="w-6 h-6 text-red-500 mx-auto" /></td>
                   </tr>
                   <tr>
                     <td className="p-6 text-gray-900 font-medium text-lg">Deployment Speed</td>
-                    <td className="p-6 text-center text-green-600 font-bold text-lg">5 min</td>
+                    <td className="p-6 text-center text-blue-600 font-bold text-lg">5 min</td>
                     <td className="p-6 text-center text-gray-600 text-lg">30 min</td>
                     <td className="p-6 text-center text-gray-600 text-lg">45 min</td>
                     <td className="p-6 text-center text-gray-600 text-lg">2 hours</td>
@@ -491,7 +491,7 @@ export default function PitchDeck() {
                     <span className="text-gray-900 text-lg">Groq AI (10x faster than OpenAI)</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Database className="w-8 h-8 text-green-600" />
+                    <Database className="w-8 h-8 text-blue-600" />
                     <span className="text-gray-900 text-lg">Multi-database architecture</span>
                   </div>
                   <div className="flex items-center gap-4">
@@ -528,9 +528,9 @@ export default function PitchDeck() {
                 </CardContent>
               </Card>
               
-              <Card className="bg-white border-2 border-green-200 shadow-lg">
+              <Card className="bg-white border-2 border-blue-200 shadow-lg">
                 <CardHeader className="text-center">
-                  <Zap className="w-16 h-16 text-green-600 mb-4 mx-auto" />
+                  <Zap className="w-16 h-16 text-blue-600 mb-4 mx-auto" />
                   <CardTitle className="text-2xl text-gray-900">AI & Backend</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
@@ -572,9 +572,9 @@ export default function PitchDeck() {
                 </CardHeader>
               </Card>
               
-              <Card className="bg-white border-2 border-green-200 shadow-lg text-center">
+              <Card className="bg-white border-2 border-blue-200 shadow-lg text-center">
                 <CardHeader>
-                  <div className="text-6xl font-bold text-green-600 mb-4">15%</div>
+                  <div className="text-6xl font-bold text-blue-600 mb-4">15%</div>
                   <CardTitle className="text-2xl text-gray-900">Marketplace Templates</CardTitle>
                   <CardDescription className="text-lg">Revenue share from community templates</CardDescription>
                 </CardHeader>
@@ -596,7 +596,7 @@ export default function PitchDeck() {
               <CardContent>
                 <div className="grid md:grid-cols-4 gap-8 text-center">
                   <div>
-                    <div className="text-4xl font-bold text-green-600 mb-2">$50</div>
+                    <div className="text-4xl font-bold text-blue-600 mb-2">$50</div>
                     <div className="text-gray-700 text-lg">Customer Acquisition Cost</div>
                   </div>
                   <div>
@@ -653,9 +653,9 @@ export default function PitchDeck() {
               <div>
                 <h3 className="text-4xl font-bold text-gray-900 mb-8">Early Validation</h3>
                 <div className="space-y-8">
-                  <Card className="bg-white border-2 border-green-200 shadow-lg">
+                  <Card className="bg-white border-2 border-blue-200 shadow-lg">
                     <CardContent className="p-8 text-center">
-                      <div className="text-5xl font-bold text-green-600 mb-4">500+</div>
+                      <div className="text-5xl font-bold text-blue-600 mb-4">500+</div>
                       <p className="text-xl font-semibold text-gray-900">Signups from landing page</p>
                       <p className="text-gray-600">in just 2 weeks</p>
                     </CardContent>
@@ -689,9 +689,9 @@ export default function PitchDeck() {
             <p className="text-2xl text-gray-600 mb-12">Conservative growth model based on proven market data</p>
             
             <div className="grid md:grid-cols-3 gap-12 max-w-6xl">
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300 shadow-lg">
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 shadow-lg">
                 <CardHeader className="text-center">
-                  <CardTitle className="text-4xl font-bold text-green-600">Year 1</CardTitle>
+                  <CardTitle className="text-4xl font-bold text-blue-600">Year 1</CardTitle>
                   <CardDescription className="text-lg">Building momentum</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center space-y-4">
@@ -700,7 +700,7 @@ export default function PitchDeck() {
                     <p className="text-gray-700">Customers</p>
                   </div>
                   <div>
-                    <div className="text-5xl font-bold text-green-600">$360K</div>
+                    <div className="text-5xl font-bold text-blue-600">$360K</div>
                     <p className="text-gray-700">ARR</p>
                   </div>
                 </CardContent>
@@ -755,20 +755,20 @@ export default function PitchDeck() {
                     <div>
                       <h3 className="text-3xl font-bold text-gray-900 mb-6">Technical Founder</h3>
                       <div className="space-y-4 text-lg text-gray-700">
-                        <p>• 4+ years of SaaS MVP development experience</p>
-                        <p>• Master's in Artificial Intelligence, University at Buffalo</p>
-                        <p>• Deep expertise in AI and infrastructure</p>
-                        <p>• Track record of shipping production systems</p>
+                        <p>Ã¢â‚¬Â¢ 4+ years of SaaS MVP development experience</p>
+                        <p>Ã¢â‚¬Â¢ Master's in Artificial Intelligence, University at Buffalo</p>
+                        <p>Ã¢â‚¬Â¢ Deep expertise in AI and infrastructure</p>
+                        <p>Ã¢â‚¬Â¢ Track record of shipping production systems</p>
                       </div>
                     </div>
                     
                     <div>
                       <h3 className="text-3xl font-bold text-gray-900 mb-6">Why We'll Win</h3>
                       <div className="space-y-4 text-lg text-gray-700">
-                        <p>• Understanding of real developer pain points</p>
-                        <p>• Experience building scalable backend systems</p>
-                        <p>• AI expertise for intelligent architecture decisions</p>
-                        <p>• Passion for developer experience</p>
+                        <p>Ã¢â‚¬Â¢ Understanding of real developer pain points</p>
+                        <p>Ã¢â‚¬Â¢ Experience building scalable backend systems</p>
+                        <p>Ã¢â‚¬Â¢ AI expertise for intelligent architecture decisions</p>
+                        <p>Ã¢â‚¬Â¢ Passion for developer experience</p>
                       </div>
                     </div>
                   </div>
@@ -821,7 +821,7 @@ export default function PitchDeck() {
                 <CardContent className="space-y-6">
                   <div className="flex justify-between">
                     <span className="text-gray-700 text-lg">Year 1:</span>
-                    <span className="text-green-600 font-bold text-lg">$360K ARR</span>
+                    <span className="text-blue-600 font-bold text-lg">$360K ARR</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-700 text-lg">Year 2:</span>
@@ -855,7 +855,7 @@ export default function PitchDeck() {
                   <span className="text-lg text-gray-700">manojmaheshwarjg@gmail.com</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Globe className="w-6 h-6 text-green-600" />
+                  <Globe className="w-6 h-6 text-blue-600" />
                   <span className="text-lg text-gray-700">rhinoback.manoj.ai</span>
                 </div>
               </div>
@@ -944,7 +944,7 @@ export default function PitchDeck() {
       
       {/* Keyboard Instructions */}
       <div className="fixed bottom-20 right-6 bg-gray-800 text-white px-3 py-2 rounded-lg text-xs opacity-75">
-        Use ← → keys or spacebar to navigate
+        Use Ã¢â€ Â Ã¢â€ â€™ keys or spacebar to navigate
       </div>
     </div>
   )
@@ -1058,7 +1058,7 @@ export default function PitchDeck() {
           </div>
 
           <div className="text-center">
-            <Badge className="bg-green-600/20 text-green-300 border-green-500/50 text-lg px-4 py-2">
+            <Badge className="bg-blue-600/20 text-blue-300 border-blue-500/50 text-lg px-4 py-2">
               Market Validation: Backend-as-a-Service companies do $50M+ revenue solving part of this problem
             </Badge>
           </div>
@@ -1094,7 +1094,7 @@ export default function PitchDeck() {
                   <div className="bg-purple-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold">2</div>
                   <div>
                     <h4 className="text-xl font-semibold text-white mb-2">AI Analysis</h4>
-                    <p className="text-gray-300">AI detects needs: User management → PostgreSQL, Real-time cart → Redis, Product search → Elasticsearch</p>
+                    <p className="text-gray-300">AI detects needs: User management Ã¢â€ â€™ PostgreSQL, Real-time cart Ã¢â€ â€™ Redis, Product search Ã¢â€ â€™ Elasticsearch</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -1135,7 +1135,7 @@ export default function PitchDeck() {
                   <Separator className="bg-gray-600" />
                   
                   <div>
-                    <h4 className="text-green-400 font-semibold mb-3">RhinoBack Timeline (5-30 minutes)</h4>
+                    <h4 className="text-blue-400 font-semibold mb-3">RhinoBack Timeline (5-30 minutes)</h4>
                     <div className="space-y-2 text-sm text-gray-300">
                       <div>Minutes 1-5: Describe app requirements</div>
                       <div>Minutes 5-15: AI generates complete backend</div>
@@ -1144,7 +1144,7 @@ export default function PitchDeck() {
                   </div>
                   
                   <div className="text-center">
-                    <Badge className="bg-green-600/20 text-green-300 border-green-500/50">
+                    <Badge className="bg-blue-600/20 text-blue-300 border-blue-500/50">
                       100x Faster Development
                     </Badge>
                   </div>
@@ -1168,13 +1168,13 @@ export default function PitchDeck() {
               <div className="flex gap-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
               </div>
               <span className="text-gray-400 font-mono text-sm">rhinoback.ai/builder</span>
             </div>
             
             <div className="bg-black rounded-lg p-6 font-mono text-sm">
-              <div className="text-green-400 mb-4">$ rhinoback create</div>
+              <div className="text-blue-400 mb-4">$ rhinoback create</div>
               <div className="text-gray-300 mb-4">
                 <span className="text-blue-400">RhinoBack:</span> What kind of application would you like to build?
               </div>
@@ -1188,31 +1188,31 @@ export default function PitchDeck() {
               
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400">User management → PostgreSQL tables</span>
+                  <CheckCircle className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400">User management Ã¢â€ â€™ PostgreSQL tables</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400">Real-time cart features → Redis cache</span>
+                  <CheckCircle className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400">Real-time cart features Ã¢â€ â€™ Redis cache</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400">Product search → Elasticsearch</span>
+                  <CheckCircle className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400">Product search Ã¢â€ â€™ Elasticsearch</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400">File storage → S3 integration</span>
+                  <CheckCircle className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400">File storage Ã¢â€ â€™ S3 integration</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400">Payment processing → Stripe webhooks</span>
+                  <CheckCircle className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400">Payment processing Ã¢â€ â€™ Stripe webhooks</span>
                 </div>
               </div>
               
-              <div className="text-green-400">
-                ✅ Backend generated successfully!<br />
-                🚀 Deployed to: https://your-app.rhinoback.dev<br />
-                📚 API docs: https://your-app.rhinoback.dev/docs
+              <div className="text-blue-400">
+                Ã¢Å“â€¦ Backend generated successfully!<br />
+                Ã°Å¸Å¡â‚¬ Deployed to: https://your-app.rhinoback.dev<br />
+                Ã°Å¸â€œÅ¡ API docs: https://your-app.rhinoback.dev/docs
               </div>
             </div>
             
@@ -1252,7 +1252,7 @@ export default function PitchDeck() {
             
             <Card className="bg-gray-900/50 border-gray-700 text-center">
               <CardHeader>
-                <div className="text-4xl font-bold text-green-400 mb-2">100K+</div>
+                <div className="text-4xl font-bold text-blue-400 mb-2">100K+</div>
                 <CardTitle className="text-white">Enterprise Teams</CardTitle>
                 <CardDescription>Accelerating internal development</CardDescription>
               </CardHeader>
@@ -1266,39 +1266,39 @@ export default function PitchDeck() {
                 <div className="text-2xl font-bold text-white mb-2">Free</div>
                 <div className="text-gray-400 mb-4">Starter</div>
                 <div className="text-gray-300 text-sm">
-                  • Basic apps<br />
-                  • 10K requests/month<br />
-                  • Community support
+                  Ã¢â‚¬Â¢ Basic apps<br />
+                  Ã¢â‚¬Â¢ 10K requests/month<br />
+                  Ã¢â‚¬Â¢ Community support
                 </div>
               </div>
               <div className="text-center border-l border-gray-600 pl-6">
                 <div className="text-2xl font-bold text-purple-400 mb-2">$25</div>
                 <div className="text-gray-400 mb-4">Pro / month</div>
                 <div className="text-gray-300 text-sm">
-                  • Production apps<br />
-                  • 100K requests/month<br />
-                  • Custom domains<br />
-                  • Priority support
+                  Ã¢â‚¬Â¢ Production apps<br />
+                  Ã¢â‚¬Â¢ 100K requests/month<br />
+                  Ã¢â‚¬Â¢ Custom domains<br />
+                  Ã¢â‚¬Â¢ Priority support
                 </div>
               </div>
               <div className="text-center border-l border-gray-600 pl-6">
                 <div className="text-2xl font-bold text-pink-400 mb-2">$99</div>
                 <div className="text-gray-400 mb-4">Team / month</div>
                 <div className="text-gray-300 text-sm">
-                  • Team collaboration<br />
-                  • 500K requests/month<br />
-                  • Advanced features<br />
-                  • Dedicated support
+                  Ã¢â‚¬Â¢ Team collaboration<br />
+                  Ã¢â‚¬Â¢ 500K requests/month<br />
+                  Ã¢â‚¬Â¢ Advanced features<br />
+                  Ã¢â‚¬Â¢ Dedicated support
                 </div>
               </div>
               <div className="text-center border-l border-gray-600 pl-6">
-                <div className="text-2xl font-bold text-green-400 mb-2">Custom</div>
+                <div className="text-2xl font-bold text-blue-400 mb-2">Custom</div>
                 <div className="text-gray-400 mb-4">Enterprise</div>
                 <div className="text-gray-300 text-sm">
-                  • On-premise deployment<br />
-                  • Unlimited requests<br />
-                  • SLA guarantees<br />
-                  • White-label options
+                  Ã¢â‚¬Â¢ On-premise deployment<br />
+                  Ã¢â‚¬Â¢ Unlimited requests<br />
+                  Ã¢â‚¬Â¢ SLA guarantees<br />
+                  Ã¢â‚¬Â¢ White-label options
                 </div>
               </div>
             </div>
@@ -1329,7 +1329,7 @@ export default function PitchDeck() {
               <tbody>
                 <tr className="border-b border-gray-700">
                   <td className="p-6 text-white">AI-Powered Architecture</td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
@@ -1337,15 +1337,15 @@ export default function PitchDeck() {
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="p-6 text-white">Multi-Database Support</td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="p-6 text-white">Natural Language Input</td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
@@ -1353,15 +1353,15 @@ export default function PitchDeck() {
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="p-6 text-white">Visual + Code Interface</td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="p-6 text-white">Industry Templates</td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
@@ -1369,15 +1369,15 @@ export default function PitchDeck() {
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="p-6 text-white">Fair Usage Pricing</td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-green-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle className="w-5 h-5 text-blue-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                   <td className="p-6 text-center"><XCircle className="w-5 h-5 text-red-400 mx-auto" /></td>
                 </tr>
                 <tr>
                   <td className="p-6 text-white">Deployment Speed</td>
-                  <td className="p-6 text-center text-green-400 font-semibold">5 min</td>
+                  <td className="p-6 text-center text-blue-400 font-semibold">5 min</td>
                   <td className="p-6 text-center text-gray-400">30 min</td>
                   <td className="p-6 text-center text-gray-400">45 min</td>
                   <td className="p-6 text-center text-gray-400">2 hours</td>
@@ -1393,10 +1393,10 @@ export default function PitchDeck() {
                 <CardTitle className="text-white">Why Firebase Falls Short</CardTitle>
               </CardHeader>
               <CardContent className="text-gray-300 text-sm space-y-2">
-                <p>• Locked into NoSQL - not suitable for complex relations</p>
-                <p>• Expensive scaling - costs spiral quickly</p>
-                <p>• Limited backend logic flexibility</p>
-                <p>• Vendor lock-in with Google ecosystem</p>
+                <p>Ã¢â‚¬Â¢ Locked into NoSQL - not suitable for complex relations</p>
+                <p>Ã¢â‚¬Â¢ Expensive scaling - costs spiral quickly</p>
+                <p>Ã¢â‚¬Â¢ Limited backend logic flexibility</p>
+                <p>Ã¢â‚¬Â¢ Vendor lock-in with Google ecosystem</p>
               </CardContent>
             </Card>
 
@@ -1405,10 +1405,10 @@ export default function PitchDeck() {
                 <CardTitle className="text-white">Why Supabase Isn't Enough</CardTitle>
               </CardHeader>
               <CardContent className="text-gray-300 text-sm space-y-2">
-                <p>• PostgreSQL-only limits architecture choices</p>
-                <p>• Manual configuration still required</p>
-                <p>• No AI-powered optimization</p>
-                <p>• Complex setup for multi-database needs</p>
+                <p>Ã¢â‚¬Â¢ PostgreSQL-only limits architecture choices</p>
+                <p>Ã¢â‚¬Â¢ Manual configuration still required</p>
+                <p>Ã¢â‚¬Â¢ No AI-powered optimization</p>
+                <p>Ã¢â‚¬Â¢ Complex setup for multi-database needs</p>
               </CardContent>
             </Card>
 
@@ -1417,10 +1417,10 @@ export default function PitchDeck() {
                 <CardTitle className="text-white">Why Xano is Limited</CardTitle>
               </CardHeader>
               <CardContent className="text-gray-300 text-sm space-y-2">
-                <p>• Visual-only interface limits developers</p>
-                <p>• No natural language input</p>
-                <p>• Generic templates, not industry-specific</p>
-                <p>• Expensive scaling ($200+ quickly)</p>
+                <p>Ã¢â‚¬Â¢ Visual-only interface limits developers</p>
+                <p>Ã¢â‚¬Â¢ No natural language input</p>
+                <p>Ã¢â‚¬Â¢ Generic templates, not industry-specific</p>
+                <p>Ã¢â‚¬Â¢ Expensive scaling ($200+ quickly)</p>
               </CardContent>
             </Card>
           </div>
@@ -1467,7 +1467,7 @@ export default function PitchDeck() {
                   <span className="text-white">Groq AI (10x faster than OpenAI)</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Database className="w-5 h-5 text-green-400" />
+                  <Database className="w-5 h-5 text-blue-400" />
                   <span className="text-white">Multi-database architecture</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -1510,7 +1510,7 @@ export default function PitchDeck() {
             
             <Card className="bg-gray-900/50 border-gray-700">
               <CardHeader>
-                <div className="text-4xl font-bold text-green-400 mb-2">5%</div>
+                <div className="text-4xl font-bold text-blue-400 mb-2">5%</div>
                 <CardTitle className="text-white">Professional Services</CardTitle>
                 <CardDescription>Custom development and consulting</CardDescription>
               </CardHeader>
@@ -1524,7 +1524,7 @@ export default function PitchDeck() {
             <CardContent>
               <div className="grid md:grid-cols-4 gap-6 text-center">
                 <div>
-                  <div className="text-3xl font-bold text-green-400 mb-2">$50</div>
+                  <div className="text-3xl font-bold text-blue-400 mb-2">$50</div>
                   <div className="text-gray-300">Customer Acquisition Cost</div>
                 </div>
                 <div>
@@ -1585,7 +1585,7 @@ export default function PitchDeck() {
               <div className="space-y-6">
                 <Card className="bg-gray-900/50 border-gray-700">
                   <CardContent className="p-6">
-                    <div className="text-2xl font-bold text-green-400 mb-2">500+</div>
+                    <div className="text-2xl font-bold text-blue-400 mb-2">500+</div>
                     <p className="text-white font-semibold">Signups from landing page</p>
                     <p className="text-gray-400 text-sm">in just 2 weeks</p>
                   </CardContent>
@@ -1621,9 +1621,9 @@ export default function PitchDeck() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <Card className="bg-gradient-to-br from-green-900/30 to-green-800/30 border-green-600/50">
+            <Card className="bg-gradient-to-br from-blue-900/30 to-blue-800/30 border-blue-600/50">
               <CardHeader className="text-center">
-                <CardTitle className="text-3xl font-bold text-green-400">Year 1</CardTitle>
+                <CardTitle className="text-3xl font-bold text-blue-400">Year 1</CardTitle>
                 <CardDescription>Building momentum</CardDescription>
               </CardHeader>
               <CardContent className="text-center space-y-4">
@@ -1632,7 +1632,7 @@ export default function PitchDeck() {
                   <p className="text-gray-300">Customers</p>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-green-400">$360K</div>
+                  <div className="text-3xl font-bold text-blue-400">$360K</div>
                   <p className="text-gray-300">ARR</p>
                 </div>
               </CardContent>
@@ -1689,20 +1689,20 @@ export default function PitchDeck() {
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-4">Technical Founder</h3>
                     <div className="space-y-3 text-gray-300">
-                      <p>• 4+ years of SaaS MVP development experience</p>
-                      <p>• Master's in Artificial Intelligence, University at Buffalo</p>
-                      <p>• Deep expertise in AI and infrastructure</p>
-                      <p>• Track record of shipping production systems</p>
+                      <p>Ã¢â‚¬Â¢ 4+ years of SaaS MVP development experience</p>
+                      <p>Ã¢â‚¬Â¢ Master's in Artificial Intelligence, University at Buffalo</p>
+                      <p>Ã¢â‚¬Â¢ Deep expertise in AI and infrastructure</p>
+                      <p>Ã¢â‚¬Â¢ Track record of shipping production systems</p>
                     </div>
                   </div>
                   
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-4">Why We'll Win</h3>
                     <div className="space-y-3 text-gray-300">
-                      <p>• Understanding of real developer pain points</p>
-                      <p>• Experience building scalable backend systems</p>
-                      <p>• AI expertise for intelligent architecture decisions</p>
-                      <p>• Passion for developer experience</p>
+                      <p>Ã¢â‚¬Â¢ Understanding of real developer pain points</p>
+                      <p>Ã¢â‚¬Â¢ Experience building scalable backend systems</p>
+                      <p>Ã¢â‚¬Â¢ AI expertise for intelligent architecture decisions</p>
+                      <p>Ã¢â‚¬Â¢ Passion for developer experience</p>
                     </div>
                   </div>
                 </div>

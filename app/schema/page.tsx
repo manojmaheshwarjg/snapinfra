@@ -76,7 +76,7 @@ export default function SchemaEditor() {
                   <Badge 
                     variant="secondary" 
                     className={`text-xs ${
-                      currentProject.status === 'deployed' ? 'bg-green-100 text-green-700 border-green-200' :
+                      currentProject.status === 'deployed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
                       currentProject.status === 'building' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
                       currentProject.status === 'error' ? 'bg-red-100 text-red-700 border-red-200' :
                       'bg-gray-100 text-gray-700 border-gray-200'

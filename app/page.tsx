@@ -486,137 +486,6 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Feature Cards Section */}
-              <div className="self-stretch flex justify-center items-center mt-16 px-4 sm:px-6 md:px-8 lg:px-0">
-                <div className="w-full max-w-[1000px] flex flex-col md:flex-row justify-center items-stretch gap-4 md:gap-6">
-                  <FeatureCard
-                    title="Enterprise-grade architecture"
-                    description="Not starter templates. Production-ready systems with scalability, observability, and security baked in from the start."
-                    isActive={activeCard === 0}
-                    progress={activeCard === 0 ? progress : 0}
-                    onClick={() => handleCardClick(0)}
-                    icon={<Boxes className="w-6 h-6" />}
-                  />
-                  <FeatureCard
-                    title="Own your infrastructure"
-                    description="Full source code export. Deploy to your cloud. Customize everything. No vendor lock-in, no compromises."
-                    isActive={activeCard === 1}
-                    progress={activeCard === 1 ? progress : 0}
-                    onClick={() => handleCardClick(1)}
-                    icon={<Server className="w-6 h-6" />}
-                  />
-                  <FeatureCard
-                    title="Accelerate time-to-market"
-                    description="Your team focuses on differentiated features. We handle auth, APIs, compliance. Ship 10x faster."
-                    isActive={activeCard === 2}
-                    progress={activeCard === 2 ? progress : 0}
-                    onClick={() => handleCardClick(2)}
-                    icon={<Zap className="w-6 h-6" />}
-                  />
-                </div>
-              </div>
-
-              {/* Infrastructure Section - NEW */}
-              <div className="w-full border-b border-[rgba(55,50,47,0.12)] flex flex-col justify-center items-center mt-16">
-                <div className="self-stretch px-4 sm:px-6 md:px-8 lg:px-16 py-12 sm:py-16 md:py-20 flex justify-center items-center">
-                  <div className="w-full max-w-[900px] grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                    {/* Left side - The Problem */}
-                    <div className="flex flex-col gap-6">
-                      <div className="inline-flex">
-                        <div className="px-3 py-1.5 bg-red-50 rounded-full border border-red-100">
-                          <span className="text-red-700 text-xs font-semibold">The Problem</span>
-                        </div>
-                      </div>
-                      <h2 className="text-[#37322F] text-2xl sm:text-3xl md:text-4xl font-normal leading-tight font-serif">
-                        Infrastructure is killing velocity
-                      </h2>
-                      <div className="flex flex-col gap-4">
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
-                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                          </div>
-                          <div>
-                            <h4 className="text-[#37322F] text-base font-semibold font-sans mb-1">6-8 weeks to MVP</h4>
-                            <p className="text-[#605A57] text-sm font-normal leading-relaxed font-sans">
-                              Your team spends months on auth, role management, and API scaffolding. Competitors ship faster.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
-                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                          </div>
-                          <div>
-                            <h4 className="text-[#37322F] text-base font-semibold font-sans mb-1">Technical debt compounds</h4>
-                            <p className="text-[#605A57] text-sm font-normal leading-relaxed font-sans">
-                              Quick decisions become architectural nightmares. Refactoring at 50k users costs millions in engineering hours.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
-                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                          </div>
-                          <div>
-                            <h4 className="text-[#37322F] text-base font-semibold font-sans mb-1">Compliance & security gaps</h4>
-                            <p className="text-[#605A57] text-sm font-normal leading-relaxed font-sans">
-                              SOC 2, GDPR, audit logs. One security incident or failed audit derails your entire roadmap.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right side - The Solution */}
-                    <div className="flex flex-col gap-6">
-                      <div className="inline-flex">
-                        <div className="px-3 py-1.5 bg-[#005BE3]/10 rounded-full border border-[#005BE3]/20">
-                          <span className="text-[#005BE3] text-xs font-semibold">The Solution</span>
-                        </div>
-                      </div>
-                      <h2 className="text-[#37322F] text-2xl sm:text-3xl md:text-4xl font-normal leading-tight font-serif">
-                        Enterprise infrastructure, instantly
-                      </h2>
-                      <div className="flex flex-col gap-4">
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#005BE3] flex items-center justify-center mt-0.5">
-                            <Check className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="text-[#37322F] text-base font-semibold font-sans mb-1">Production-ready in hours</h4>
-                            <p className="text-[#605A57] text-sm font-normal leading-relaxed font-sans">
-                              Multi-tenant auth, RBAC, SSO, audit logs. Everything enterprises demand, generated and deployed instantly.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#005BE3] flex items-center justify-center mt-0.5">
-                            <Check className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="text-[#37322F] text-base font-semibold font-sans mb-1">Built for scale</h4>
-                            <p className="text-[#605A57] text-sm font-normal leading-relaxed font-sans">
-                              Optimized database architecture, query patterns, caching strategies. Handles 10M+ users without breaking a sweat.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#005BE3] flex items-center justify-center mt-0.5">
-                            <Check className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="text-[#37322F] text-base font-semibold font-sans mb-1">Compliance-ready</h4>
-                            <p className="text-[#605A57] text-sm font-normal leading-relaxed font-sans">
-                              SOC 2, HIPAA, GDPR controls built-in. Audit trails, data encryption, access controls. Pass audits with confidence.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Benefits Section */}
               <div className="w-full border-b border-[rgba(55,50,47,0.12)] flex flex-col justify-center items-center mt-16">
                 <div className="self-stretch px-4 sm:px-6 md:px-24 py-8 sm:py-12 md:py-16 border-b border-[rgba(55,50,47,0.12)] flex justify-center items-center gap-6">
@@ -695,20 +564,36 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Documentation Section */}
-              <DocumentationSection />
+              {/* Footer Section */}
+              <div className="self-stretch flex justify-center items-center mt-16 px-4 sm:px-6 md:px-8 lg:px-0">
+                <div className="w-full max-w-[1000px] flex flex-col md:flex-row justify-center items-stretch gap-4 md:gap-6">
+                  <FeatureCard
+                    title="Enterprise-grade architecture"
+                    description="Not starter templates. Production-ready systems with scalability, observability, and security baked in from the start."
+                    isActive={activeCard === 0}
+                    progress={activeCard === 0 ? progress : 0}
+                    onClick={() => handleCardClick(0)}
+                    icon={<Boxes className="w-6 h-6" />}
+                  />
+                  <FeatureCard
+                    title="Own your infrastructure"
+                    description="Full source code export. Deploy to your cloud. Customize everything. No vendor lock-in, no compromises."
+                    isActive={activeCard === 1}
+                    progress={activeCard === 1 ? progress : 0}
+                    onClick={() => handleCardClick(1)}
+                    icon={<Server className="w-6 h-6" />}
+                  />
+                  <FeatureCard
+                    title="Accelerate time-to-market"
+                    description="Your team focuses on differentiated features. We handle auth, APIs, compliance. Ship 10x faster."
+                    isActive={activeCard === 2}
+                    progress={activeCard === 2 ? progress : 0}
+                    onClick={() => handleCardClick(2)}
+                    icon={<Zap className="w-6 h-6" />}
+                  />
+                </div>
+              </div>
 
-              {/* Testimonials Section */}
-              <TestimonialsSection />
-
-              {/* Pricing Section */}
-              <PricingSection />
-
-              {/* FAQ Section */}
-              <FAQSection />
-
-              {/* CTA Section */}
-              <CTASection />
 
               {/* Footer Section */}
               <FooterSection />

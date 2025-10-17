@@ -299,21 +299,8 @@ export default function LandingPage() {
         // Existing user with projects or completed onboarding - go to dashboard
         router.push('/dashboard')
       } else {
-        // Signed in but no projects and hasn't onboarded - check if newly created
-        const userCreatedAt = new Date(user?.createdAt || 0)
-        const now = new Date()
-        const timeDiff = now.getTime() - userCreatedAt.getTime()
-        const isNewUser = timeDiff < 10000 // Less than 10 seconds ago
-        
-        if (isNewUser) {
-          // Very new user - let them see landing page for a moment, then redirect to onboarding
-          setTimeout(() => {
-            router.push('/onboarding')
-          }, 2000) // 2 second delay to see the landing page
-        } else {
-          // Returning user without projects - probably should onboard
-          router.push('/onboarding')
-        }
+        // Signed in but no projects and hasn't onboarded - redirect to onboarding
+        router.push('/onboarding')
       }
     }
   }, [isLoaded, isSignedIn, user, router])
@@ -344,6 +331,21 @@ export default function LandingPage() {
     if (!mountedRef.current) return
     setActiveCard(index)
     setProgress(0)
+  }
+
+  // Show loading state if user is signed in to prevent flash
+  if (isLoaded && isSignedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#fafaf9] via-[#f5f3f0] to-[#ede9e3]">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-[rgba(55,50,47,0.1)] border-t-[#005BE3] rounded-full animate-spin"></div>
+          </div>
+          <p className="mt-4 text-[#37322F] font-medium font-sans">Redirecting...</p>
+          <p className="text-[#605A57] text-sm font-sans">Taking you to your dashboard</p>
+        </div>
+      </div>
+    )
   }
 
   return (

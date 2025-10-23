@@ -19,13 +19,16 @@ export const authenticateToken = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    console.log('🔐 Authenticating request:', req.method, req.path);
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
     if (!token) {
+      console.log('❌ No token provided');
       throw createError('Access token required', 401);
     }
 
+    console.log('🔑 Token received, verifying with Clerk...');
     // Verify Clerk token
     let clerkUserId: string;
     try {
@@ -33,18 +36,24 @@ export const authenticateToken = async (
         secretKey: process.env.CLERK_SECRET_KEY!
       });
       clerkUserId = payload.sub;
+      console.log('✅ Clerk JWT verified, user ID:', clerkUserId);
     } catch (error) {
+      console.log('❌ Clerk JWT verification failed:', error);
       throw createError('Invalid or expired token', 401);
     }
 
     // Get Clerk user details
+    console.log('📥 Fetching user details from Clerk...');
     const clerkUser = await clerkClient.users.getUser(clerkUserId);
+    console.log('✅ User details fetched:', clerkUser.emailAddresses[0]?.emailAddress);
 
     // Get or create user in our database
+    console.log('🔍 Checking if user exists in DynamoDB...');
     let user = await DynamoService.getUserById(clerkUserId);
 
     // If user doesn't exist, create from Clerk data
     if (!user) {
+      console.log('🆕 User not found, creating in DynamoDB...');
       user = await DynamoService.createUser({
         id: clerkUserId,
         email: clerkUser.emailAddresses[0]?.emailAddress || 'unknown@example.com',
@@ -52,12 +61,16 @@ export const authenticateToken = async (
         firstName: clerkUser.firstName || undefined,
         lastName: clerkUser.lastName || undefined
       });
+      console.log('✅ User created in DynamoDB:', user.id);
+    } else {
+      console.log('✅ User found in DynamoDB:', user.id);
     }
 
     // Attach user to request
     req.user = user;
     next();
   } catch (error) {
+    console.log('❌ Authentication error:', error);
     next(error);
   }
 };
@@ -149,6 +162,7 @@ export const getCurrentUserId = (req: AuthenticatedRequest): string => {
 
 // Middleware to require authentication
 export const requireAuth = authenticateToken;
+export const authenticateUser = devAuth; // Alias for development
 
 // Middleware for admin-only routes (if needed later)
 export const requireAdmin = async (

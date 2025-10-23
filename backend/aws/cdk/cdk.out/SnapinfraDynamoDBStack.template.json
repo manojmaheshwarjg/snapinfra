@@ -1,0 +1,1182 @@
+{
+ "Description": "Snapinfra DynamoDB Tables Infrastructure",
+ "Resources": {
+  "ProjectsTableAA0A2089": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "status",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "updatedAt",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "StatusIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "status",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "updatedAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "StreamSpecification": {
+     "StreamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "TableName": "snapinfra-projects"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/ProjectsTable/Resource"
+   }
+  },
+  "SchemasTable1DC069C3": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "version",
+      "AttributeType": "N"
+     },
+     {
+      "AttributeName": "name",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "version",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdNameIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "name",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-schemas"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/SchemasTable/Resource"
+   }
+  },
+  "ArchitecturesTable4088814E": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "updatedAt",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "updatedAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-architectures"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/ArchitecturesTable/Resource"
+   }
+  },
+  "CodeGenerationsTable2FC390A7": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "status",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "updatedAt",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "StatusIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "status",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "updatedAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-code-generations",
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/CodeGenerationsTable/Resource"
+   }
+  },
+  "DeploymentsTable5D087E52": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "status",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "environment",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "UserIdStatusIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "status",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "EnvironmentIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "environment",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "StreamSpecification": {
+     "StreamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "TableName": "snapinfra-deployments"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/DeploymentsTable/Resource"
+   }
+  },
+  "AnalyticsTable3F84C304": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "timestamp",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "metric",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdTimestampIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "timestamp",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "timestamp",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "MetricIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "metric",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "timestamp",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "timestamp",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-analytics",
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/AnalyticsTable/Resource"
+   }
+  },
+  "ActivityTable0B58B12C": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "entityType",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "EntityTypeIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "entityType",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "createdAt",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-activity",
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/ActivityTable/Resource"
+   }
+  },
+  "DocumentationTable6C45F44E": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "order",
+      "AttributeType": "N"
+     },
+     {
+      "AttributeName": "category",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "order",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdCategoryIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "category",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-documentation"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/DocumentationTable/Resource"
+   }
+  },
+  "TeamsTableE80F987E": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "projectId",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-teams"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/TeamsTable/Resource"
+   }
+  },
+  "SettingsTable4DB0CCD0": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "userId",
+      "KeyType": "HASH"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-settings"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/SettingsTable/Resource"
+   }
+  },
+  "IntegrationsTable781EC78A": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "createdAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "projectId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "type",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "enabled",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "UserIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "userId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "createdAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "ProjectIdIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "projectId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "type",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "TypeIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "type",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "enabled",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "userId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-integrations"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/IntegrationsTable/Resource"
+   }
+  },
+  "UsersTable9725E9C8": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "email",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "EmailIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "email",
+        "KeyType": "HASH"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "SSESpecification": {
+     "SSEEnabled": true
+    },
+    "TableName": "snapinfra-users"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/UsersTable/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/yXISQqEMBBA0bO4T8pYeAMPIKh7qQxCHBKxkpZGvLugq//4CIgKVEEnS2MXuXoNV5/ILIJOHu0/0BathmsgvTrRTOHFLTrHMR/mXW1Oe063CNE6mLn8IUJVgypm9l4eOSS/Oei+PhEBHI9yAAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraDynamoDBStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "ProjectsTableName": {
+   "Description": "Projects Table Name",
+   "Value": {
+    "Ref": "ProjectsTableAA0A2089"
+   }
+  },
+  "SchemasTableName": {
+   "Description": "Schemas Table Name",
+   "Value": {
+    "Ref": "SchemasTable1DC069C3"
+   }
+  },
+  "ArchitecturesTableName": {
+   "Description": "Architectures Table Name",
+   "Value": {
+    "Ref": "ArchitecturesTable4088814E"
+   }
+  },
+  "CodeGenerationsTableName": {
+   "Description": "Code Generations Table Name",
+   "Value": {
+    "Ref": "CodeGenerationsTable2FC390A7"
+   }
+  },
+  "DeploymentsTableName": {
+   "Description": "Deployments Table Name",
+   "Value": {
+    "Ref": "DeploymentsTable5D087E52"
+   }
+  },
+  "AnalyticsTableName": {
+   "Description": "Analytics Table Name",
+   "Value": {
+    "Ref": "AnalyticsTable3F84C304"
+   }
+  },
+  "ActivityTableName": {
+   "Description": "Activity Table Name",
+   "Value": {
+    "Ref": "ActivityTable0B58B12C"
+   }
+  },
+  "DocumentationTableName": {
+   "Description": "Documentation Table Name",
+   "Value": {
+    "Ref": "DocumentationTable6C45F44E"
+   }
+  },
+  "TeamsTableName": {
+   "Description": "Teams Table Name",
+   "Value": {
+    "Ref": "TeamsTableE80F987E"
+   }
+  },
+  "SettingsTableName": {
+   "Description": "Settings Table Name",
+   "Value": {
+    "Ref": "SettingsTable4DB0CCD0"
+   }
+  },
+  "IntegrationsTableName": {
+   "Description": "Integrations Table Name",
+   "Value": {
+    "Ref": "IntegrationsTable781EC78A"
+   }
+  },
+  "UsersTableName": {
+   "Description": "Users Table Name",
+   "Value": {
+    "Ref": "UsersTable9725E9C8"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

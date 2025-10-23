@@ -539,4 +539,399 @@ export class DynamoService {
       recentActivity
     };
   }
+
+  // Architecture operations
+  static async createArchitecture(architectureData: any): Promise<any> {
+    const architecture = {
+      id: uuidv4(),
+      ...architectureData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.ARCHITECTURES,
+      Item: architecture
+    }));
+
+    return architecture;
+  }
+
+  static async getArchitectureById(id: string, projectId: string): Promise<any> {
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLES.ARCHITECTURES,
+      Key: { id, projectId }
+    }));
+    return result.Item || null;
+  }
+
+  static async getProjectArchitectures(projectId: string): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.ARCHITECTURES,
+      IndexName: 'ProjectIdIndex',
+      KeyConditionExpression: 'projectId = :projectId',
+      ExpressionAttributeValues: { ':projectId': projectId },
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async updateArchitecture(id: string, projectId: string, updates: any): Promise<any> {
+    const result = await docClient.send(new UpdateCommand({
+      TableName: TABLES.ARCHITECTURES,
+      Key: { id, projectId },
+      UpdateExpression: 'SET #data = :data, updatedAt = :updatedAt',
+      ExpressionAttributeNames: { '#data': 'data' },
+      ExpressionAttributeValues: {
+        ':data': updates.data,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    }));
+    return result.Attributes;
+  }
+
+  static async deleteArchitecture(id: string, projectId: string): Promise<void> {
+    await docClient.send(new DeleteCommand({
+      TableName: TABLES.ARCHITECTURES,
+      Key: { id, projectId }
+    }));
+  }
+
+  // Analytics operations
+  static async trackAnalyticsEvent(eventData: any): Promise<any> {
+    const event = {
+      id: uuidv4(),
+      ...eventData,
+      timestamp: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.ANALYTICS,
+      Item: event
+    }));
+
+    return event;
+  }
+
+  static async getProjectAnalytics(projectId: string, startDate?: string, endDate?: string): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.ANALYTICS,
+      IndexName: 'ProjectIdIndex',
+      KeyConditionExpression: 'projectId = :projectId',
+      ExpressionAttributeValues: { ':projectId': projectId },
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async getUserAnalytics(userId: string, limit: number = 100): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.ANALYTICS,
+      IndexName: 'UserIdIndex',
+      KeyConditionExpression: 'userId = :userId',
+      ExpressionAttributeValues: { ':userId': userId },
+      Limit: limit,
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  // Activity operations
+  static async logActivity(activityData: any): Promise<any> {
+    const activity = {
+      id: uuidv4(),
+      ...activityData,
+      timestamp: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.ACTIVITY,
+      Item: activity
+    }));
+
+    return activity;
+  }
+
+  static async getUserActivities(userId: string, limit: number = 50): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.ACTIVITY,
+      IndexName: 'UserIdIndex',
+      KeyConditionExpression: 'userId = :userId',
+      ExpressionAttributeValues: { ':userId': userId },
+      Limit: limit,
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async getProjectActivities(projectId: string, limit: number = 50): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.ACTIVITY,
+      IndexName: 'ProjectIdIndex',
+      KeyConditionExpression: 'projectId = :projectId',
+      ExpressionAttributeValues: { ':projectId': projectId },
+      Limit: limit,
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async deleteActivity(id: string, userId: string): Promise<void> {
+    await docClient.send(new DeleteCommand({
+      TableName: TABLES.ACTIVITY,
+      Key: { id, userId }
+    }));
+  }
+
+  // Documentation operations
+  static async createDocumentation(docData: any): Promise<any> {
+    const documentation = {
+      id: uuidv4(),
+      ...docData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.DOCUMENTATION,
+      Item: documentation
+    }));
+
+    return documentation;
+  }
+
+  static async getDocumentationById(id: string, projectId: string): Promise<any> {
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLES.DOCUMENTATION,
+      Key: { id, projectId }
+    }));
+    return result.Item || null;
+  }
+
+  static async getProjectDocumentation(projectId: string): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.DOCUMENTATION,
+      IndexName: 'ProjectIdIndex',
+      KeyConditionExpression: 'projectId = :projectId',
+      ExpressionAttributeValues: { ':projectId': projectId },
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async updateDocumentation(id: string, projectId: string, updates: any): Promise<any> {
+    const result = await docClient.send(new UpdateCommand({
+      TableName: TABLES.DOCUMENTATION,
+      Key: { id, projectId },
+      UpdateExpression: 'SET content = :content, updatedAt = :updatedAt',
+      ExpressionAttributeValues: {
+        ':content': updates.content,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    }));
+    return result.Attributes;
+  }
+
+  static async deleteDocumentation(id: string, projectId: string): Promise<void> {
+    await docClient.send(new DeleteCommand({
+      TableName: TABLES.DOCUMENTATION,
+      Key: { id, projectId }
+    }));
+  }
+
+  // Code Generation operations
+  static async createCodeGeneration(codeGenData: any): Promise<any> {
+    const codeGeneration = {
+      id: uuidv4(),
+      ...codeGenData,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.CODE_GENERATIONS,
+      Item: codeGeneration
+    }));
+
+    return codeGeneration;
+  }
+
+  static async getCodeGenerationById(id: string, projectId: string): Promise<any> {
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLES.CODE_GENERATIONS,
+      Key: { id, projectId }
+    }));
+    return result.Item || null;
+  }
+
+  static async getProjectCodeGenerations(projectId: string): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.CODE_GENERATIONS,
+      IndexName: 'ProjectIdIndex',
+      KeyConditionExpression: 'projectId = :projectId',
+      ExpressionAttributeValues: { ':projectId': projectId },
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async updateCodeGeneration(id: string, projectId: string, updates: any): Promise<any> {
+    const result = await docClient.send(new UpdateCommand({
+      TableName: TABLES.CODE_GENERATIONS,
+      Key: { id, projectId },
+      UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt',
+      ExpressionAttributeNames: { '#status': 'status' },
+      ExpressionAttributeValues: {
+        ':status': updates.status,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    }));
+    return result.Attributes;
+  }
+
+  // Team operations
+  static async createTeam(teamData: any): Promise<any> {
+    const team = {
+      id: uuidv4(),
+      ...teamData,
+      members: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.TEAMS,
+      Item: team
+    }));
+
+    return team;
+  }
+
+  static async getTeamById(id: string): Promise<any> {
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLES.TEAMS,
+      Key: { id }
+    }));
+    return result.Item || null;
+  }
+
+  static async getUserTeams(userId: string): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.TEAMS,
+      IndexName: 'OwnerIdIndex',
+      KeyConditionExpression: 'ownerId = :userId',
+      ExpressionAttributeValues: { ':userId': userId },
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async updateTeam(id: string, updates: any): Promise<any> {
+    const result = await docClient.send(new UpdateCommand({
+      TableName: TABLES.TEAMS,
+      Key: { id },
+      UpdateExpression: 'SET #name = :name, members = :members, updatedAt = :updatedAt',
+      ExpressionAttributeNames: { '#name': 'name' },
+      ExpressionAttributeValues: {
+        ':name': updates.name,
+        ':members': updates.members,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    }));
+    return result.Attributes;
+  }
+
+  static async deleteTeam(id: string): Promise<void> {
+    await docClient.send(new DeleteCommand({
+      TableName: TABLES.TEAMS,
+      Key: { id }
+    }));
+  }
+
+  // Settings operations
+  static async getUserSettings(userId: string): Promise<any> {
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLES.SETTINGS,
+      Key: { userId }
+    }));
+    return result.Item || null;
+  }
+
+  static async updateUserSettings(userId: string, settings: any): Promise<any> {
+    const result = await docClient.send(new PutCommand({
+      TableName: TABLES.SETTINGS,
+      Item: {
+        userId,
+        ...settings,
+        updatedAt: new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    }));
+    return result.Attributes;
+  }
+
+  // Integration operations
+  static async createIntegration(integrationData: any): Promise<any> {
+    const integration = {
+      id: uuidv4(),
+      ...integrationData,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.INTEGRATIONS,
+      Item: integration
+    }));
+
+    return integration;
+  }
+
+  static async getIntegrationById(id: string, userId: string): Promise<any> {
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLES.INTEGRATIONS,
+      Key: { id, userId }
+    }));
+    return result.Item || null;
+  }
+
+  static async getUserIntegrations(userId: string): Promise<any[]> {
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLES.INTEGRATIONS,
+      IndexName: 'UserIdIndex',
+      KeyConditionExpression: 'userId = :userId',
+      ExpressionAttributeValues: { ':userId': userId },
+      ScanIndexForward: false
+    }));
+    return result.Items || [];
+  }
+
+  static async updateIntegration(id: string, userId: string, updates: any): Promise<any> {
+    const result = await docClient.send(new UpdateCommand({
+      TableName: TABLES.INTEGRATIONS,
+      Key: { id, userId },
+      UpdateExpression: 'SET #status = :status, config = :config, updatedAt = :updatedAt',
+      ExpressionAttributeNames: { '#status': 'status' },
+      ExpressionAttributeValues: {
+        ':status': updates.status,
+        ':config': updates.config,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    }));
+    return result.Attributes;
+  }
+
+  static async deleteIntegration(id: string, userId: string): Promise<void> {
+    await docClient.send(new DeleteCommand({
+      TableName: TABLES.INTEGRATIONS,
+      Key: { id, userId }
+    }));
+  }
 }

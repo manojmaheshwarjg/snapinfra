@@ -247,6 +247,16 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 }
 
 // Request types
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+      userName?: string;
+      user?: User;
+    }
+  }
+}
+
 export interface AuthenticatedRequest extends Request {
   user?: User;
 }

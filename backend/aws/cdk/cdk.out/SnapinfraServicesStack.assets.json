@@ -1,0 +1,21 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "b21fbfe3c36442e3587402a840a8f7588594ce91c95f98b7ab838acb4eb7307d": {
+      "displayName": "SnapinfraServicesStack Template",
+      "source": {
+        "path": "SnapinfraServicesStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "069380454083-us-east-1-44df498d": {
+          "bucketName": "cdk-hnb659fds-assets-069380454083-us-east-1",
+          "objectKey": "b21fbfe3c36442e3587402a840a8f7588594ce91c95f98b7ab838acb4eb7307d.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::069380454083:role/cdk-hnb659fds-file-publishing-role-069380454083-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

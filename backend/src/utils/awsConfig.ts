@@ -43,7 +43,15 @@ export const TABLES = {
   PROJECTS: process.env.DYNAMODB_PROJECTS_TABLE || 'snapinfra-projects',
   USERS: process.env.DYNAMODB_USERS_TABLE || 'snapinfra-users',
   SCHEMAS: process.env.DYNAMODB_SCHEMAS_TABLE || 'snapinfra-schemas',
-  DEPLOYMENTS: process.env.DYNAMODB_DEPLOYMENTS_TABLE || 'snapinfra-deployments'
+  ARCHITECTURES: process.env.DYNAMODB_ARCHITECTURES_TABLE || 'snapinfra-architectures',
+  CODE_GENERATIONS: process.env.DYNAMODB_CODE_GENERATIONS_TABLE || 'snapinfra-code-generations',
+  DEPLOYMENTS: process.env.DYNAMODB_DEPLOYMENTS_TABLE || 'snapinfra-deployments',
+  ANALYTICS: process.env.DYNAMODB_ANALYTICS_TABLE || 'snapinfra-analytics',
+  ACTIVITY: process.env.DYNAMODB_ACTIVITY_TABLE || 'snapinfra-activity',
+  DOCUMENTATION: process.env.DYNAMODB_DOCUMENTATION_TABLE || 'snapinfra-documentation',
+  TEAMS: process.env.DYNAMODB_TEAMS_TABLE || 'snapinfra-teams',
+  SETTINGS: process.env.DYNAMODB_SETTINGS_TABLE || 'snapinfra-settings',
+  INTEGRATIONS: process.env.DYNAMODB_INTEGRATIONS_TABLE || 'snapinfra-integrations'
 };
 
 // Log AWS configuration on startup
@@ -63,13 +71,13 @@ export const S3_CONFIG = {
   BUCKET_REGION: process.env.S3_BUCKET_REGION || AWS_REGION
 };
 
-// SQS Queue URLs
+// SQS Queue URLs (can be queue name or full URL)
 export const QUEUES = {
-  CODE_GENERATION: process.env.SQS_CODE_GENERATION_QUEUE || 'snapinfra-code-generation',
-  DEPLOYMENT: process.env.SQS_DEPLOYMENT_QUEUE || 'snapinfra-deployments'
+  CODE_GENERATION: process.env.SQS_CODE_GENERATION_QUEUE || `https://sqs.${AWS_REGION}.amazonaws.com/${process.env.CDK_DEFAULT_ACCOUNT || '000000000000'}/snapinfra-code-generation`,
+  DEPLOYMENT: process.env.SQS_DEPLOYMENT_QUEUE || `https://sqs.${AWS_REGION}.amazonaws.com/${process.env.CDK_DEFAULT_ACCOUNT || '000000000000'}/snapinfra-deployments`
 };
 
-// SNS Topics
+// SNS Topics (can be topic name or full ARN)
 export const TOPICS = {
-  DEPLOYMENT_NOTIFICATIONS: process.env.SNS_DEPLOYMENT_NOTIFICATIONS || 'snapinfra-deployment-notifications'
+  DEPLOYMENT_NOTIFICATIONS: process.env.SNS_DEPLOYMENT_NOTIFICATIONS || `arn:aws:sns:${AWS_REGION}:${process.env.CDK_DEFAULT_ACCOUNT || '000000000000'}:snapinfra-deployment-notifications`
 };

@@ -55,10 +55,13 @@ const updateProjectSchema = Joi.object({
   }).optional()
 });
 
-import { getCurrentUserId, devAuth } from '@/middleware/authMiddleware';
+import { getCurrentUserId, authenticateToken, devAuth } from '@/middleware/authMiddleware';
+
+// Use Clerk auth in production, devAuth in development
+const auth = process.env.NODE_ENV === 'production' ? authenticateToken : devAuth;
 
 // Get all projects for user
-router.get('/', devAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = getCurrentUserId(req);
   const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
   const search = req.query.search as string;
@@ -88,7 +91,7 @@ router.get('/', devAuth, asyncHandler(async (req: AuthenticatedRequest, res: Res
 }));
 
 // Create new project
-router.post('/', devAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { error, value } = createProjectSchema.validate(req.body, { abortEarly: false });
   if (error) {
     console.error('❌ Project validation failed:', error.details.map(d => ({
@@ -110,6 +113,9 @@ router.post('/', devAuth, asyncHandler(async (req: AuthenticatedRequest, res: Re
   }
 
   const userId = getCurrentUserId(req);
+  
+  console.log('POST /api/projects - Creating project for user:', userId);
+  console.log('Project name:', value.name);
 
   try {
     const project = await DynamoService.createProject(userId, {
@@ -126,6 +132,7 @@ router.post('/', devAuth, asyncHandler(async (req: AuthenticatedRequest, res: Re
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    console.error('❌ Error creating project:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to create project',
@@ -135,7 +142,7 @@ router.post('/', devAuth, asyncHandler(async (req: AuthenticatedRequest, res: Re
 }));
 
 // Get specific project
-router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.get('/:id', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const projectId = req.params.id;
   const userId = getCurrentUserId(req);
 
@@ -177,9 +184,11 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Update project
-router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.put('/:id', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const projectId = req.params.id;
   const userId = getCurrentUserId(req);
+  
+  console.log('PUT /api/projects/:id - Project ID:', projectId, 'User ID:', userId);
   
   const { error, value } = updateProjectSchema.validate(req.body);
   if (error) {
@@ -193,11 +202,15 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 
   try {
     // Check if project exists
+    console.log('Fetching project from DB - ID:', projectId, 'User:', userId);
     const existingProject = await DynamoService.getProjectById(projectId, userId);
+    console.log('Project fetch result:', existingProject ? 'Found' : 'Not found');
+    
     if (!existingProject) {
+      console.log('Returning 404 - Project not found');
       return res.status(404).json({
         success: false,
-        error: 'Project not found',
+        error: 'Requested resource not found',
         timestamp: new Date().toISOString()
       });
     }
@@ -220,7 +233,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Delete project
-router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.delete('/:id', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const projectId = req.params.id;
   const userId = getCurrentUserId(req);
 
@@ -252,7 +265,7 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Get project schemas
-router.get('/:id/schemas', asyncHandler(async (req: Request, res: Response) => {
+router.get('/:id/schemas', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const projectId = req.params.id;
   const userId = getCurrentUserId(req);
 
@@ -285,7 +298,7 @@ router.get('/:id/schemas', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Get project deployments
-router.get('/:id/deployments', asyncHandler(async (req: Request, res: Response) => {
+router.get('/:id/deployments', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const projectId = req.params.id;
   const userId = getCurrentUserId(req);
 
@@ -318,7 +331,7 @@ router.get('/:id/deployments', asyncHandler(async (req: Request, res: Response) 
 }));
 
 // Get user project statistics
-router.get('/stats/overview', asyncHandler(async (req: Request, res: Response) => {
+router.get('/stats/overview', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = getCurrentUserId(req);
 
   try {
@@ -339,7 +352,7 @@ router.get('/stats/overview', asyncHandler(async (req: Request, res: Response) =
 }));
 
 // Batch get projects
-router.post('/batch', asyncHandler(async (req: Request, res: Response) => {
+router.post('/batch', auth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { projectIds } = req.body;
   const userId = getCurrentUserId(req);
 

@@ -1,0 +1,276 @@
+{
+ "Description": "Snapinfra S3, SQS, and SNS Infrastructure",
+ "Resources": {
+  "SnapinfraStorageBucketE29A0E01": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "BucketName": "snapinfra-storage",
+    "CorsConfiguration": {
+     "CorsRules": [
+      {
+       "AllowedHeaders": [
+        "*"
+       ],
+       "AllowedMethods": [
+        "GET",
+        "PUT",
+        "POST",
+        "DELETE"
+       ],
+       "AllowedOrigins": [
+        "*"
+       ],
+       "ExposedHeaders": [
+        "ETag"
+       ],
+       "MaxAge": 3000
+      }
+     ]
+    },
+    "LifecycleConfiguration": {
+     "Rules": [
+      {
+       "ExpirationInDays": 90,
+       "Id": "DeleteOldCodeGenerations",
+       "Prefix": "code-generations/",
+       "Status": "Enabled",
+       "Transitions": [
+        {
+         "StorageClass": "INTELLIGENT_TIERING",
+         "TransitionInDays": 30
+        }
+       ]
+      },
+      {
+       "ExpirationInDays": 365,
+       "Id": "DeleteOldArchitectures",
+       "Prefix": "architectures/",
+       "Status": "Enabled"
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraServicesStack/SnapinfraStorageBucket/Resource"
+   }
+  },
+  "DeadLetterQueue9F481546": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "KmsMasterKeyId": "alias/aws/sqs",
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "snapinfra-dlq"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraServicesStack/DeadLetterQueue/Resource"
+   }
+  },
+  "CodeGenerationQueue55D1844D": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "KmsMasterKeyId": "alias/aws/sqs",
+    "MessageRetentionPeriod": 345600,
+    "QueueName": "snapinfra-code-generation",
+    "ReceiveMessageWaitTimeSeconds": 20,
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "DeadLetterQueue9F481546",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "VisibilityTimeout": 900
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraServicesStack/CodeGenerationQueue/Resource"
+   }
+  },
+  "DeploymentQueue1BAF22A4": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "KmsMasterKeyId": "alias/aws/sqs",
+    "MessageRetentionPeriod": 345600,
+    "QueueName": "snapinfra-deployments",
+    "ReceiveMessageWaitTimeSeconds": 20,
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "DeadLetterQueue9F481546",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "VisibilityTimeout": 1800
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraServicesStack/DeploymentQueue/Resource"
+   }
+  },
+  "NotificationTopicEB7A0DF1": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "DisplayName": "Snapinfra Notifications",
+    "FifoTopic": false,
+    "TopicName": "snapinfra-deployment-notifications"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraServicesStack/NotificationTopic/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/yXITQ7CIBBA4bN0P4yInkAPYPzZG6RjQlFanRm7INzd0K7el+fQOYu28zOb0Cfzig8sV/EhgZ/5XniH5aAhkcDxmVdV4A9jOSsptbugAmfGchunGNpcUGvjSWVSqZDHnnDgzc853O7RdgPHaL6aJb4JL2v/sGwjuZEAAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "SnapinfraServicesStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "S3BucketName": {
+   "Description": "S3 Bucket for file storage",
+   "Value": {
+    "Ref": "SnapinfraStorageBucketE29A0E01"
+   },
+   "Export": {
+    "Name": "SnapinfraS3BucketName"
+   }
+  },
+  "S3BucketArn": {
+   "Description": "S3 Bucket ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "SnapinfraStorageBucketE29A0E01",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "SnapinfraS3BucketArn"
+   }
+  },
+  "CodeGenerationQueueUrl": {
+   "Description": "SQS Queue URL for code generation",
+   "Value": {
+    "Ref": "CodeGenerationQueue55D1844D"
+   },
+   "Export": {
+    "Name": "SnapinfraCodeGenerationQueueUrl"
+   }
+  },
+  "CodeGenerationQueueArn": {
+   "Description": "SQS Queue ARN for code generation",
+   "Value": {
+    "Fn::GetAtt": [
+     "CodeGenerationQueue55D1844D",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "SnapinfraCodeGenerationQueueArn"
+   }
+  },
+  "DeploymentQueueUrl": {
+   "Description": "SQS Queue URL for deployments",
+   "Value": {
+    "Ref": "DeploymentQueue1BAF22A4"
+   },
+   "Export": {
+    "Name": "SnapinfraDeploymentQueueUrl"
+   }
+  },
+  "DeploymentQueueArn": {
+   "Description": "SQS Queue ARN for deployments",
+   "Value": {
+    "Fn::GetAtt": [
+     "DeploymentQueue1BAF22A4",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "SnapinfraDeploymentQueueArn"
+   }
+  },
+  "NotificationTopicArn": {
+   "Description": "SNS Topic ARN for notifications",
+   "Value": {
+    "Ref": "NotificationTopicEB7A0DF1"
+   },
+   "Export": {
+    "Name": "SnapinfraNotificationTopicArn"
+   }
+  },
+  "DeadLetterQueueUrl": {
+   "Description": "Dead Letter Queue URL",
+   "Value": {
+    "Ref": "DeadLetterQueue9F481546"
+   },
+   "Export": {
+    "Name": "SnapinfraDeadLetterQueueUrl"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

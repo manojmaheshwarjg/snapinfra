@@ -1,0 +1,21 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "11f66f08cfc1e81453bf1d385c9ca06958014dd91cdb74a8a90feecf8eed7042": {
+      "displayName": "SnapinfraDynamoDBStack Template",
+      "source": {
+        "path": "SnapinfraDynamoDBStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "069380454083-us-east-1-867e7d14": {
+          "bucketName": "cdk-hnb659fds-assets-069380454083-us-east-1",
+          "objectKey": "11f66f08cfc1e81453bf1d385c9ca06958014dd91cdb74a8a90feecf8eed7042.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::069380454083:role/cdk-hnb659fds-file-publishing-role-069380454083-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

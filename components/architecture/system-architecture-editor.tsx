@@ -66,7 +66,24 @@ interface SystemArchitectureEditorProps {
   readonly?: boolean
 }
 
+// Simple group/layer background node component
+const GroupNode = ({ data }: { data: ArchitectureNodeData }) => {
+  return (
+    <div className="relative" style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+      <div className="absolute top-0 left-0 right-0 px-4 py-3 border-b border-[rgba(0,0,0,0.08)]">
+        <div className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wide">
+          {data.name}
+        </div>
+        <div className="text-[10px] text-[#605A57] mt-0.5">
+          {data.description}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const nodeTypes: NodeTypes = {
+  'group': GroupNode,
   'database': ArchitectureNodeComponent,
   'api-service': ArchitectureNodeComponent,
   'authentication': ArchitectureNodeComponent,
@@ -118,6 +135,10 @@ const convertArchitectureNodeToReactFlowNode = (
     onDuplicate,
     onConfigure,
   },
+  style: node.style,
+  draggable: node.type !== 'group', // Layer backgrounds shouldn't be draggable
+  selectable: node.type !== 'group', // Layer backgrounds shouldn't be selectable
+  zIndex: node.type === 'group' ? -1 : 1, // Layer backgrounds behind everything
 })
 
 export function SystemArchitectureEditor({ 

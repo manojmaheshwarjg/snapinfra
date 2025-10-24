@@ -10,6 +10,7 @@ import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
 import { useAppContext } from "@/lib/app-context"
+import { deleteProject as deleteProjectAPI, isBackendAvailable } from "@/lib/api-client"
 
 // Custom component for rhinom logo
 const RhinomLogo = ({ className }: { className?: string }) => (
@@ -81,7 +82,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               dispatch({ type: 'SET_CURRENT_PROJECT', payload: project })
             }
           }}
-          onProjectDelete={(projectId) => {
+          onProjectDelete={async (projectId) => {
+            try {
+              // Get backend ID from localStorage metadata
+              const meta = localStorage.getItem(`project-meta-${projectId}`)
+              if (meta) {
+                const parsed = JSON.parse(meta)
+                if (parsed.backendId) {
+                  // Delete from backend first
+                  const backendAvailable = await isBackendAvailable()
+                  if (backendAvailable) {
+                    await deleteProjectAPI(parsed.backendId)
+                    console.log('Project deleted from backend successfully')
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Failed to delete project from backend:', error)
+              // Continue with local deletion even if backend fails
+            }
+            
+            // Always delete from local state
             dispatch({ type: 'DELETE_PROJECT', payload: projectId })
           }}
         />

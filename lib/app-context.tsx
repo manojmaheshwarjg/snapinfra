@@ -12,7 +12,8 @@ import {
   loadUserPreferences,
   cleanupDemoProjects
 } from './storage'
-import { updateProject as updateProjectAPI, createProject as createProjectAPI, isBackendAvailable } from './api-client'
+import { updateProject as updateProjectAPI, createProject as createProjectAPI, deleteProject as deleteProjectAPI, isBackendAvailable } from './api-client'
+import { useApiAuth } from '@/hooks/useApiAuth'
 
 // Types
 export interface User {
@@ -280,6 +281,16 @@ function appReducer(state: AppState, action: AppAction): AppState {
       }
     
     case 'DELETE_PROJECT':
+      // Note: Backend sync should be handled by the component calling this action
+      // Frontend state is immediately updated for better UX
+      const projectToDelete = state.projects.find(p => p.id === action.payload)
+      
+      // Clean up localStorage metadata for this project
+      if (projectToDelete) {
+        localStorage.removeItem(`project-meta-${action.payload}`)
+        localStorage.removeItem(`chat-${action.payload}`)
+      }
+      
       return {
         ...state,
         projects: state.projects.filter(p => p.id !== action.payload),
@@ -405,6 +416,9 @@ const AppContext = createContext<{
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState)
   const syncTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+  
+  // Initialize API authentication
+  useApiAuth()
   
   // Load persisted data on mount
   useEffect(() => {
@@ -588,14 +602,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
         } catch (syncError: any) {
           // If we get 404 on update, the backend ID is stale - recreate
           if (syncError.statusCode === 404 && meta.backendId) {
-            console.log('⚠️ Backend project not found, recreating...')
+            console.log('⚠️ Backend project not found (404), clearing stale backend ID and recreating...')
+            
+            // Clear the stale backend ID
+            localStorage.removeItem(`project-meta-${state.currentProject.id}`)
+            
             try {
+              // Filter out tables without fields (invalid)
+              const validTables = state.currentProject.schema.filter(t => 
+                t.fields && t.fields.length > 0
+              )
+              
+              if (validTables.length === 0) {
+                console.log('⚠️ No valid tables to sync (all tables missing fields)')
+                return
+              }
+              
               const newProject = await createProjectAPI({
                 name: state.currentProject.name,
                 description: state.currentProject.description || 'Synced from local storage',
                 schema: {
                   name: state.currentProject.name,
-                  tables: state.currentProject.schema.map(t => ({
+                  tables: validTables.map(t => ({
                     id: t.id,
                     name: t.name,
                   fields: t.fields.map(f => ({
@@ -624,14 +652,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
               console.log('✅ Project recreated in backend successfully')
             } catch (recreateError) {
               console.error('❌ Failed to recreate project:', recreateError)
-              throw recreateError
+              // Don't re-throw to prevent error loops - project is still saved locally
             }
+          } else if (syncError.statusCode !== 404) {
+            // Only throw non-404 errors (404 without backendId means project never existed)
+            console.error('❌ Sync error (non-404):', syncError)
           } else {
-            throw syncError
+            console.log('ℹ️ Project not found in backend, will be created on next valid sync')
           }
         }
-        } catch (error) {
-          console.error('❌ Failed to sync project to backend:', error)
+        } catch (error: any) {
+          // If auth error in production mode, user needs to sign in
+          if (error?.statusCode === 401) {
+            console.log('ℹ️ Skipping backend sync - user not authenticated')
+            console.log('🔐 Please sign in to sync projects to backend')
+          } else {
+            console.error('❌ Failed to sync project to backend:', error)
+          }
           // Don't throw - project is still saved locally
         }
       }, 1000) // 1 second debounce

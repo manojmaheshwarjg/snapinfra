@@ -91,9 +91,11 @@ CRITICAL REQUIREMENTS:
 - Base the number of tables on the complexity of the use case
 - Simple use cases: 6-10 tables
 - Complex use cases: 12-20 tables
-- Respond with ONLY valid JSON. No other text.
+- Respond with ONLY valid JSON. No other text, no markdown, no code blocks, no explanations.
+- Output must be parseable by JSON.parse() without any modifications.
+- Do not wrap the JSON in markdown code blocks (no \`\`\`json or \`\`\`).
 
-Required JSON format:
+Required JSON format (output this exact structure):
 {
   "description": "What this backend does",
   "database": "PostgreSQL",

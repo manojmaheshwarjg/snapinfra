@@ -4,7 +4,7 @@ export interface ArchitectureNode {
         'api-gateway' | 'service-mesh' | 'cdn' | 'monitoring' | 'logging' | 'search-engine' | 'data-warehouse' |
         'streaming' | 'container-registry' | 'secrets-manager' | 'backup-storage' | 'analytics' | 'ml-service' |
         'notification-service' | 'scheduler' | 'workflow-engine' | 'identity-provider' | 'vpn' | 'firewall' |
-        'dns' | 'certificate-manager' | 'artifact-repository' | 'ci-cd' | 'testing-service'
+        'dns' | 'certificate-manager' | 'artifact-repository' | 'ci-cd' | 'testing-service' | 'group'
   position: { x: number; y: number }
   data: {
     name: string
@@ -12,6 +12,14 @@ export interface ArchitectureNode {
     icon?: string
     color?: string
     metadata?: Record<string, any>
+  }
+  style?: {
+    width?: number
+    height?: number
+    backgroundColor?: string
+    border?: string
+    borderRadius?: string
+    zIndex?: number
   }
 }
 

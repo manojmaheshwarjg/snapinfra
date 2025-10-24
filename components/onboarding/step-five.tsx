@@ -48,7 +48,6 @@ import {
 } from "lucide-react"
 
 import { SystemDecisionsSummary, SystemDecision, ToolRecommendation } from '@/lib/types/system-decisions'
-import { generateSystemDecisions } from '@/lib/utils/system-decisions'
 import { SystemArchitecture } from '@/lib/types/architecture'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -103,11 +102,41 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
     const generateDecisions = async () => {
       setIsGenerating(true)
       
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      if (data.architecture) {
-        const decisionsSummary = generateSystemDecisions(data.architecture, data)
+      try {
+        if (!data.architecture) {
+          throw new Error('Architecture data is required to generate system decisions')
+        }
+
+        // Make real HTTP request to AI-powered API endpoint
+        const response = await fetch('/api/generate-system-decisions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            architecture: data.architecture,
+            projectData: {
+              projectName: data.projectName,
+              description: data.description,
+              schemas: data.schemas,
+              endpoints: data.endpoints,
+              analysis: data.analysis,
+            },
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to generate system decisions')
+        }
+
+        const decisionsSummary: SystemDecisionsSummary = await response.json()
+        
+        // Strict validation - no fallback to mock data
+        if (!decisionsSummary.decisions || decisionsSummary.decisions.length === 0) {
+          throw new Error('AI did not generate any system decisions')
+        }
+        
         setDecisions(decisionsSummary)
         
         // Initialize selected tools with recommendations
@@ -116,9 +145,18 @@ export function StepFive({ data, onComplete, onBack }: StepFiveProps) {
           initialSelections[decision.id] = decision.selectedTool
         })
         setSelectedTools(initialSelections)
+      } catch (error) {
+        console.error('Failed to generate system decisions:', error)
+        // DO NOT fall back to mock/static data - show error to user
+        setDecisions(null)
+        alert(
+          `Failed to generate system decisions: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }. Please try again.`
+        )
+      } finally {
+        setIsGenerating(false)
       }
-      
-      setIsGenerating(false)
     }
     
     generateDecisions()

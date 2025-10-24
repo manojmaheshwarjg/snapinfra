@@ -16,7 +16,13 @@ export interface SecurityRecommendationsResult {
 
 const SECURITY_RECOMMENDATIONS_PROMPT = `You are a cybersecurity expert. Analyze the project requirements and provide essential security recommendations.
 
-CRITICAL: Respond with ONLY valid JSON in the exact format below.
+CRITICAL REQUIREMENTS:
+- Respond with ONLY valid JSON in the exact format below.
+- No markdown, no code blocks, no explanations before or after the JSON.
+- Output must be parseable by JSON.parse() without any modifications.
+- Do not wrap the JSON in markdown code blocks (no \`\`\`json or \`\`\`).
+- Ensure all string values are properly escaped and all arrays/objects are valid JSON.
+- All enum values must exactly match: priority ("High"|"Medium"|"Low"), category ("authentication"|"authorization"|"data"|"infrastructure").
 
 **REQUIRED JSON STRUCTURE:**
 {
@@ -82,19 +88,41 @@ Provide security recommendations tailored to this specific project.`;
       topP: 0.9,
     });
 
-    const result = JSON.parse(text.trim());
+    // Clean up the response text
+    let cleanText = text.trim();
+    
+    // Remove markdown code blocks if present
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/m, '').replace(/\s*```$/m, '');
+    } else if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/m, '').replace(/\s*```$/m, '');
+    }
+    
+    // Extract JSON if there's text before/after
+    const jsonStart = cleanText.indexOf('{');
+    const jsonEnd = cleanText.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleanText = cleanText.substring(jsonStart, jsonEnd + 1);
+    }
+
+    const result = JSON.parse(cleanText);
     
     if (!result.recommendations || !Array.isArray(result.recommendations)) {
       throw new Error('Invalid response: recommendations array is required');
     }
 
-    // Ensure all fields are present with defaults
-    const recommendations = result.recommendations.map((rec: any) => ({
-      title: rec.title || 'General Security Measure',
-      description: rec.description || 'Security implementation details not specified',
-      priority: rec.priority || 'Medium',
-      category: rec.category || 'authentication'
-    }));
+    // Validate all required fields are present - NO DEFAULTS
+    const recommendations = result.recommendations.map((rec: any) => {
+      if (!rec.title || !rec.description || !rec.priority || !rec.category) {
+        throw new Error('Missing required fields in recommendation: title, description, priority, category are all required');
+      }
+      return {
+        title: rec.title,
+        description: rec.description,
+        priority: rec.priority,
+        category: rec.category
+      };
+    });
 
     return {
       recommendations,

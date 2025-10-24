@@ -7,6 +7,9 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { AppProvider } from "@/lib/app-context"
 import { WorkspaceProvider } from "@/lib/workspace-context"
+import { EnterpriseQueryProvider, NetworkStatusMonitor } from "./providers-enterprise"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { Toaster } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   ClerkProvider,
@@ -73,14 +76,20 @@ export default function RootLayout({
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         </head>
         <body className={`font-sans ${geistMono.variable} ${tasaOrbiter.variable} antialiased tracking-tight`}>
-          <AppProvider>
-            <WorkspaceProvider>
-              <Suspense fallback={null}>
-                {children}
-                <Analytics />
-              </Suspense>
-            </WorkspaceProvider>
-          </AppProvider>
+          <ErrorBoundary>
+            <EnterpriseQueryProvider>
+              <AppProvider>
+                <WorkspaceProvider>
+                  <Suspense fallback={null}>
+                    {children}
+                    <Analytics />
+                    <NetworkStatusMonitor />
+                    <Toaster richColors position="top-right" />
+                  </Suspense>
+                </WorkspaceProvider>
+              </AppProvider>
+            </EnterpriseQueryProvider>
+          </ErrorBoundary>
         </body>
       </html>
     </ClerkProvider>

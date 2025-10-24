@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAppContext } from "@/lib/app-context"
+import { getProjects, deleteProject as deleteProjectAPI, isBackendAvailable } from "@/lib/api-client"
 import { EnterpriseDashboardLayout } from "@/components/enterprise-dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Plus, Search, Filter, MoreVertical, Database, Calendar, Settings, Trash2, Copy, ExternalLink } from "lucide-react"
+import { Plus, Search, Filter, MoreVertical, Database, Calendar, Settings, Trash2, ExternalLink } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import type { Project } from "@/lib/app-context"
 
@@ -20,6 +21,51 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("updated")
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false)
+
+  // Fetch projects from backend on mount
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const backendAvailable = await isBackendAvailable()
+        if (!backendAvailable) {
+          console.log('Backend unavailable, using local projects only')
+          return
+        }
+
+        setIsLoadingProjects(true)
+        const backendProjects = await getProjects()
+        
+        // Merge backend projects with local state
+        // Backend projects should be the source of truth
+        backendProjects.forEach(backendProject => {
+          const localProject = state.projects.find(p => {
+            const meta = localStorage.getItem(`project-meta-${p.id}`)
+            if (!meta) return false
+            const parsed = JSON.parse(meta)
+            return parsed.backendId === backendProject.id
+          })
+          
+          if (localProject) {
+            // Update existing project with backend data
+            dispatch({ 
+              type: 'UPDATE_PROJECT', 
+              payload: { 
+                id: localProject.id,
+                ...backendProject 
+              } 
+            })
+          }
+        })
+      } catch (error) {
+        console.error('Failed to fetch projects from backend:', error)
+      } finally {
+        setIsLoadingProjects(false)
+      }
+    }
+
+    fetchProjects()
+  }, [])
 
   const filteredProjects = state.projects
     .filter(project => {
@@ -39,21 +85,30 @@ export default function ProjectsPage() {
     router.push("/onboarding?new=true")
   }
 
-  const handleDeleteProject = (projectId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      // Get backend ID from localStorage metadata
+      const meta = localStorage.getItem(`project-meta-${projectId}`)
+      if (meta) {
+        const parsed = JSON.parse(meta)
+        if (parsed.backendId) {
+          // Delete from backend first
+          const backendAvailable = await isBackendAvailable()
+          if (backendAvailable) {
+            await deleteProjectAPI(parsed.backendId)
+            console.log('Project deleted from backend successfully')
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete project from backend:', error)
+      // Continue with local deletion even if backend fails
+    }
+    
+    // Always delete from local state
     dispatch({ type: 'DELETE_PROJECT', payload: projectId })
   }
 
-  const handleDuplicateProject = (project: Project) => {
-    const newProject: Project = {
-      ...project,
-      id: `project_${Date.now()}`,
-      name: `${project.name} (Copy)`,
-      status: 'draft',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-    dispatch({ type: 'ADD_PROJECT', payload: newProject })
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -222,10 +277,6 @@ export default function ProjectsPage() {
                         <DropdownMenuItem onClick={() => router.push(`/settings?project=${project.id}`)}>
                           <Settings className="w-4 h-4 mr-2" />
                           Settings
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicateProject(project)}>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Duplicate
                         </DropdownMenuItem>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>

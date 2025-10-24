@@ -17,7 +17,13 @@ export interface OptimizationSuggestionsResult {
 
 const OPTIMIZATION_SUGGESTIONS_PROMPT = `You are a performance optimization expert. Analyze the project requirements and provide specific optimization suggestions.
 
-CRITICAL: Respond with ONLY valid JSON in the exact format below.
+CRITICAL REQUIREMENTS:
+- Respond with ONLY valid JSON in the exact format below.
+- No markdown, no code blocks, no explanations before or after the JSON.
+- Output must be parseable by JSON.parse() without any modifications.
+- Do not wrap the JSON in markdown code blocks (no \`\`\`json or \`\`\`).
+- Ensure all string values are properly escaped and all arrays/objects are valid JSON.
+- All enum values must exactly match: type values from list, impact/complexity ("High"|"Medium"|"Low").
 
 **REQUIRED JSON STRUCTURE:**
 {
@@ -88,20 +94,42 @@ Provide optimization suggestions tailored to this specific project.`;
       topP: 0.9,
     });
 
-    const result = JSON.parse(text.trim());
+    // Clean up the response text
+    let cleanText = text.trim();
+    
+    // Remove markdown code blocks if present
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/m, '').replace(/\s*```$/m, '');
+    } else if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/m, '').replace(/\s*```$/m, '');
+    }
+    
+    // Extract JSON if there's text before/after
+    const jsonStart = cleanText.indexOf('{');
+    const jsonEnd = cleanText.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleanText = cleanText.substring(jsonStart, jsonEnd + 1);
+    }
+
+    const result = JSON.parse(cleanText);
     
     if (!result.suggestions || !Array.isArray(result.suggestions)) {
       throw new Error('Invalid response: suggestions array is required');
     }
 
-    // Ensure all fields are present with defaults
-    const suggestions = result.suggestions.map((sug: any) => ({
-      type: sug.type || 'performance',
-      title: sug.title || 'General Optimization',
-      description: sug.description || 'Implementation details not specified',
-      impact: sug.impact || 'Medium',
-      complexity: sug.complexity || 'Medium'
-    }));
+    // Validate all required fields are present - NO DEFAULTS
+    const suggestions = result.suggestions.map((sug: any) => {
+      if (!sug.type || !sug.title || !sug.description || !sug.impact || !sug.complexity) {
+        throw new Error('Missing required fields in suggestion: type, title, description, impact, complexity are all required');
+      }
+      return {
+        type: sug.type,
+        title: sug.title,
+        description: sug.description,
+        impact: sug.impact,
+        complexity: sug.complexity
+      };
+    });
 
     return {
       suggestions,

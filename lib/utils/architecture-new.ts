@@ -24,6 +24,16 @@ export function generateArchitectureFromData(
   const nodes: ArchitectureNode[] = []
   const edges: ArchitectureEdge[] = []
 
+  // Layer metadata for bounding boxes
+  const layerLabels = [
+    { name: 'Client Layer', color: '#F0F9FF' },
+    { name: 'Gateway Layer', color: '#F0FDF4' },
+    { name: 'Application Layer', color: '#FAF5FF' },
+    { name: 'Data Layer', color: '#FEF2F2' },
+    { name: 'Infrastructure', color: '#FFF7ED' },
+    { name: 'DevOps & Security', color: '#F9FAFB' }
+  ]
+
   // Organize nodes by layers (left to right)
   const layerNodes: ArchitectureNode[][] = [[], [], [], [], [], []]
 
@@ -119,15 +129,20 @@ export function generateArchitectureFromData(
   }
 
   // === LAYER 3: Data Layer ===
+  const databaseName = schemaData.analysis?.databaseRecommendations?.[0]?.name
+  if (!databaseName) {
+    throw new Error('Database recommendation is missing from AI analysis. Cannot generate architecture.')
+  }
+  
   layerNodes[3].push({
     id: 'database-1',
     type: 'database',
     position: { x: 0, y: 0 },
     data: {
-      name: `${schemaData.analysis?.databaseRecommendations?.[0]?.name || 'PostgreSQL'}`,
+      name: databaseName,
       description: `${schemaData.schemas.length} tables`,
       color: '#EF4444',
-      metadata: { technology: 'PostgreSQL' }
+      metadata: { technology: databaseName }
     }
   })
 
@@ -220,8 +235,51 @@ export function generateArchitectureFromData(
     }
   })
 
-  // Calculate final positions for all nodes
+  // Calculate final positions for all nodes and add layer backgrounds
   layerNodes.forEach((layer, layerIndex) => {
+    if (layer.length === 0) return // Skip empty layers
+
+    // Calculate bounding box for this layer
+    const layerWidth = 320
+    const layerPadding = 40
+    const headerHeight = 50
+    
+    // Get min/max Y positions for nodes in this layer
+    const positions = layer.map((_, idx) => calculatePosition(layerIndex, idx, layer.length))
+    const minY = Math.min(...positions.map(p => p.y)) - layerPadding
+    const maxY = Math.max(...positions.map(p => p.y)) + 120 + layerPadding // 120 is approx node height
+    const layerHeight = maxY - minY
+    
+    const layerX = LAYOUT.startX + (layerIndex * LAYOUT.horizontalSpacing) - layerWidth / 2
+    const layerY = minY - headerHeight
+
+    // Add background node for this layer
+    nodes.push({
+      id: `layer-bg-${layerIndex}`,
+      type: 'group' as any,
+      position: { x: layerX, y: layerY },
+      data: {
+        name: layerLabels[layerIndex].name,
+        description: `${layer.length} component${layer.length !== 1 ? 's' : ''}`,
+        color: layerLabels[layerIndex].color,
+        metadata: {
+          isBackground: true,
+          layerIndex,
+          width: layerWidth,
+          height: layerHeight + headerHeight
+        }
+      },
+      style: {
+        width: layerWidth,
+        height: layerHeight + headerHeight,
+        backgroundColor: layerLabels[layerIndex].color,
+        border: '2px solid rgba(0, 0, 0, 0.08)',
+        borderRadius: '12px',
+        zIndex: -1
+      }
+    })
+
+    // Add actual nodes
     layer.forEach((node, nodeIndex) => {
       node.position = calculatePosition(layerIndex, nodeIndex, layer.length)
       nodes.push(node)

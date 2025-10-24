@@ -20,7 +20,13 @@ interface GenerationStage {
 }
 
 export function StepOne({ onComplete }: StepOneProps) {
-  const [description, setDescription] = useState("")
+  // Individual inline fields
+  const [platformType, setPlatformType] = useState("")
+  const [businessDomain, setBusinessDomain] = useState("")
+  const [targetMetric, setTargetMetric] = useState("")
+  const [keyFeatures, setKeyFeatures] = useState("")
+  const [scalingGoal, setScalingGoal] = useState("")
+  const [compliance, setCompliance] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationStages, setGenerationStages] = useState<GenerationStage[]>([
     {
@@ -74,7 +80,13 @@ export function StepOne({ onComplete }: StepOneProps) {
   }
 
   const handleGenerate = async () => {
-    if (!description.trim()) return
+    // Build description from all inline inputs
+    const architecturalInput = `Build a ${platformType} platform for ${businessDomain} serving ${targetMetric}. Key features: ${keyFeatures}. Scale to ${scalingGoal} and ensure ${compliance} compliance.`.trim()
+    
+    if (!platformType.trim() || !businessDomain.trim()) {
+      alert('Please fill in at least the platform type and business domain to continue.')
+      return
+    }
 
     setIsGenerating(true)
     
@@ -92,7 +104,7 @@ export function StepOne({ onComplete }: StepOneProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          description: description.trim(),
+          description: architecturalInput.trim(),
           options: {
             temperature: 0.7,
             maxTokens: 6000,
@@ -125,7 +137,7 @@ export function StepOne({ onComplete }: StepOneProps) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            description: description.trim(),
+            description: architecturalInput.trim(),
             schemas: backendResult.schemas
           })
         }).then(async (res) => {
@@ -137,7 +149,7 @@ export function StepOne({ onComplete }: StepOneProps) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            description: description.trim(),
+            description: architecturalInput.trim(),
             schemas: backendResult.schemas
           })
         }).then(async (res) => {
@@ -149,7 +161,7 @@ export function StepOne({ onComplete }: StepOneProps) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            description: description.trim(),
+            description: architecturalInput.trim(),
             schemas: backendResult.schemas
           })
         }).then(async (res) => {
@@ -161,7 +173,7 @@ export function StepOne({ onComplete }: StepOneProps) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            description: description.trim(),
+            description: architecturalInput.trim(),
             schemas: backendResult.schemas
           })
         }).then(async (res) => {
@@ -173,7 +185,7 @@ export function StepOne({ onComplete }: StepOneProps) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            description: description.trim(),
+            description: architecturalInput.trim(),
             schemas: backendResult.schemas
           })
         })
@@ -188,8 +200,8 @@ export function StepOne({ onComplete }: StepOneProps) {
       console.log('Security:', security)
       console.log('Scaling:', scaling)
 
-      // Generate project name from description
-      const generateProjectName = (description: string): string => {
+      // Generate project name from input
+      const generateProjectName = (input: string): string => {
         const patterns = [
           { regex: /social media|social network/i, name: 'Social Media App' },
           { regex: /e-?commerce|online store|shop/i, name: 'E-commerce Platform' },
@@ -204,12 +216,12 @@ export function StepOne({ onComplete }: StepOneProps) {
         ]
         
         for (const pattern of patterns) {
-          if (pattern.regex.test(description)) {
+          if (pattern.regex.test(input)) {
             return pattern.name
           }
         }
         
-        const words = description
+        const words = input
           .replace(/[^a-zA-Z0-9\s]/g, '')
           .split(/\s+/)
           .filter(word => word.length > 2)
@@ -222,7 +234,8 @@ export function StepOne({ onComplete }: StepOneProps) {
       // Aggregate all results
       const completeResult = {
         ...backendResult,
-        projectName: generateProjectName(description.trim()),
+        projectName: generateProjectName(architecturalInput.trim()),
+        description: architecturalInput.trim(),
         analysis: {
           success: true,
           useCase: dbRecs.useCase,
@@ -264,7 +277,7 @@ export function StepOne({ onComplete }: StepOneProps) {
       
       console.error('Full error details:', {
         error,
-        description: description.trim(),
+        architecturalInput: architecturalInput.trim().substring(0, 200),
         timestamp: new Date().toISOString()
       })
       
@@ -275,11 +288,71 @@ export function StepOne({ onComplete }: StepOneProps) {
     }
   }
 
-  const examples = [
-    "Multi-tenant B2B SaaS with org hierarchies, RBAC, and usage billing",
-    "Enterprise API gateway with rate limiting, webhooks, and monitoring",
-    "Customer data platform with event streaming and GDPR compliance",
-    "Internal admin portal with workflow automation and audit trails",
+  const architecturalExamples = [
+    {
+      platformType: "multi-tenant B2B SaaS",
+      businessDomain: "supply chain visibility",
+      targetMetric: "1M+ daily shipments",
+      keyFeatures: "real-time tracking, predictive alerts, multi-carrier integration, org hierarchies, analytics dashboard",
+      scalingGoal: "50 to 5K enterprise clients over 3 years across NA/EU/APAC regions",
+      compliance: "SOC 2 Type II, ISO 27001, GDPR"
+    },
+    {
+      platformType: "enterprise healthcare data exchange",
+      businessDomain: "connecting hospitals and insurance providers",
+      targetMetric: "100K+ patient records daily",
+      keyFeatures: "record aggregation, consent management, audit logs, clinical decision support, claim automation",
+      scalingGoal: "200 to 2K facilities with regional data residency",
+      compliance: "HIPAA, GDPR, HITRUST"
+    },
+    {
+      platformType: "multi-region fintech payment infrastructure",
+      businessDomain: "real-time payment processing",
+      targetMetric: "10K+ TPS across 50+ countries",
+      keyFeatures: "multi-currency support, fraud detection, instant settlement, dispute resolution, regulatory reporting",
+      scalingGoal: "1K to 100K merchants with active-active deployment",
+      compliance: "PCI-DSS Level 1, SOC 2 Type II"
+    },
+    {
+      platformType: "enterprise IoT data platform",
+      businessDomain: "industrial equipment monitoring",
+      targetMetric: "10M+ device events per second",
+      keyFeatures: "time-series data ingestion, predictive maintenance, anomaly detection, edge computing, fleet management",
+      scalingGoal: "500K connected devices across 100+ manufacturing facilities globally",
+      compliance: "ISO 27001, SOC 2, industry-specific certifications"
+    },
+    {
+      platformType: "AI-powered customer data platform",
+      businessDomain: "unified customer intelligence",
+      targetMetric: "500M+ customer profiles with real-time updates",
+      keyFeatures: "360-degree customer view, ML-based segmentation, journey orchestration, privacy vault, identity resolution",
+      scalingGoal: "enterprise retailers processing 10B+ events daily across omnichannel touchpoints",
+      compliance: "GDPR, CCPA, SOC 2 Type II"
+    },
+    {
+      platformType: "distributed media streaming platform",
+      businessDomain: "live and on-demand video delivery",
+      targetMetric: "1M+ concurrent streams with sub-second latency",
+      keyFeatures: "adaptive bitrate streaming, CDN integration, DRM protection, live transcoding, analytics",
+      scalingGoal: "global deployment with 99.99% uptime serving 50M+ monthly active users",
+      compliance: "SOC 2, content protection standards, regional broadcasting regulations"
+    },
+    {
+      platformType: "multi-tenant EdTech learning management system",
+      businessDomain: "personalized education at scale",
+      targetMetric: "5M+ active learners across 10K+ institutions",
+      keyFeatures: "adaptive learning paths, real-time collaboration, assessment engine, content library, progress analytics",
+      scalingGoal: "100 pilot schools to global university network with multi-language support",
+      compliance: "FERPA, COPPA, GDPR, accessibility standards (WCAG 2.1)"
+    },
+    {
+      platformType: "autonomous logistics orchestration platform",
+      businessDomain: "last-mile delivery optimization",
+      targetMetric: "500K+ daily deliveries with dynamic routing",
+      keyFeatures: "AI route optimization, fleet management, driver app, customer notifications, warehouse integration",
+      scalingGoal: "regional rollout to 50 cities with mixed vehicle types (drones, bikes, vans)",
+      compliance: "SOC 2, local transportation regulations, carbon reporting standards"
+    }
   ]
 
   const completedStages = generationStages.filter(stage => stage.status === 'completed').length
@@ -288,15 +361,18 @@ export function StepOne({ onComplete }: StepOneProps) {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-8 py-12">
-      {/* Step Title - Smaller and Cleaner */}
+      {/* Step Title */}
       <div className="text-center space-y-3 max-w-[800px]">
         <h1 className="text-[28px] sm:text-[32px] md:text-[36px] font-normal leading-[1.2] text-[#1d1d1f]">
-          Describe your backend requirements
+          Describe your platform architecture
         </h1>
+        <p className="text-[15px] text-[#86868b] max-w-[700px] mx-auto">
+          Provide your vision, objectives, users, features, scaling needs, and compliance requirements
+        </p>
       </div>
 
-      {/* Enhanced Prompt Box with Better UX */}
-      <div className="w-full max-w-[800px]">
+      {/* Enhanced Dark Input Box with Inline Fill-in-the-Blanks */}
+      <div className="w-full max-w-[900px]">
         <div className="relative">
           {/* Solid primary border */}
           <div className="absolute inset-0 rounded-2xl p-[2px] bg-[#005BE3]">
@@ -311,78 +387,155 @@ export function StepOne({ onComplete }: StepOneProps) {
             {/* Semi-transparent dark background */}
             <div className="absolute inset-0 bg-[#1d1d1f]/90 backdrop-blur-sm z-0"></div>
             
-            {/* Input Area */}
-            <div className="flex items-start gap-3 p-5 relative z-10">
-              {/* Textarea */}
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={isGenerating}
-                placeholder="multi-tenant SaaS with usage-based billing. need RBAC, audit logs, and analytics dashboards."
-                className="flex-1 bg-transparent text-white placeholder-[rgba(255,255,255,0.4)] text-base resize-none outline-none min-h-[24px] overflow-hidden font-sans"
-                rows={1}
-                style={{
-                  height: 'auto',
-                  minHeight: '24px'
-                }}
-                onInput={(e) => {
-                  const target = e.target as HTMLTextAreaElement
-                  target.style.height = 'auto'
-                  target.style.height = target.scrollHeight + 'px'
-                }}
-              />
-              
-              {/* Submit Button */}
-              <button
-                onClick={handleGenerate}
-                disabled={!description.trim() || isGenerating}
-                className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 ${
-                  description.trim()
-                    ? 'bg-[#005BE3] hover:bg-[#004BC9] shadow-[0_2px_8px_rgba(0,91,227,0.4)] cursor-pointer hover:shadow-[0_4px_12px_rgba(0,91,227,0.5)] hover:scale-105'
-                    : 'bg-white/10 cursor-not-allowed'
-                }`}
-              >
-                {isGenerating ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                ) : (
-                  <ArrowUp className={`w-5 h-5 ${
-                    description.trim() ? 'text-white' : 'text-white/30'
-                  }`} />
-                )}
-              </button>
-            </div>
-            
-            {/* Bottom Hints with Character Count */}
-            <div className="px-5 pb-3 flex items-center justify-between text-xs text-[rgba(255,255,255,0.5)] relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded border border-[rgba(255,255,255,0.3)] flex items-center justify-center">
-                    <span className="text-[8px]">⏎</span>
-                  </div>
-                  <span>to send</span>
-                </div>
-                <span className="text-[rgba(255,255,255,0.3)]">•</span>
-                <span>Shift + ⏎ for new line</span>
+            {/* Inline Fill-in-the-Blanks Sentence */}
+            <div className="p-6 relative z-10">
+              <div className="text-white text-[16px] leading-relaxed flex flex-wrap items-center gap-2">
+                <span className="text-[rgba(255,255,255,0.7)]">Build a</span>
+                <input
+                  type="text"
+                  value={platformType}
+                  onChange={(e) => setPlatformType(e.target.value)}
+                  placeholder="multi-tenant B2B SaaS"
+                  disabled={isGenerating}
+                  className="bg-[rgba(0,91,227,0.2)] border-b-2 border-[#005BE3] px-3 py-1 outline-none text-white placeholder-[rgba(255,255,255,0.4)] min-w-[180px] rounded focus:bg-[rgba(0,91,227,0.3)] focus:border-[#0066ff] transition-all"
+                />
+                <span className="text-[rgba(255,255,255,0.7)]">platform for</span>
+                <input
+                  type="text"
+                  value={businessDomain}
+                  onChange={(e) => setBusinessDomain(e.target.value)}
+                  placeholder="supply chain visibility"
+                  disabled={isGenerating}
+                  className="bg-[rgba(0,91,227,0.2)] border-b-2 border-[#005BE3] px-3 py-1 outline-none text-white placeholder-[rgba(255,255,255,0.4)] min-w-[180px] rounded focus:bg-[rgba(0,91,227,0.3)] focus:border-[#0066ff] transition-all"
+                />
+                <span className="text-[rgba(255,255,255,0.7)]">serving</span>
+                <input
+                  type="text"
+                  value={targetMetric}
+                  onChange={(e) => setTargetMetric(e.target.value)}
+                  placeholder="1M+ daily shipments"
+                  disabled={isGenerating}
+                  className="bg-[rgba(0,91,227,0.2)] border-b-2 border-[#005BE3] px-3 py-1 outline-none text-white placeholder-[rgba(255,255,255,0.4)] min-w-[160px] rounded focus:bg-[rgba(0,91,227,0.3)] focus:border-[#0066ff] transition-all"
+                />
+                <span className="text-[rgba(255,255,255,0.7)]" className="w-full"></span>
+                <span className="text-[rgba(255,255,255,0.7)]">Key features:</span>
+                <input
+                  type="text"
+                  value={keyFeatures}
+                  onChange={(e) => setKeyFeatures(e.target.value)}
+                  placeholder="real-time tracking, predictive alerts, API integration"
+                  disabled={isGenerating}
+                  className="bg-[rgba(0,91,227,0.2)] border-b-2 border-[#005BE3] px-3 py-1 outline-none text-white placeholder-[rgba(255,255,255,0.4)] flex-1 min-w-[300px] rounded focus:bg-[rgba(0,91,227,0.3)] focus:border-[#0066ff] transition-all"
+                />
+                <span className="text-[rgba(255,255,255,0.7)]" className="w-full mt-2"></span>
+                <span className="text-[rgba(255,255,255,0.7)]">Scale to</span>
+                <input
+                  type="text"
+                  value={scalingGoal}
+                  onChange={(e) => setScalingGoal(e.target.value)}
+                  placeholder="5K clients across 3 regions"
+                  disabled={isGenerating}
+                  className="bg-[rgba(0,91,227,0.2)] border-b-2 border-[#005BE3] px-3 py-1 outline-none text-white placeholder-[rgba(255,255,255,0.4)] min-w-[200px] rounded focus:bg-[rgba(0,91,227,0.3)] focus:border-[#0066ff] transition-all"
+                />
+                <span className="text-[rgba(255,255,255,0.7)]">and ensure</span>
+                <input
+                  type="text"
+                  value={compliance}
+                  onChange={(e) => setCompliance(e.target.value)}
+                  placeholder="SOC 2, ISO 27001, GDPR"
+                  disabled={isGenerating}
+                  className="bg-[rgba(0,91,227,0.2)] border-b-2 border-[#005BE3] px-3 py-1 outline-none text-white placeholder-[rgba(255,255,255,0.4)] min-w-[180px] rounded focus:bg-[rgba(0,91,227,0.3)] focus:border-[#0066ff] transition-all"
+                />
+                <span className="text-[rgba(255,255,255,0.7)]">compliance.</span>
               </div>
-              <div className="flex items-center gap-2">
-                {description.length > 0 && (
-                  <span className={`transition-colors ${
-                    description.length < 50 
-                      ? 'text-[rgba(255,255,255,0.3)]' 
-                      : 'text-[rgba(255,255,255,0.5)]'
-                  }`}>
-                    {description.length} chars
+              
+              {/* Progress Indicator */}
+              <div className="mt-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {[platformType, businessDomain, targetMetric, keyFeatures, scalingGoal, compliance].map((field, idx) => (
+                      <div
+                        key={idx}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          field.trim() ? 'bg-[#005BE3] scale-100' : 'bg-[rgba(255,255,255,0.2)] scale-75'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[13px] text-[rgba(255,255,255,0.5)]">
+                    {[platformType, businessDomain, targetMetric, keyFeatures, scalingGoal, compliance].filter(f => f.trim()).length}/6 fields completed
                   </span>
-                )}
+                </div>
+                
+                {/* Submit Button */}
+                <div>
+                <button
+                  onClick={handleGenerate}
+                  disabled={!platformType.trim() || !businessDomain.trim() || isGenerating}
+                  className={`px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 ${
+                    platformType.trim() && businessDomain.trim()
+                      ? 'bg-[#005BE3] hover:bg-[#004BC9] shadow-[0_2px_8px_rgba(0,91,227,0.4)] cursor-pointer hover:shadow-[0_4px_12px_rgba(0,91,227,0.5)] hover:scale-105'
+                      : 'bg-white/10 cursor-not-allowed opacity-50'
+                  }`}
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span className="text-white">Generating...</span>
+                    </>
+                  ) : (
+                    <span className="text-white font-medium">Generate Backend Architecture</span>
+                  )}
+                </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Example Buttons */}
+      {!isGenerating && (
+        <div className="w-full max-w-[900px] mt-6">
+          <p className="text-[#605A57] text-sm text-center mb-4">Try an example:</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {architecturalExamples.map((example, index) => {
+              const titles = [
+                'Global Supply Chain Platform',
+                'Healthcare Data Exchange',
+                'Multi-Region Payment Infrastructure',
+                'Industrial IoT Monitoring',
+                'AI Customer Data Platform',
+                'Media Streaming Service',
+                'EdTech Learning Management',
+                'Autonomous Logistics Platform'
+              ];
+              const title = titles[index] || `Example ${index + 1}`;
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setPlatformType(example.platformType)
+                    setBusinessDomain(example.businessDomain)
+                    setTargetMetric(example.targetMetric)
+                    setKeyFeatures(example.keyFeatures)
+                    setScalingGoal(example.scalingGoal)
+                    setCompliance(example.compliance)
+                  }}
+                  disabled={isGenerating}
+                  className="p-4 text-center text-sm bg-white hover:bg-[#005BE3]/5 border border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#37322F] font-medium"
+                >
+                  {title}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Loading Indicator - Clean and Simple */}
       {isGenerating && (
-        <div className="w-full max-w-[800px] mt-8">
+        <div className="w-full max-w-[900px] mt-8">
           <div className="bg-white rounded-2xl shadow-lg border border-[rgba(55,50,47,0.08)] p-8">
             <div className="space-y-6">
               {/* Header */}
@@ -434,25 +587,6 @@ export function StepOne({ onComplete }: StepOneProps) {
                 })}
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Examples - Clean Grid */}
-      {!isGenerating && (
-        <div className="w-full max-w-[800px] mt-6">
-          <p className="text-[#605A57] text-sm text-center mb-4">or try an example:</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {examples.map((example, index) => (
-              <button
-                key={index}
-                onClick={() => setDescription(example)}
-                disabled={isGenerating}
-                className="p-4 text-left text-sm bg-white hover:bg-[#005BE3]/5 border border-[rgba(55,50,47,0.08)] hover:border-[#005BE3]/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#37322F]"
-              >
-                {example}
-              </button>
-            ))}
           </div>
         </div>
       )}

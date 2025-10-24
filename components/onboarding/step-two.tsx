@@ -61,37 +61,17 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
     return relationships
   }
 
-  // Use AI-generated analysis or fallback to simple detection
+  // Check if we have real AI-generated analysis
+  const hasAnalysis = data.analysis?.success
+  
   const getAnalysis = () => {
-    if (data.analysis?.success) {
+    if (hasAnalysis) {
       console.log('Step Two Analysis Data:', data.analysis)
       return data.analysis
     }
     
-    // Fallback for backward compatibility
-    return {
-      useCase: { key: 'generic', label: 'General Application', features: [], complexity: 'simple' },
-      databaseRecommendations: [
-        {
-          name: 'PostgreSQL',
-          score: 95,
-          reasons: ['Excellent ACID compliance', 'Advanced indexing'],
-          bestFor: 'Complex applications with relationships',
-          pros: ['ACID compliant', 'Advanced features'],
-          cons: ['Higher memory usage'],
-          whyForUseCase: ['Great for relational data', 'Supports complex queries']
-        }
-      ],
-      scalingInsights: {
-        expectedLoad: 'Medium' as const,
-        readWriteRatio: '70:30',
-        cachingStrategy: 'Application-level',
-        indexingPriority: []
-      },
-      smartRecommendations: [],
-      optimizationSuggestions: [],
-      securityRecommendations: []
-    }
+    // Return null if no analysis - we'll show error state
+    return null
   }
 
   // Get icon for optimization type
@@ -134,13 +114,36 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
   const relationships = getRelationships()
   const analysis = getAnalysis()
   
-  // Data should now come in the exact format we need from focused APIs
-  const dbRecommendations = (analysis.databaseRecommendations || []).sort((a: any, b: any) => b.score - a.score)
-  const scalingInsights = analysis.scalingInsights || { expectedLoad: 'Medium' as const, readWriteRatio: '70:30', cachingStrategy: 'Application-level', indexingPriority: [] }
-  const smartRecs = analysis.smartRecommendations || []
-  const optimizations = analysis.optimizationSuggestions || []
-  const securityRecs = analysis.securityRecommendations || []
-  const complexity = analysis.useCase?.complexity || 'simple'
+  // Show error state if no AI analysis
+  if (!analysis) {
+    return (
+      <div className="w-full max-w-7xl mx-auto py-6 px-6">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+          <div className="p-4 bg-orange-100 rounded-full">
+            <AlertTriangle className="w-12 h-12 text-orange-600" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-[#1d1d1f]">AI Analysis Missing</h2>
+            <p className="text-[#605A57] max-w-md">
+              The AI analysis data is incomplete. This usually happens if the analysis APIs failed in Step 1. Please go back and regenerate your backend.
+            </p>
+          </div>
+          <Button onClick={onBack} variant="outline" className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Regenerate Backend
+          </Button>
+        </div>
+      </div>
+    )
+  }
+  
+  // Data comes from real AI analysis - no fallbacks
+  const dbRecommendations = analysis.databaseRecommendations.sort((a: any, b: any) => b.score - a.score)
+  const scalingInsights = analysis.scalingInsights
+  const smartRecs = analysis.smartRecommendations
+  const optimizations = analysis.optimizationSuggestions
+  const securityRecs = analysis.securityRecommendations
+  const complexity = analysis.useCase?.complexity
 
   return (
     <div className="w-full max-w-7xl mx-auto py-6 px-6 space-y-12">
@@ -197,7 +200,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
               <Database className={`w-6 h-6 ${expandedSection === 'database' ? 'text-[#005BE3]' : 'text-[#005BE3]'}`} />
             </div>
             <div className={`text-2xl font-bold mb-2 ${expandedSection === 'database' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'}`}>
-              {dbRecommendations[0]?.name || 'PostgreSQL'}
+              {dbRecommendations[0]?.name}
             </div>
             <div className={`text-xs mb-2 ${expandedSection === 'database' ? 'text-[#605A57]' : 'text-[#605A57]'}`}>
               Recommended Database
@@ -207,11 +210,11 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
               <div className={`h-1.5 rounded-full overflow-hidden ${expandedSection === 'database' ? 'bg-[#005BE3]/15' : 'bg-[#005BE3]/10'}`}>
                 <div 
                   className={`h-full rounded-full transition-all duration-1000 ${expandedSection === 'database' ? 'bg-[#005BE3]' : 'bg-[#005BE3]'}`}
-                  style={{ width: `${dbRecommendations[0]?.score || 95}%` }}
+                  style={{ width: `${dbRecommendations[0]?.score}%` }}
                 ></div>
               </div>
               <div className={`text-[10px] font-semibold mt-1 ${expandedSection === 'database' ? 'text-[#005BE3]' : 'text-[#005BE3]'}`}>
-                {dbRecommendations[0]?.score || 95}% compatibility
+                {dbRecommendations[0]?.score}% compatibility
               </div>
             </div>
           </div>
@@ -268,7 +271,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
               <TrendingUp className={`w-6 h-6 ${expandedSection === 'load' ? 'text-[#005BE3]' : 'text-[#005BE3]'}`} />
             </div>
             <div className={`text-2xl font-bold mb-2 ${expandedSection === 'load' ? 'text-[#005BE3]' : 'text-[#1d1d1f]'}`}>
-              {scalingInsights.expectedLoad || 'Medium'}
+              {scalingInsights.expectedLoad}
             </div>
             <div className={`text-xs ${expandedSection === 'load' ? 'text-[#605A57]' : 'text-[#605A57]'}`}>
               Expected Load
@@ -276,7 +279,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
             <div className={`mt-3 text-[10px] font-semibold ${
               expandedSection === 'load' ? 'text-[#005BE3]' : 'text-[#005BE3]'
             }`}>
-              {scalingInsights.readWriteRatio || '70:30'} read/write
+              {scalingInsights.readWriteRatio} read/write
             </div>
           </div>
         </button>
@@ -380,10 +383,10 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
           <h3 className="text-sm font-semibold text-[#1d1d1f] mb-4">Database Selection</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-xs text-[#605A57] mb-2">Recommended: <span className="font-semibold text-[#1d1d1f]">{dbRecommendations[0]?.name || 'PostgreSQL'}</span></p>
-              <p className="text-xs text-[#605A57] leading-relaxed">{dbRecommendations[0]?.bestFor || 'Excellent for complex relational data with ACID compliance'}</p>
+              <p className="text-xs text-[#605A57] mb-2">Recommended: <span className="font-semibold text-[#1d1d1f]">{dbRecommendations[0]?.name}</span></p>
+              <p className="text-xs text-[#605A57] leading-relaxed">{dbRecommendations[0]?.bestFor}</p>
               <div className="mt-3 space-y-1">
-                {(dbRecommendations[0]?.pros || ['ACID compliance', 'Advanced indexing', 'JSON support']).slice(0, 3).map((pro: string, i: number) => (
+                {dbRecommendations[0]?.pros?.slice(0, 3).map((pro: string, i: number) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-[#605A57]">
                     <Check className="w-3 h-3 text-[#005BE3]" />
                     <span>{pro}</span>
@@ -394,7 +397,7 @@ export function StepTwo({ data, onComplete, onBack }: StepTwoProps) {
             <div className="space-y-3">
               <div>
                 <p className="text-[10px] text-[#605A57] uppercase tracking-wide mb-1">Read/Write Pattern</p>
-                <p className="text-sm text-[#1d1d1f] font-medium">{scalingInsights.readWriteRatio || '70:30'}</p>
+                <p className="text-sm text-[#1d1d1f] font-medium">{scalingInsights.readWriteRatio}</p>
               </div>
               <div>
                 <p className="text-[10px] text-[#605A57] uppercase tracking-wide mb-1">Caching Strategy</p>

@@ -27,7 +27,13 @@ export interface ScalingInsightsResult {
 
 const SCALING_INSIGHTS_PROMPT = `You are a scalability expert. Analyze the project requirements and provide scaling insights and performance estimates.
 
-CRITICAL: Respond with ONLY valid JSON in the exact format below.
+CRITICAL REQUIREMENTS:
+- Respond with ONLY valid JSON in the exact format below.
+- No markdown, no code blocks, no explanations before or after the JSON.
+- Output must be parseable by JSON.parse() without any modifications.
+- Do not wrap the JSON in markdown code blocks (no \`\`\`json or \`\`\`).
+- Ensure all string values are properly escaped and all arrays/objects are valid JSON.
+- All enum values must exactly match: expectedLoad ("Low"|"Medium"|"High"), priority ("High"|"Medium"|"Low").
 
 **REQUIRED JSON STRUCTURE:**
 {
@@ -114,7 +120,24 @@ Provide scaling insights tailored to this specific project.`;
       topP: 0.9,
     });
 
-    const result = JSON.parse(text.trim());
+    // Clean up the response text
+    let cleanText = text.trim();
+    
+    // Remove markdown code blocks if present
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/m, '').replace(/\s*```$/m, '');
+    } else if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/m, '').replace(/\s*```$/m, '');
+    }
+    
+    // Extract JSON if there's text before/after
+    const jsonStart = cleanText.indexOf('{');
+    const jsonEnd = cleanText.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleanText = cleanText.substring(jsonStart, jsonEnd + 1);
+    }
+
+    const result = JSON.parse(cleanText);
     
     if (!result.insights) {
       throw new Error('Invalid response: insights object is required');

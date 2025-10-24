@@ -17,7 +17,13 @@ export interface SmartRecommendationsResult {
 
 const SMART_RECOMMENDATIONS_PROMPT = `You are a senior software architect. Analyze the project requirements and provide smart, actionable recommendations.
 
-CRITICAL: Respond with ONLY valid JSON in the exact format below.
+CRITICAL REQUIREMENTS:
+- Respond with ONLY valid JSON in the exact format below.
+- No markdown, no code blocks, no explanations before or after the JSON.
+- Output must be parseable by JSON.parse() without any modifications.
+- Do not wrap the JSON in markdown code blocks (no \`\`\`json or \`\`\`).
+- Ensure all string values are properly escaped and all arrays/objects are valid JSON.
+- All enum values must exactly match: type ("architecture"|"performance"|"security"|"scalability"), priority ("High"|"Medium"|"Low").
 
 **REQUIRED JSON STRUCTURE:**
 {
@@ -84,20 +90,42 @@ Provide smart recommendations tailored to this specific project.`;
       topP: 0.9,
     });
 
-    const result = JSON.parse(text.trim());
+    // Clean up the response text
+    let cleanText = text.trim();
+    
+    // Remove markdown code blocks if present
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/m, '').replace(/\s*```$/m, '');
+    } else if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/m, '').replace(/\s*```$/m, '');
+    }
+    
+    // Extract JSON if there's text before/after
+    const jsonStart = cleanText.indexOf('{');
+    const jsonEnd = cleanText.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleanText = cleanText.substring(jsonStart, jsonEnd + 1);
+    }
+
+    const result = JSON.parse(cleanText);
     
     if (!result.recommendations || !Array.isArray(result.recommendations)) {
       throw new Error('Invalid response: recommendations array is required');
     }
 
-    // Ensure all fields are present with defaults
-    const recommendations = result.recommendations.map((rec: any) => ({
-      title: rec.title || 'General Recommendation',
-      description: rec.description || 'Implementation advice not specified',
-      type: rec.type || 'architecture',
-      priority: rec.priority || 'Medium',
-      implementationEffort: rec.implementationEffort || 'Medium'
-    }));
+    // Validate all required fields are present - NO DEFAULTS
+    const recommendations = result.recommendations.map((rec: any) => {
+      if (!rec.title || !rec.description || !rec.type || !rec.priority || !rec.implementationEffort) {
+        throw new Error('Missing required fields in recommendation: title, description, type, priority, implementationEffort are all required');
+      }
+      return {
+        title: rec.title,
+        description: rec.description,
+        type: rec.type,
+        priority: rec.priority,
+        implementationEffort: rec.implementationEffort
+      };
+    });
 
     return {
       recommendations,

@@ -1,13 +1,15 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useAuth } from '@clerk/nextjs'
 import { loadProjects, hasCompletedOnboarding } from '@/lib/storage'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
   const { isLoaded, isSignedIn, user } = useUser()
+  const { getToken } = useAuth()
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
     if (!isLoaded) return
@@ -17,6 +19,49 @@ export default function AuthCallbackPage() {
       router.push('/sign-in')
       return
     }
+
+    // Sync user to backend immediately after sign-in
+    const syncUserToBackend = async () => {
+      if (syncing) return // Prevent duplicate calls
+      
+      const authMode = process.env.NEXT_PUBLIC_AUTH_MODE
+      if (authMode !== 'production') {
+        console.log('Dev mode - skipping user sync')
+        return
+      }
+
+      try {
+        setSyncing(true)
+        console.log('🔄 Syncing user to backend...')
+        
+        const token = await getToken()
+        if (!token) {
+          console.warn('⚠️ No token available')
+          return
+        }
+
+        // Make a simple API call to trigger user creation
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/projects`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (response.ok) {
+          console.log('✅ User synced to backend successfully')
+        } else {
+          console.warn('⚠️ Failed to sync user:', response.status)
+        }
+      } catch (error) {
+        console.error('❌ Error syncing user:', error)
+      } finally {
+        setSyncing(false)
+      }
+    }
+
+    syncUserToBackend()
 
     // User is signed in, determine where to redirect
     if (typeof window !== 'undefined') {
@@ -48,7 +93,7 @@ export default function AuthCallbackPage() {
       // Fallback for server-side rendering
       router.push('/onboarding')
     }
-  }, [isLoaded, isSignedIn, user, router])
+  }, [isLoaded, isSignedIn, user, router, syncing, getToken])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

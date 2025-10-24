@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowRight, ArrowLeft, Globe, Shield, Users, FileText, Play, Code, Copy, ChevronDown, ChevronRight, Search, Upload, Heart, MessageCircle, Hash, Bell, Check, CheckCircle2, ExternalLink, Zap } from "lucide-react"
+import { ArrowRight, ArrowLeft, Globe, Shield, Users, FileText, Play, Code, Copy, ChevronDown, ChevronRight, Search, Upload, Heart, MessageCircle, Hash, Bell, Check, CheckCircle2, ExternalLink, Zap, AlertCircle } from "lucide-react"
+import { apiRequest } from "@/lib/api-client"
 
 interface StepThreeProps {
   data: any
@@ -50,7 +51,9 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
     return <Icon className="h-4 w-4 text-[#005BE3]" />
   }
 
-  const totalEndpoints = data.endpoints.reduce((acc: number, group: any) => acc + group.endpoints.length, 0)
+  // Use dynamic endpoints from Step 1 AI generation
+  const endpoints = data.endpoints || []
+  const totalEndpoints = endpoints.reduce((acc: number, group: any) => acc + group.endpoints.length, 0)
 
   const toggleGroup = (groupName: string) => {
     const newExpanded = new Set(expandedGroups)
@@ -68,15 +71,72 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
     setResponse(null)
   }
 
-  const simulateApiCall = async () => {
+  const makeRealApiCall = async () => {
     setLoading(true)
     setResponse(null)
     
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    const mockResponse = generateMockResponse(selectedEndpoint)
-    setResponse(mockResponse)
-    setLoading(false)
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
+      const { method, path } = selectedEndpoint
+      
+      // Build the full URL
+      let fullPath = path
+      
+      // Replace path parameters with actual values from testData
+      if (selectedEndpoint.params) {
+        Object.keys(selectedEndpoint.params).forEach(param => {
+          fullPath = fullPath.replace(`:${param}`, testData[param] || `test-${param}`)
+        })
+      }
+      
+      const url = `${backendUrl}/api${fullPath}`
+      
+      const options: RequestInit = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-dev-user-id': `dev_user_${Date.now()}`
+        },
+      }
+      
+      // Add body for non-GET requests
+      if (method !== 'GET' && testData.body) {
+        try {
+          options.body = testData.body
+        } catch (e) {
+          options.body = JSON.stringify(selectedEndpoint.body)
+        }
+      }
+      
+      const startTime = Date.now()
+      const response = await fetch(url, options)
+      const endTime = Date.now()
+      
+      let data: any
+      const contentType = response.headers.get('content-type')
+      
+      if (contentType?.includes('application/json')) {
+        data = await response.json()
+      } else {
+        data = await response.text()
+      }
+      
+      setResponse({
+        status: response.status,
+        statusText: response.statusText,
+        data,
+        responseTime: endTime - startTime,
+        headers: Object.fromEntries(response.headers.entries())
+      })
+    } catch (error: any) {
+      setResponse({
+        status: 0,
+        error: error.message || 'Network error occurred',
+        message: 'Failed to connect to the backend. Make sure the server is running on ' + (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000')
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const copyToClipboard = (text: string) => {
@@ -85,75 +145,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const generateMockResponse = (endpoint: any) => {
-    const { method, path } = endpoint
-    
-    if (method === 'GET') {
-      if (path.includes('/users')) {
-        return {
-          status: 200,
-          data: {
-            id: 'user-123',
-            email: 'john@example.com',
-            username: 'johndoe',
-            first_name: 'John',
-            last_name: 'Doe',
-            created_at: '2024-01-15T10:30:00Z'
-          }
-        }
-      }
-      if (path.includes('/posts')) {
-        return {
-          status: 200,
-          data: [
-            {
-              id: 'post-456',
-              title: 'Getting Started with React',
-              content: 'React is a powerful library...',
-              author: 'John Doe',
-              created_at: '2024-01-15T14:30:00Z'
-            }
-          ],
-          meta: { page: 1, limit: 20, total: 1 }
-        }
-      }
-    }
-    
-    if (method === 'POST') {
-      return {
-        status: 201,
-        data: {
-          id: 'new-resource-789',
-          message: 'Resource created successfully',
-          created_at: new Date().toISOString()
-        }
-      }
-    }
-    
-    if (method === 'PUT') {
-      return {
-        status: 200,
-        data: {
-          message: 'Resource updated successfully',
-          updated_at: new Date().toISOString()
-        }
-      }
-    }
-    
-    if (method === 'DELETE') {
-      return {
-        status: 204,
-        message: 'Resource deleted successfully'
-      }
-    }
-    
-    return {
-      status: 200,
-      data: { message: 'Success' }
-    }
-  }
-
-  const filteredEndpoints = data.endpoints.map((group: any) => ({
+  const filteredEndpoints = endpoints.map((group: any) => ({
     ...group,
     endpoints: group.endpoints.filter((endpoint: any) => 
       endpoint.path.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -163,19 +155,42 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
   })).filter((group: any) => group.endpoints.length > 0)
 
   useEffect(() => {
-    if (!selectedEndpoint && data.endpoints.length > 0) {
-      const authGroup = data.endpoints.find((group: any) => group.group === 'Authentication')
+    if (!selectedEndpoint && endpoints.length > 0) {
+      const authGroup = endpoints.find((group: any) => group.group === 'Authentication')
       if (authGroup && authGroup.endpoints.length > 0) {
         const loginEndpoint = authGroup.endpoints.find((ep: any) => ep.path === '/auth/login') || authGroup.endpoints[0]
         selectEndpoint(authGroup, loginEndpoint)
       } else {
-        const firstGroup = data.endpoints[0]
+        const firstGroup = endpoints[0]
         if (firstGroup && firstGroup.endpoints.length > 0) {
           selectEndpoint(firstGroup, firstGroup.endpoints[0])
         }
       }
     }
-  }, [data.endpoints, selectedEndpoint])
+  }, [endpoints, selectedEndpoint])
+
+  // Show message if no endpoints were generated
+  if (!endpoints || endpoints.length === 0) {
+    return (
+      <div className="w-full max-w-7xl mx-auto py-6 px-6">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+          <div className="p-4 bg-orange-100 rounded-full">
+            <AlertCircle className="w-12 h-12 text-orange-600" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-[#1d1d1f]">No API Endpoints Generated</h2>
+            <p className="text-[#605A57] max-w-md">
+              It looks like no endpoints were created in Step 1. Please go back and regenerate your backend with API endpoints included.
+            </p>
+          </div>
+          <Button onClick={onBack} variant="outline" className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go Back to Schema
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto py-6 px-6 space-y-12">
@@ -196,7 +211,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-[#005BE3] animate-pulse" style={{ animationDelay: '150ms' }}></div>
-            <span>{data.endpoints.length} API groups</span>
+            <span>{endpoints.length} API groups</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[#605A57]/30"></div>
           <div className="flex items-center gap-2">
@@ -218,7 +233,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
           <div className="text-xs text-[#605A57] mt-2">Total Endpoints</div>
         </div>
         <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-lg">
-          <div className="text-2xl font-bold text-[#1d1d1f]">{data.endpoints.length}</div>
+          <div className="text-2xl font-bold text-[#1d1d1f]">{endpoints.length}</div>
           <div className="text-xs text-[#605A57] mt-2">API Groups</div>
         </div>
         <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-lg">
@@ -238,9 +253,14 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
 
       {/* Section Header */}
       <div className="max-w-[1400px] mx-auto">
-        <div className="mb-8 text-center space-y-2">
+        <div className="mb-8 text-center space-y-4">
           <h2 className="text-base font-semibold text-[#1d1d1f]">Test Your API</h2>
-          <p className="text-xs text-[#605A57]">Select an endpoint from the list and test it interactively</p>
+          <p className="text-xs text-[#605A57]">Select an endpoint from the list and test it with your real backend</p>
+          
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs">
+            <AlertCircle className="w-3 h-3" />
+            <span>Backend should be running on {process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}</span>
+          </div>
         </div>
       </div>
 
@@ -336,13 +356,13 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                   {/* Quick Info Pills */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="px-3 py-1 rounded-full bg-[#005BE3]/10 text-[#005BE3] text-xs font-medium">
-                      ÃƒÂ¢Ã…Â¡Ã‚Â¡ Auto-generated
+                      Auto-generated
                     </div>
                     <div className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
-                      ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢ Authenticated
+                      Authenticated
                     </div>
                     <div className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-medium">
-                      ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  JSON Response
+                      JSON Response
                     </div>
                   </div>
                 </div>
@@ -415,7 +435,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                   {/* Test Button - Enhanced */}
                   <div className="pt-2">
                     <Button 
-                      onClick={simulateApiCall} 
+                      onClick={makeRealApiCall} 
                       disabled={loading}
                       className="w-full bg-gradient-to-r from-[#005BE3] to-[#004BC9] hover:from-[#004BC9] hover:to-[#005BE3] transition-all duration-300"
                       size="lg"
@@ -439,23 +459,40 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                 {response && (
                   <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
                     <div className="flex items-center gap-2">
-                      <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
+                      <div className={`w-1 h-5 rounded-full ${response.status === 0 || response.status >= 400 ? 'bg-red-600' : 'bg-blue-600'}`}></div>
                       <h3 className="text-base font-semibold text-[#1d1d1f]">Response</h3>
                     </div>
                     
                     {/* Response Header */}
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-50 rounded-t-lg border border-blue-200">
+                    <div className={`flex items-center justify-between p-4 rounded-t-lg border ${
+                      response.status === 0 || response.status >= 400 
+                        ? 'bg-gradient-to-r from-red-50 to-red-50 border-red-200' 
+                        : 'bg-gradient-to-r from-blue-50 to-blue-50 border-blue-200'
+                    }`}>
                       <div className="flex items-center gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                        {response.status === 0 || response.status >= 400 ? (
+                          <AlertCircle className="w-5 h-5 text-red-600" />
+                        ) : (
+                          <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                        )}
                         <div>
-                          <p className="text-sm font-semibold text-[#1d1d1f]">Request Successful</p>
-                          <p className="text-xs text-[#605A57]">Response time: ~1.2s</p>
+                          <p className="text-sm font-semibold text-[#1d1d1f]">
+                            {response.status === 0 ? 'Request Failed' : response.status < 300 ? 'Request Successful' : 'Request Error'}
+                          </p>
+                          <p className="text-xs text-[#605A57]">
+                            {response.responseTime ? `Response time: ${response.responseTime}ms` : 'Network error'}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={response.status < 300 ? 'default' : 'destructive'} className="text-xs font-mono">
-                          {response.status} {response.status < 300 ? 'OK' : 'ERROR'}
-                        </Badge>
+                        {response.status > 0 && (
+                          <Badge 
+                            variant={response.status < 300 ? 'default' : 'destructive'} 
+                            className="text-xs font-mono"
+                          >
+                            {response.status} {response.statusText || (response.status < 300 ? 'OK' : 'ERROR')}
+                          </Badge>
+                        )}
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -480,7 +517,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                     {/* Response Body */}
                     <div className="relative">
                       <pre className="bg-[#1e1e1e] text-[#d4d4d4] p-5 rounded-b-lg overflow-auto text-xs font-mono border border-t-0 border-blue-200 max-h-[400px]">
-                        <code>{JSON.stringify(response, null, 2)}</code>
+                        <code>{JSON.stringify(response.data || response, null, 2)}</code>
                       </pre>
                       <div className="absolute top-3 right-3">
                         <div className="px-2 py-1 rounded bg-black/20 text-white text-[10px] font-mono">
@@ -512,36 +549,24 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
                 <div className="grid grid-cols-2 gap-4 text-sm text-left mt-8">
                   <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-lg">ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“</span>
-                      </div>
                       <h4 className="font-semibold text-blue-700">CRUD Operations</h4>
                     </div>
                     <p className="text-xs text-[#605A57] leading-relaxed">Complete Create, Read, Update, Delete for all tables</p>
                   </div>
                   <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-lg">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢</span>
-                      </div>
                       <h4 className="font-semibold text-blue-700">Authentication</h4>
                     </div>
                     <p className="text-xs text-[#605A57] leading-relaxed">Login, register, logout, password reset</p>
                   </div>
                   <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span className="text-lg">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â</span>
-                      </div>
                       <h4 className="font-semibold text-purple-700">File Uploads</h4>
                     </div>
                     <p className="text-xs text-[#605A57] leading-relaxed">Avatar, post images, general media</p>
                   </div>
                   <div className="p-4 bg-white rounded-lg border border-[#005BE3]/10 space-y-2 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                        <span className="text-lg">ÃƒÂ¢Ã…Â¡Ã‚Â¡</span>
-                      </div>
                       <h4 className="font-semibold text-orange-700">Business Logic</h4>
                     </div>
                     <p className="text-xs text-[#605A57] leading-relaxed">Social features, notifications, search</p>

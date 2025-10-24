@@ -149,15 +149,16 @@ function ArchitectureNodeComponent({ data, selected, type }: NodeProps<Architect
   }
 
   return (
-    <Card
-      className={`w-56 sm:w-64 shadow-md hover:shadow-xl transition-all duration-200 bg-white border ${
-        selected ? 'ring-2 ring-[#005BE3] border-[#005BE3]' : 'border-[rgba(55,50,47,0.12)] hover:border-[rgba(55,50,47,0.2)]'
-      }`}
-      style={{
-        borderTopColor: nodeColor,
-        borderTopWidth: '4px'
-      }}
-    >
+    <div style={{ width: 256, height: 'auto' }}>
+      <Card
+        className={`w-full shadow-md hover:shadow-xl transition-all duration-200 bg-white border ${
+          selected ? 'ring-2 ring-[#005BE3] border-[#005BE3]' : 'border-[rgba(55,50,47,0.12)] hover:border-[rgba(55,50,47,0.2)]'
+        }`}
+        style={{
+          borderTopColor: nodeColor,
+          borderTopWidth: '4px'
+        }}
+      >
       {/* Connection handles */}
       <Handle
         type="target"
@@ -282,6 +283,7 @@ function ArchitectureNodeComponent({ data, selected, type }: NodeProps<Architect
         </div>
       </CardContent>
     </Card>
+    </div>
   )
 }
 

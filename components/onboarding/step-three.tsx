@@ -76,10 +76,9 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
     setResponse(null)
     
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
       const { method, path } = selectedEndpoint
       
-      // Build the full URL
+      // Build the full URL - use relative path for serverless Next.js API routes
       let fullPath = path
       
       // Replace path parameters with actual values from testData
@@ -89,7 +88,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
         })
       }
       
-      const url = `${backendUrl}/api${fullPath}`
+      const url = `/api${fullPath}`
       
       const options: RequestInit = {
         method,
@@ -132,7 +131,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
       setResponse({
         status: 0,
         error: error.message || 'Network error occurred',
-        message: 'Failed to connect to the backend. Make sure the server is running on ' + (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000')
+        message: 'Failed to connect to the API. Please try again.'
       })
     } finally {
       setLoading(false)
@@ -259,7 +258,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
           
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs">
             <AlertCircle className="w-3 h-3" />
-            <span>Backend should be running on {process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}</span>
+            <span>Serverless API routes are ready to test</span>
           </div>
         </div>
       </div>

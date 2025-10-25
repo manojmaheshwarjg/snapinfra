@@ -8,8 +8,7 @@ async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
-  const url = `${BACKEND_URL}${endpoint}`
+  const url = endpoint
   
   const getDevUserId = (): string => {
     if (typeof window !== 'undefined') {

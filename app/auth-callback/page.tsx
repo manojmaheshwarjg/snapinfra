@@ -41,7 +41,7 @@ export default function AuthCallbackPage() {
         }
 
         // Make a simple API call to trigger user creation
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/projects`, {
+        const response = await fetch('/api/projects', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

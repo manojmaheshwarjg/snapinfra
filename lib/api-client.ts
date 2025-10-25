@@ -5,8 +5,8 @@
 
 import type { Project, DatabaseSchema, User } from './app-context'
 
-// Get backend URL from environment variable or default to localhost
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
+// Use relative paths for Next.js API routes (serverless)
+const BACKEND_URL = ''
 
 // Store auth token getter globally (set by useAuth hook)
 let getAuthToken: (() => Promise<string | null>) | null = null

@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowRight, ArrowLeft, Globe, Shield, Users, FileText, Play, Code, Copy, ChevronDown, ChevronRight, Search, Upload, Heart, MessageCircle, Hash, Bell, Check, CheckCircle2, ExternalLink, Zap, AlertCircle } from "lucide-react"
-import { apiRequest } from "@/lib/api-client"
+import { ArrowRight, ArrowLeft, Globe, Shield, Users, FileText, Play, Code, Copy, ChevronDown, ChevronRight, Search, Upload, Heart, MessageCircle, Hash, Bell, Check, CheckCircle2, ExternalLink, Zap, AlertCircle, Sparkles } from "lucide-react"
+import { initializeMSW } from "@/lib/msw-browser"
 
 interface StepThreeProps {
   data: any
@@ -108,6 +108,7 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
       }
       
       const startTime = Date.now()
+      // Use regular fetch - MSW will intercept it!
       const response = await fetch(url, options)
       const endTime = Date.now()
       
@@ -152,6 +153,37 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
       group.group.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter((group: any) => group.endpoints.length > 0)
+
+  // Initialize MSW with schemas from Step 1
+  useEffect(() => {
+    if (data?.schemas && data?.endpoints) {
+      console.log('🎯 Initializing MSW with schemas from Step 1...')
+      
+      try {
+        // Flatten grouped endpoints into single array
+        const flatEndpoints = data.endpoints.flatMap((group: any) => 
+          (group.endpoints || []).map((ep: any) => ({ ...ep, group: group.group }))
+        )
+        
+        // Validate we have endpoints to register
+        if (flatEndpoints.length === 0) {
+          console.warn('⚠️ No endpoints to register with MSW')
+          return
+        }
+        
+        // Initialize MSW with schema-aware handlers
+        const worker = initializeMSW(data.schemas, flatEndpoints)
+        
+        if (!worker) {
+          console.error('❌ Failed to initialize MSW - API testing may not work')
+        }
+      } catch (error) {
+        console.error('❌ MSW initialization error:', error)
+      }
+    } else {
+      console.warn('⚠️ Missing schemas or endpoints data for MSW initialization')
+    }
+  }, [data])
 
   useEffect(() => {
     if (!selectedEndpoint && endpoints.length > 0) {
@@ -240,8 +272,27 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
           <div className="text-xs text-[#605A57] mt-2">API Standard</div>
         </div>
         <div className="bg-white border-2 border-[rgba(55,50,47,0.08)] rounded-xl p-6 text-center transition-all duration-300 hover:border-[#005BE3]/30 hover:shadow-lg">
-          <div className="text-2xl font-bold text-[#1d1d1f]">JSON</div>
-          <div className="text-xs text-[#605A57] mt-2">Response Format</div>
+          <div className="text-2xl font-bold text-[#1d1d1f]">Mock</div>
+          <div className="text-xs text-[#605A57] mt-2">Dynamic Data</div>
+        </div>
+      </div>
+
+      {/* Info Card about Mock Data */}
+      <div className="max-w-[900px] mx-auto">
+        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-blue-200 rounded-xl p-5">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+            <div className="flex-1 space-y-2">
+              <h3 className="text-sm font-semibold text-blue-900">Smart Mock Data Generation</h3>
+              <p className="text-xs text-blue-800 leading-relaxed">
+                All API responses are dynamically generated based on your database schema. Each field gets realistic data - emails look like emails, names look like names, and timestamps are properly formatted. Try creating, updating, or deleting resources to see how the mock system maintains state during your testing session.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -256,9 +307,9 @@ export function StepThree({ data, onComplete, onBack }: StepThreeProps) {
           <h2 className="text-base font-semibold text-[#1d1d1f]">Test Your API</h2>
           <p className="text-xs text-[#605A57]">Select an endpoint from the list and test it with your real backend</p>
           
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs">
-            <AlertCircle className="w-3 h-3" />
-            <span>Serverless API routes are ready to test</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 rounded-full text-xs border border-blue-200">
+            <Zap className="w-3 h-3" />
+            <span>Testing with dynamically generated mock data based on your schema</span>
           </div>
         </div>
       </div>

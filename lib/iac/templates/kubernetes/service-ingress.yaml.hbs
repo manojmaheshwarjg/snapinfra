@@ -1,0 +1,191 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{kebabCase projectName}}-service
+  namespace: {{kubernetes.namespace}}
+  labels:
+    app: {{kebabCase projectName}}
+    environment: {{environment}}
+  {{#if kubernetes.serviceAnnotations}}
+  annotations:
+    {{#each kubernetes.serviceAnnotations}}
+    {{key}}: "{{value}}"
+    {{/each}}
+  {{/if}}
+spec:
+  type: {{kubernetes.serviceType}}
+  selector:
+    app: {{kebabCase projectName}}
+  ports:
+    - name: http
+      port: {{kubernetes.servicePort}}
+      targetPort: http
+      protocol: TCP
+      {{#eq kubernetes.serviceType "NodePort"}}
+      nodePort: {{kubernetes.nodePort}}
+      {{/eq}}
+  sessionAffinity: {{#if kubernetes.sessionAffinity}}ClientIP{{else}}None{{/if}}
+  {{#if kubernetes.sessionAffinity}}
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  {{/if}}
+
+{{#if kubernetes.ingress.enabled}}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{kebabCase projectName}}-ingress
+  namespace: {{kubernetes.namespace}}
+  labels:
+    app: {{kebabCase projectName}}
+    environment: {{environment}}
+  annotations:
+    {{#if kubernetes.ingress.certManager}}
+    cert-manager.io/cluster-issuer: "{{kubernetes.ingress.certIssuer}}"
+    {{/if}}
+    {{#eq kubernetes.ingress.class "nginx"}}
+    nginx.ingress.kubernetes.io/ssl-redirect: "{{kubernetes.ingress.sslRedirect}}"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "{{kubernetes.ingress.forceSSL}}"
+    {{#if kubernetes.ingress.rateLimiting}}
+    nginx.ingress.kubernetes.io/limit-rps: "{{kubernetes.ingress.rateLimit}}"
+    {{/if}}
+    {{#if kubernetes.ingress.cors}}
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "{{kubernetes.ingress.corsOrigin}}"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+    {{/if}}
+    {{/eq}}
+    {{#each kubernetes.ingress.annotations}}
+    {{key}}: "{{value}}"
+    {{/each}}
+spec:
+  ingressClassName: {{kubernetes.ingress.class}}
+  {{#if kubernetes.ingress.tls}}
+  tls:
+    - hosts:
+        {{#each kubernetes.ingress.hosts}}
+        - {{this}}
+        {{/each}}
+      secretName: {{kebabCase projectName}}-tls
+  {{/if}}
+  rules:
+    {{#each kubernetes.ingress.hosts}}
+    - host: {{this}}
+      http:
+        paths:
+          - path: {{../kubernetes.ingress.path}}
+            pathType: {{../kubernetes.ingress.pathType}}
+            backend:
+              service:
+                name: {{kebabCase ../projectName}}-service
+                port:
+                  number: {{../kubernetes.servicePort}}
+    {{/each}}
+{{/if}}
+
+{{#if compute.autoscaling}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{kebabCase projectName}}-hpa
+  namespace: {{kubernetes.namespace}}
+  labels:
+    app: {{kebabCase projectName}}
+    environment: {{environment}}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{kebabCase projectName}}-deployment
+  minReplicas: {{compute.minReplicas}}
+  maxReplicas: {{compute.maxReplicas}}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{compute.targetCPU}}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{compute.targetMemory}}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 2
+          periodSeconds: 15
+      selectPolicy: Max
+{{/if}}
+
+{{#if kubernetes.networkPolicy}}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{kebabCase projectName}}-netpol
+  namespace: {{kubernetes.namespace}}
+  labels:
+    app: {{kebabCase projectName}}
+    environment: {{environment}}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{kebabCase projectName}}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: {{kubernetes.namespace}}
+        {{#if kubernetes.ingressNamespaces}}
+        {{#each kubernetes.ingressNamespaces}}
+        - namespaceSelector:
+            matchLabels:
+              name: {{this}}
+        {{/each}}
+        {{/if}}
+      ports:
+        - protocol: TCP
+          port: {{compute.port}}
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 53
+    {{#if database.enabled}}
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{kebabCase projectName}}-db
+      ports:
+        - protocol: TCP
+          port: {{database.port}}
+    {{/if}}
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+{{/if}}

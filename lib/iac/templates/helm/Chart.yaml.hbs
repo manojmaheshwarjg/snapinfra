@@ -1,0 +1,35 @@
+apiVersion: v2
+name: {{kebabCase projectName}}
+description: {{description}}
+type: application
+version: {{version}}
+appVersion: {{appVersion}}
+
+keywords:
+  {{#each keywords}}
+  - {{this}}
+  {{/each}}
+
+maintainers:
+  - name: {{maintainer.name}}
+    email: {{maintainer.email}}
+
+{{#if dependencies}}
+dependencies:
+  {{#each dependencies}}
+  - name: {{name}}
+    version: {{version}}
+    repository: {{repository}}
+    {{#if condition}}
+    condition: {{condition}}
+    {{/if}}
+  {{/each}}
+{{/if}}
+
+annotations:
+  category: {{category}}
+  {{#if helm.annotations}}
+  {{#each helm.annotations}}
+  {{key}}: "{{value}}"
+  {{/each}}
+  {{/if}}

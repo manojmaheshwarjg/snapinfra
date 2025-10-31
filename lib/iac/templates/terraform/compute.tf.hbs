@@ -1,0 +1,249 @@
+# Compute: {{resourceName}}
+# {{resource.reasoning}}
+
+{{#if includeComments}}
+# Resource type: {{resource.type}}
+# Provider: {{resource.provider}}
+# Generated from validated schema
+{{/if}}
+
+# ECS Cluster
+resource "aws_ecs_cluster" "{{naming.snakeCase projectName}}" {
+  name = "{{projectName}}-cluster"
+  
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+  
+  tags = {
+    Name        = "{{projectName}}-cluster"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+  }
+}
+
+# Task Definition
+resource "aws_ecs_task_definition" "{{naming.snakeCase resourceName}}" {
+  family                   = "{{projectName}}-{{naming.kebabCase resourceName}}"
+  requires_compatibilities = ["{{#if resource.properties.launchType}}{{resource.properties.launchType}}{{else}}FARGATE{{/if}}"]
+  network_mode             = "awsvpc"
+  cpu                      = "{{#if resource.properties.cpu}}{{resource.properties.cpu}}{{else}}256{{/if}}"
+  memory                   = "{{#if resource.properties.memory}}{{resource.properties.memory}}{{else}}512{{/if}}"
+  execution_role_arn       = aws_iam_role.{{naming.snakeCase resourceName}}_execution.arn
+  task_role_arn            = aws_iam_role.{{naming.snakeCase resourceName}}_task.arn
+  
+  container_definitions = jsonencode([
+    {
+      name      = "{{naming.kebabCase resourceName}}"
+      image     = "{{#if resource.properties.image}}{{resource.properties.image}}{{else}}nginx:latest{{/if}}"
+      essential = true
+      
+      portMappings = [
+        {
+          containerPort = {{#if resource.properties.containerPort}}{{resource.properties.containerPort}}{{else}}3000{{/if}}
+          protocol      = "tcp"
+        }
+      ]
+      
+      environment = [
+        {{#if dependencies}}
+        {{#each dependencies}}
+        {
+          name  = "{{naming.screaming_snakeCase this}}_HOST"
+          value = "${aws_db_instance.{{naming.snakeCase this}}.endpoint}"
+        },
+        {{/each}}
+        {{/if}}
+        {
+          name  = "NODE_ENV"
+          value = "{{environment}}"
+        }
+      ]
+      
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/{{projectName}}-{{naming.kebabCase resourceName}}"
+          "awslogs-region"        = "us-east-1"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+      
+      healthCheck = {
+        command     = ["CMD-SHELL", "curl -f http://localhost:{{#if resource.properties.containerPort}}{{resource.properties.containerPort}}{{else}}3000{{/if}}/health || exit 1"]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 60
+      }
+    }
+  ])
+  
+  tags = {
+    Name        = "{{projectName}}-{{naming.kebabCase resourceName}}"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+  }
+}
+
+# ECS Service
+resource "aws_ecs_service" "{{naming.snakeCase resourceName}}" {
+  name            = "{{projectName}}-{{naming.kebabCase resourceName}}"
+  cluster         = aws_ecs_cluster.{{naming.snakeCase projectName}}.id
+  task_definition = aws_ecs_task_definition.{{naming.snakeCase resourceName}}.arn
+  desired_count   = {{#if resource.properties.desiredCount}}{{resource.properties.desiredCount}}{{else}}2{{/if}}
+  launch_type     = "{{#if resource.properties.launchType}}{{resource.properties.launchType}}{{else}}FARGATE{{/if}}"
+  
+  network_configuration {
+    subnets          = var.private_subnet_ids
+    security_groups  = [aws_security_group.{{naming.snakeCase resourceName}}.id]
+    assign_public_ip = false
+  }
+  
+  {{#if resource.properties.loadBalancer}}
+  load_balancer {
+    target_group_arn = aws_lb_target_group.{{naming.snakeCase resourceName}}.arn
+    container_name   = "{{naming.kebabCase resourceName}}"
+    container_port   = {{#if resource.properties.containerPort}}{{resource.properties.containerPort}}{{else}}3000{{/if}}
+  }
+  {{/if}}
+  
+  deployment_configuration {
+    maximum_percent         = 200
+    minimum_healthy_percent = 100
+  }
+  
+  {{#if dependencies.length}}
+  depends_on = [
+    {{#each dependencies}}
+    aws_db_instance.{{naming.snakeCase this}}{{#unless @last}},{{/unless}}
+    {{/each}}
+  ]
+  {{/if}}
+  
+  tags = {
+    Name        = "{{projectName}}-{{naming.kebabCase resourceName}}"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+  }
+}
+
+# Security Group
+resource "aws_security_group" "{{naming.snakeCase resourceName}}" {
+  name        = "{{projectName}}-{{naming.kebabCase resourceName}}-sg"
+  description = "Security group for {{resourceName}}"
+  vpc_id      = var.vpc_id
+  
+  ingress {
+    from_port   = {{#if resource.properties.containerPort}}{{resource.properties.containerPort}}{{else}}3000{{/if}}
+    to_port     = {{#if resource.properties.containerPort}}{{resource.properties.containerPort}}{{else}}3000{{/if}}
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/8"]
+  }
+  
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  tags = {
+    Name        = "{{projectName}}-{{naming.kebabCase resourceName}}-sg"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+  }
+}
+
+# IAM Role for ECS Execution
+resource "aws_iam_role" "{{naming.snakeCase resourceName}}_execution" {
+  name = "{{projectName}}-{{naming.kebabCase resourceName}}-execution"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+  
+  tags = {
+    Name        = "{{projectName}}-{{naming.kebabCase resourceName}}-execution"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "{{naming.snakeCase resourceName}}_execution" {
+  role       = aws_iam_role.{{naming.snakeCase resourceName}}_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+# IAM Role for ECS Task
+resource "aws_iam_role" "{{naming.snakeCase resourceName}}_task" {
+  name = "{{projectName}}-{{naming.kebabCase resourceName}}-task"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+  
+  tags = {
+    Name        = "{{projectName}}-{{naming.kebabCase resourceName}}-task"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+  }
+}
+
+# CloudWatch Log Group
+resource "aws_cloudwatch_log_group" "{{naming.snakeCase resourceName}}" {
+  name              = "/ecs/{{projectName}}-{{naming.kebabCase resourceName}}"
+  retention_in_days = {{#if environment "production"}}30{{else}}7{{/if}}
+  
+  tags = {
+    Name        = "{{projectName}}-{{naming.kebabCase resourceName}}-logs"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+  }
+}
+
+# Variables
+variable "vpc_id" {
+  description = "VPC ID for {{projectName}}"
+  type        = string
+}
+
+variable "private_subnet_ids" {
+  description = "Private subnet IDs for {{projectName}}"
+  type        = list(string)
+}
+
+# Outputs
+output "{{naming.snakeCase resourceName}}_service_name" {
+  description = "ECS service name for {{resourceName}}"
+  value       = aws_ecs_service.{{naming.snakeCase resourceName}}.name
+}
+
+output "{{naming.snakeCase resourceName}}_cluster_name" {
+  description = "ECS cluster name"
+  value       = aws_ecs_cluster.{{naming.snakeCase projectName}}.name
+}
+
+output "{{naming.snakeCase resourceName}}_task_definition_arn" {
+  description = "Task definition ARN"
+  value       = aws_ecs_task_definition.{{naming.snakeCase resourceName}}.arn
+}

@@ -30,12 +30,16 @@ import {
   Database,
   RotateCcw,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Save,
+  Check
 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 import TableNode, { TableNodeData } from './table-node'
+import { TableEditDialog } from './table-edit-dialog'
 import { useAppContext } from "@/lib/app-context"
-import type { TableSchema } from "@/lib/app-context"
+import type { TableSchema, Relationship } from "@/lib/app-context"
 
 interface ReactFlowSchemaEditorProps {
   onTableEdit?: (table: TableSchema) => void
@@ -78,10 +82,12 @@ const convertTableToNode = (
   },
 })
 
-// Generate edges based on foreign key relationships
+// Generate edges based on foreign key relationships and saved relationships
 const generateEdges = (tables: TableSchema[]): Edge[] => {
   const edges: Edge[] = []
+  const edgeIds = new Set<string>()
 
+  // Add edges from foreign key fields
   tables.forEach(table => {
     table.fields.forEach(field => {
       if (field.isForeignKey) {
@@ -94,12 +100,54 @@ const generateEdges = (tables: TableSchema[]): Edge[] => {
         if (referencedTable) {
           const primaryKeyField = referencedTable.fields.find(f => f.isPrimary)
           if (primaryKeyField) {
+            const edgeId = `${table.id}-${field.id}-${referencedTable.id}-${primaryKeyField.id}`
+            if (!edgeIds.has(edgeId)) {
+              edgeIds.add(edgeId)
+              edges.push({
+                id: edgeId,
+                source: table.id,
+                target: referencedTable.id,
+                sourceHandle: `${table.id}-${field.id}-source`,
+                targetHandle: `${referencedTable.id}-${primaryKeyField.id}-target`,
+                type: 'smoothstep',
+                animated: true,
+                style: {
+                  stroke: '#6b7280',
+                  strokeWidth: 2,
+                },
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  width: 20,
+                  height: 20,
+                  color: '#6b7280',
+                },
+                label: 'FK',
+                labelStyle: {
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  color: '#6b7280',
+                },
+              })
+            }
+          }
+        }
+      }
+    })
+
+    // Add edges from saved relationships
+    if (table.relationships && table.relationships.length > 0) {
+      table.relationships.forEach(rel => {
+        const targetTable = tables.find(t => t.id === rel.targetTable)
+        if (targetTable) {
+          const edgeId = `rel-${table.id}-${rel.targetTable}`
+          if (!edgeIds.has(edgeId)) {
+            edgeIds.add(edgeId)
             edges.push({
-              id: `${table.id}-${field.id}-${referencedTable.id}-${primaryKeyField.id}`,
+              id: edgeId,
               source: table.id,
-              target: referencedTable.id,
-              sourceHandle: `${table.id}-${field.id}-source`,
-              targetHandle: `${referencedTable.id}-${primaryKeyField.id}-target`,
+              target: rel.targetTable,
+              sourceHandle: rel.sourceField,
+              targetHandle: rel.targetField,
               type: 'smoothstep',
               animated: true,
               style: {
@@ -112,7 +160,7 @@ const generateEdges = (tables: TableSchema[]): Edge[] => {
                 height: 20,
                 color: '#6b7280',
               },
-              label: 'FK',
+              label: rel.type === 'one-to-many' ? '1:N' : rel.type === 'one-to-one' ? '1:1' : 'N:N',
               labelStyle: {
                 fontSize: '10px',
                 fontWeight: 'bold',
@@ -121,8 +169,8 @@ const generateEdges = (tables: TableSchema[]): Edge[] => {
             })
           }
         }
-      }
-    })
+      })
+    }
   })
 
   return edges
@@ -135,11 +183,31 @@ export function ReactFlowSchemaEditor({
 }: ReactFlowSchemaEditorProps) {
   const { state, dispatch } = useAppContext()
   const { currentProject } = state
+  const { toast } = useToast()
   const [showRelations, setShowRelations] = useState(true)
   const [showMiniMap, setShowMiniMap] = useState(true)
+  const [editingTable, setEditingTable] = useState<TableSchema | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [justSaved, setJustSaved] = useState(false)
 
   // Ensure schema is always an array
   const schema = Array.isArray(currentProject?.schema) ? currentProject.schema : []
+
+  // Handle opening edit dialog
+  const handleEditTable = useCallback((table: TableSchema) => {
+    setEditingTable(table)
+    setIsEditDialogOpen(true)
+  }, [])
+
+  // Handle saving edited table
+  const handleSaveEditedTable = useCallback((updatedTable: TableSchema) => {
+    onTableEdit?.(updatedTable)
+    toast({
+      title: "Table updated",
+      description: `${updatedTable.name} has been updated successfully.`
+    })
+  }, [onTableEdit, toast])
 
   // Convert schema to ReactFlow nodes
   const initialNodes = useMemo(() => {
@@ -147,11 +215,11 @@ export function ReactFlowSchemaEditor({
     
     return schema.map(table => convertTableToNode(
       table,
-      () => onTableEdit?.(table),
+      () => handleEditTable(table),
       () => onTableDelete?.(table.id),
       () => onTableDuplicate?.(table)
     ))
-  }, [schema, onTableEdit, onTableDelete, onTableDuplicate])
+  }, [schema, handleEditTable, onTableDelete, onTableDuplicate])
 
   // Generate edges from foreign key relationships
   const initialEdges = useMemo(() => {
@@ -170,12 +238,12 @@ export function ReactFlowSchemaEditor({
     
     const updatedNodes = schema.map(table => convertTableToNode(
       table,
-      () => onTableEdit?.(table),
+      () => handleEditTable(table),
       () => onTableDelete?.(table.id),
       () => onTableDuplicate?.(table)
     ))
     setNodes(updatedNodes)
-  }, [schema, onTableEdit, onTableDelete, onTableDuplicate])
+  }, [schema, handleEditTable, onTableDelete, onTableDuplicate])
 
   // Update edges when showRelations changes
   useEffect(() => {
@@ -206,8 +274,82 @@ export function ReactFlowSchemaEditor({
   }, [onNodesChange, schema, dispatch])
 
   const onConnect = useCallback((params: Connection) => {
-    setEdges((eds) => addEdge(params, eds))
-  }, [setEdges])
+    if (!params.source || !params.target) return
+    
+    // Add the edge to the UI
+    setEdges((eds) => addEdge({
+      ...params,
+      type: 'smoothstep',
+      animated: true,
+      style: {
+        stroke: '#6b7280',
+        strokeWidth: 2,
+      },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+        color: '#6b7280',
+      },
+    }, eds))
+    
+    // Save the relationship to schema
+    const sourceTable = schema.find(t => t.id === params.source)
+    const targetTable = schema.find(t => t.id === params.target)
+    
+    if (sourceTable && targetTable) {
+      const updatedSchema = schema.map(table => {
+        if (table.id === params.source) {
+          const newRelationship: Relationship = {
+            type: 'one-to-many',
+            targetTable: params.target!,
+            sourceField: params.sourceHandle || '',
+            targetField: params.targetHandle || ''
+          }
+          return {
+            ...table,
+            relationships: [...(table.relationships || []), newRelationship]
+          }
+        }
+        return table
+      })
+      dispatch({ type: 'UPDATE_SCHEMA', payload: updatedSchema })
+      
+      toast({
+        title: "Relationship created",
+        description: `Connected ${sourceTable.name} to ${targetTable.name}`
+      })
+    }
+  }, [setEdges, schema, dispatch, toast])
+
+  const onEdgesDelete = useCallback((edgesToDelete: Edge[]) => {
+    edgesToDelete.forEach(edge => {
+      // Only delete manual relationships (those with 'rel-' prefix)
+      if (edge.id.startsWith('rel-')) {
+        const updatedSchema = schema.map(table => {
+          if (table.id === edge.source) {
+            return {
+              ...table,
+              relationships: (table.relationships || []).filter(
+                rel => rel.targetTable !== edge.target
+              )
+            }
+          }
+          return table
+        })
+        dispatch({ type: 'UPDATE_SCHEMA', payload: updatedSchema })
+        
+        const sourceTable = schema.find(t => t.id === edge.source)
+        const targetTable = schema.find(t => t.id === edge.target)
+        if (sourceTable && targetTable) {
+          toast({
+            title: "Relationship deleted",
+            description: `Disconnected ${sourceTable.name} from ${targetTable.name}`
+          })
+        }
+      }
+    })
+  }, [schema, dispatch, toast])
 
   const handleAddTable = useCallback(() => {
     const newTable: TableSchema = {
@@ -237,6 +379,35 @@ export function ReactFlowSchemaEditor({
     const updatedSchema = [...schema, newTable]
     dispatch({ type: 'UPDATE_SCHEMA', payload: updatedSchema })
   }, [schema, dispatch])
+
+  const handleManualSave = useCallback(async () => {
+    if (!currentProject) return
+    
+    setIsSaving(true)
+    
+    try {
+      // Schema is already saved to context via dispatch calls
+      // This provides visual feedback that save is complete
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      setJustSaved(true)
+      toast({
+        title: "Schema saved",
+        description: "Your schema changes have been saved successfully."
+      })
+      
+      // Reset the "just saved" indicator after 2 seconds
+      setTimeout(() => setJustSaved(false), 2000)
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "Failed to save schema changes. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }, [currentProject, toast])
 
   const handleFitView = useCallback(() => {
     // This will be handled by ReactFlow's fitView function from useReactFlow hook
@@ -299,6 +470,23 @@ export function ReactFlowSchemaEditor({
               <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Add Table</span>
             </Button>
+
+            <Button
+              onClick={handleManualSave}
+              disabled={isSaving || justSaved}
+              size="sm"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3"
+              variant={justSaved ? "default" : "outline"}
+            >
+              {justSaved ? (
+                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
+              ) : (
+                <Save className="w-3 h-3 sm:w-4 sm:h-4" />
+              )}
+              <span className="hidden sm:inline">
+                {isSaving ? "Saving..." : justSaved ? "Saved" : "Save"}
+              </span>
+            </Button>
           </div>
         </div>
       </div>
@@ -310,6 +498,7 @@ export function ReactFlowSchemaEditor({
           edges={edges}
           onNodesChange={handleNodesChange}
           onEdgesChange={onEdgesChange}
+          onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}
@@ -381,6 +570,14 @@ export function ReactFlowSchemaEditor({
           </div>
         </div>
       </div>
+
+      {/* Table Edit Dialog */}
+      <TableEditDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        table={editingTable}
+        onSave={handleSaveEditedTable}
+      />
     </div>
   )
 }

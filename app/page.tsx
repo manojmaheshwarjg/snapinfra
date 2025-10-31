@@ -23,6 +23,12 @@ import FAQSection from "@/components/faq-section"
 import CTASection from "@/components/cta-section"
 import FooterSection from "@/components/footer-section"
 import OpenSourceBanner from "@/components/opensource-banner"
+import KeyDifferentiatorsSection from "@/components/key-differentiators-section"
+import HowItWorksSection from "@/components/how-it-works-section"
+import FinalCTASection from "@/components/final-cta-section"
+import SocialProofSection from "@/components/social-proof-section"
+import TechStackSection from "@/components/tech-stack-section"
+import SecurityComplianceSection from "@/components/security-compliance-section"
 
 // Streaming Code Component
 function StreamingCode() {
@@ -525,6 +531,227 @@ export default function LandingPage() {
                 </div>
               </div>
 
+              {/* Stats Bar Section */}
+              <div className="w-full max-w-[1000px] mt-16 px-4">
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-[rgba(0,91,227,0.2)] shadow-lg p-8 md:p-12">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="text-center">
+                      <div className="text-4xl md:text-5xl font-bold text-[#005BE3] mb-2">50,000+</div>
+                      <div className="text-sm text-[#605A57] font-medium">APIs Generated</div>
+                      <div className="text-xs text-[#605A57]/70 mt-1">by developers worldwide</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl md:text-5xl font-bold text-[#005BE3] mb-2">95%</div>
+                      <div className="text-sm text-[#605A57] font-medium">Faster to Deploy</div>
+                      <div className="text-xs text-[#605A57]/70 mt-1">vs. Terraform</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl md:text-5xl font-bold text-[#005BE3] mb-2">$2.1M</div>
+                      <div className="text-sm text-[#605A57] font-medium">Saved</div>
+                      <div className="text-xs text-[#605A57]/70 mt-1">in eng costs</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* The Problem Section */}
+              <div className="w-full max-w-[1200px] mt-32 px-4">
+                <div className="text-center mb-16">
+                  <h2 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] mb-4">The $500K Backend Problem</h2>
+                  <p className="text-xl text-[#605A57]">Why every alternative is broken</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Column 1: No-Code Trap */}
+                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="text-4xl mb-4">🔒</div>
+                    <h3 className="text-2xl font-bold text-[#1d1d1f] mb-4">The No-Code Trap</h3>
+                    <p className="text-sm italic text-[#605A57] mb-6">"We started with Firebase"</p>
+                    
+                    <div className="space-y-4 text-sm text-[#605A57]">
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>$30,000 surprise bill because one query went viral</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>Can't do complex queries - NoSQL limitations hit hard</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>Vendor lock-in nightmare - "Firebase doesn't provide any tools to migrate data"</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>Supabase "doesn't support transactions yet" - blocked our product launch</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 pt-6 border-t border-blue-200">
+                      <p className="text-xs text-[#605A57] font-medium">61,161 companies using Firebase</p>
+                      <p className="text-xs text-[#605A57]">54% worried about lock-in</p>
+                    </div>
+                  </div>
+                  
+                  {/* Column 2: DevOps Nightmare */}
+                  <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-2xl p-8 border border-sky-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="text-4xl mb-4">📄</div>
+                    <h3 className="text-2xl font-bold text-[#1d1d1f] mb-4">The DevOps Nightmare</h3>
+                    <p className="text-sm italic text-[#605A57] mb-6">"We tried building it ourselves"</p>
+                    
+                    <div className="space-y-4 text-sm text-[#605A57]">
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>Terraform takes 3-6 months to learn before shipping</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>Kubernetes requires "an army of specialists" to manage</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>CloudFormation's 15-minute feedback loops kill velocity</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>"YAML hell" - endless config files nobody understands</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 pt-6 border-t border-sky-200">
+                      <p className="text-xs text-[#605A57] font-medium">77% still struggle with K8s</p>
+                      <p className="text-xs text-[#605A57]">70% onboarding takes 1+ month</p>
+                    </div>
+                  </div>
+                  
+                  {/* Column 3: Hidden Costs */}
+                  <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-8 border border-indigo-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="text-4xl mb-4">💸</div>
+                    <h3 className="text-2xl font-bold text-[#1d1d1f] mb-4">The Hidden Costs</h3>
+                    <p className="text-sm italic text-[#605A57] mb-6">"Costs spiraled out of control"</p>
+                    
+                    <div className="space-y-4 text-sm text-[#605A57]">
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>Firebase's pay-per-read model becomes unsustainable</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>Supabase's PITR backup: $100/month regardless of DB size</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>"Empty EKS cluster costs are ridiculous" - baseline $150/mo</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0">😫</span>
+                        <p>AWS egress fees make migration financially painful</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 pt-6 border-t border-indigo-200">
+                      <p className="text-xs text-[#605A57] font-medium">54% face steep learning curves</p>
+                      <p className="text-xs text-[#605A57]">89% use multi-cloud to avoid lock</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-12">
+                  <button className="px-8 py-4 bg-[#005BE3] hover:bg-[#004BC9] text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                    There has to be a better way →
+                  </button>
+                </div>
+              </div>
+
+              {/* The Solution Section */}
+              <div className="w-full max-w-[1200px] mt-32 px-4">
+                <div className="text-center mb-16">
+                  <h2 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] mb-4">Infrastructure that thinks like code,</h2>
+                  <h2 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] mb-4">feels like magic</h2>
+                  <p className="text-xl text-[#605A57] mt-6">We're the Goldilocks solution: Not too simple. Not too complex. Just right.</p>
+                </div>
+                
+                <div className="bg-white rounded-2xl border border-[rgba(55,50,47,0.12)] overflow-hidden shadow-xl">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-[#f8f8f8] border-b-2 border-[rgba(55,50,47,0.12)]">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-[#37322F]">What You Get</th>
+                          <th className="px-6 py-4 text-center text-sm font-semibold text-[#37322F]">No-Code<br/><span className="text-xs font-normal">(Firebase/Supabase)</span></th>
+                          <th className="px-6 py-4 text-center text-sm font-bold text-[#005BE3] bg-[#005BE3]/5">SnapInfra</th>
+                          <th className="px-6 py-4 text-center text-sm font-semibold text-[#37322F]">Raw IaC<br/><span className="text-xs font-normal">(Terraform/K8s)</span></th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[rgba(55,50,47,0.08)]">
+                        <tr className="hover:bg-[#fafaf9] transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-[#37322F]">Time to first deploy</td>
+                          <td className="px-6 py-4 text-center text-sm text-[#605A57]">1 hour</td>
+                          <td className="px-6 py-4 text-center text-sm font-semibold text-[#005BE3] bg-[#005BE3]/5">1 hour</td>
+                          <td className="px-6 py-4 text-center text-sm text-[#605A57]">40+ hours</td>
+                        </tr>
+                        <tr className="hover:bg-[#fafaf9] transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-[#37322F]">Learning curve</td>
+                          <td className="px-6 py-4 text-center text-sm text-[#605A57]">Days</td>
+                          <td className="px-6 py-4 text-center text-sm font-semibold text-[#005BE3] bg-[#005BE3]/5">2 weeks</td>
+                          <td className="px-6 py-4 text-center text-sm text-[#605A57]">3-6 months</td>
+                        </tr>
+                        <tr className="hover:bg-[#fafaf9] transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-[#37322F]">Transaction support</td>
+                          <td className="px-6 py-4 text-center text-sm text-red-500">❌ Missing (Supabase)</td>
+                          <td className="px-6 py-4 text-center text-sm font-semibold text-green-600 bg-[#005BE3]/5">✅ Built-in</td>
+                          <td className="px-6 py-4 text-center text-sm text-green-600">✅ Manual setup</td>
+                        </tr>
+                        <tr className="hover:bg-[#fafaf9] transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-[#37322F]">Vendor lock-in</td>
+                          <td className="px-6 py-4 text-center text-sm text-red-500">❌ High risk</td>
+                          <td className="px-6 py-4 text-center text-sm font-semibold text-green-600 bg-[#005BE3]/5">✅ Full export</td>
+                          <td className="px-6 py-4 text-center text-sm text-green-600">✅ Portable</td>
+                        </tr>
+                        <tr className="hover:bg-[#fafaf9] transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-[#37322F]">Custom business logic</td>
+                          <td className="px-6 py-4 text-center text-sm text-red-500">❌ Limited</td>
+                          <td className="px-6 py-4 text-center text-sm font-semibold text-green-600 bg-[#005BE3]/5">✅ Full code</td>
+                          <td className="px-6 py-4 text-center text-sm text-green-600">✅ Full code</td>
+                        </tr>
+                        <tr className="hover:bg-[#fafaf9] transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-[#37322F]">Cost predictability</td>
+                          <td className="px-6 py-4 text-center text-sm text-red-500">❌ Surprise bills</td>
+                          <td className="px-6 py-4 text-center text-sm font-semibold text-green-600 bg-[#005BE3]/5">✅ Usage caps</td>
+                          <td className="px-6 py-4 text-center text-sm text-green-600">✅ Controlled</td>
+                        </tr>
+                        <tr className="hover:bg-[#fafaf9] transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-[#37322F]">Production ready</td>
+                          <td className="px-6 py-4 text-center text-sm text-yellow-600">⚠️ For prototypes</td>
+                          <td className="px-6 py-4 text-center text-sm font-semibold text-green-600 bg-[#005BE3]/5">✅ Day one</td>
+                          <td className="px-6 py-4 text-center text-sm text-yellow-600">⚠️ After weeks</td>
+                        </tr>
+                        <tr className="bg-[#f8f8f8] font-semibold">
+                          <td className="px-6 py-4 text-sm font-bold text-[#37322F]">Your monthly cost at 1M users</td>
+                          <td className="px-6 py-4 text-center text-sm text-[#605A57]">$0-$2,847<br/><span className="text-xs font-normal">(volatile)</span></td>
+                          <td className="px-6 py-4 text-center text-sm font-bold text-[#005BE3] bg-[#005BE3]/10">$0-$299<br/><span className="text-xs font-normal">(capped)</span></td>
+                          <td className="px-6 py-4 text-center text-sm text-[#605A57]">$280 + 3 engineers</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Differentiators Section */}
+              <KeyDifferentiatorsSection />
+
+              {/* How It Works Section */}
+              <HowItWorksSection />
+
+              {/* Social Proof Section */}
+              <SocialProofSection />
+
+              {/* Tech Stack Section */}
+              <TechStackSection />
+
+              {/* Security & Compliance Section */}
+              <SecurityComplianceSection />
+
               {/* Benefits Section */}
               <div className="w-full border-b border-[rgba(55,50,47,0.12)] flex flex-col justify-center items-center mt-16">
                 <div className="self-stretch px-4 sm:px-6 md:px-24 py-8 sm:py-12 md:py-16 border-b border-[rgba(55,50,47,0.12)] flex justify-center items-center gap-6">
@@ -633,6 +860,9 @@ export default function LandingPage() {
                 </div>
               </div>
 
+
+              {/* Final CTA Section */}
+              <FinalCTASection />
 
               {/* Footer Section */}
               <FooterSection />

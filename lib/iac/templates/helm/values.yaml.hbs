@@ -1,0 +1,202 @@
+# Default values for {{kebabCase projectName}}
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: {{compute.replicas}}
+
+image:
+  repository: {{compute.image}}
+  pullPolicy: {{compute.imagePullPolicy}}
+  tag: {{compute.imageTag}}
+
+{{#if kubernetes.imagePullSecrets}}
+imagePullSecrets:
+  - name: {{kubernetes.imagePullSecrets}}
+{{/if}}
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: {{kubernetes.serviceAccount}}
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  {{#if monitoring.prometheus}}
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "{{compute.metricsPort}}"
+  prometheus.io/path: "/metrics"
+  {{/if}}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+service:
+  type: {{kubernetes.serviceType}}
+  port: {{kubernetes.servicePort}}
+  targetPort: {{compute.port}}
+  {{#eq kubernetes.serviceType "NodePort"}}
+  nodePort: {{kubernetes.nodePort}}
+  {{/eq}}
+  annotations: {}
+
+ingress:
+  enabled: {{kubernetes.ingress.enabled}}
+  className: {{kubernetes.ingress.class}}
+  annotations:
+    {{#if kubernetes.ingress.certManager}}
+    cert-manager.io/cluster-issuer: {{kubernetes.ingress.certIssuer}}
+    {{/if}}
+    {{#eq kubernetes.ingress.class "nginx"}}
+    nginx.ingress.kubernetes.io/ssl-redirect: "{{kubernetes.ingress.sslRedirect}}"
+    {{#if kubernetes.ingress.rateLimiting}}
+    nginx.ingress.kubernetes.io/limit-rps: "{{kubernetes.ingress.rateLimit}}"
+    {{/if}}
+    {{/eq}}
+  hosts:
+    {{#each kubernetes.ingress.hosts}}
+    - host: {{this}}
+      paths:
+        - path: {{../kubernetes.ingress.path}}
+          pathType: {{../kubernetes.ingress.pathType}}
+    {{/each}}
+  {{#if kubernetes.ingress.tls}}
+  tls:
+    - secretName: {{kebabCase projectName}}-tls
+      hosts:
+        {{#each kubernetes.ingress.hosts}}
+        - {{this}}
+        {{/each}}
+  {{/if}}
+
+resources:
+  limits:
+    cpu: {{compute.cpuLimit}}
+    memory: {{compute.memoryLimit}}
+  requests:
+    cpu: {{compute.cpuRequest}}
+    memory: {{compute.memoryRequest}}
+
+autoscaling:
+  enabled: {{compute.autoscaling}}
+  minReplicas: {{compute.minReplicas}}
+  maxReplicas: {{compute.maxReplicas}}
+  targetCPUUtilizationPercentage: {{compute.targetCPU}}
+  targetMemoryUtilizationPercentage: {{compute.targetMemory}}
+
+{{#if kubernetes.nodeSelector}}
+nodeSelector:
+  {{#each kubernetes.nodeSelector}}
+  {{key}}: {{value}}
+  {{/each}}
+{{/if}}
+
+{{#if kubernetes.tolerations}}
+tolerations:
+  {{#each kubernetes.tolerations}}
+  - key: {{key}}
+    operator: {{operator}}
+    value: {{value}}
+    effect: {{effect}}
+  {{/each}}
+{{/if}}
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - {{kebabCase projectName}}
+          topologyKey: kubernetes.io/hostname
+
+# Application configuration
+env:
+  - name: NODE_ENV
+    value: {{environment}}
+  - name: PORT
+    value: "{{compute.port}}"
+  {{#each environmentVariables}}
+  - name: {{uppercase key}}
+    value: "{{value}}"
+  {{/each}}
+
+{{#if database.enabled}}
+# Database configuration
+database:
+  enabled: true
+  host: ""  # Set via secret
+  port: {{database.port}}
+  name: {{snakeCase projectName}}
+  secretName: {{kebabCase projectName}}-db-secret
+{{/if}}
+
+# Health check configuration
+livenessProbe:
+  httpGet:
+    path: {{kubernetes.healthCheck.liveness}}
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: {{kubernetes.healthCheck.readiness}}
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+{{#if kubernetes.volumes}}
+# Persistent storage
+persistence:
+  {{#each kubernetes.volumes}}
+  {{name}}:
+    enabled: true
+    {{#eq type "persistentVolumeClaim"}}
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: {{size}}
+    {{/eq}}
+  {{/each}}
+{{/if}}
+
+# Monitoring configuration
+monitoring:
+  enabled: {{monitoring.enabled}}
+  {{#if monitoring.prometheus}}
+  prometheus:
+    enabled: true
+    port: {{compute.metricsPort}}
+    path: /metrics
+  {{/if}}
+
+# Network policy
+networkPolicy:
+  enabled: {{kubernetes.networkPolicy}}
+  policyTypes:
+    - Ingress
+    - Egress
+
+# Additional labels
+labels:
+  app: {{kebabCase projectName}}
+  environment: {{environment}}
+  version: {{version}}

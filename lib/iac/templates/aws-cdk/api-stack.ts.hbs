@@ -1,0 +1,208 @@
+import * as cdk from 'aws-cdk-lib';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+export interface {{pascalCase projectName}}ApiStackProps extends cdk.StackProps {
+  vpc: ec2.IVpc;
+  databaseSecretArn: string;
+  environment: string;
+}
+
+export class {{pascalCase projectName}}ApiStack extends cdk.Stack {
+  public readonly api: apigateway.RestApi;
+  public readonly lambdaFunctions: Map<string, lambda.Function>;
+
+  constructor(scope: Construct, id: string, props: {{pascalCase projectName}}ApiStackProps) {
+    super(scope, id, props);
+
+    this.lambdaFunctions = new Map();
+
+    // Lambda execution role
+    const lambdaRole = new iam.Role(this, 'LambdaExecutionRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+      ],
+    });
+
+    // Grant access to database secret
+    lambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['secretsmanager:GetSecretValue'],
+        resources: [props.databaseSecretArn],
+      })
+    );
+
+    // Security group for Lambda
+    const lambdaSecurityGroup = new ec2.SecurityGroup(this, 'LambdaSecurityGroup', {
+      vpc: props.vpc,
+      description: 'Security group for {{projectName}} Lambda functions',
+      allowAllOutbound: true,
+    });
+
+    // Common Lambda environment variables
+    const commonEnvironment = {
+      ENVIRONMENT: props.environment,
+      DATABASE_SECRET_ARN: props.databaseSecretArn,
+      {{#each environmentVariables}}
+      {{uppercase key}}: '{{value}}',
+      {{/each}}
+    };
+
+    {{#each endpoints}}
+    // Lambda function for {{method}} {{path}}
+    const {{camelCase (concat method path)}}Function = new lambda.Function(this, '{{pascalCase (concat method path)}}Function', {
+      runtime: lambda.Runtime.{{#eq compute.runtime "nodejs"}}NODEJS_20_X{{/eq}}{{#eq compute.runtime "python"}}PYTHON_3_11{{/eq}},
+      handler: '{{handler}}',
+      code: lambda.Code.fromAsset('{{codeDirectory}}'),
+      memorySize: {{../compute.memory}},
+      timeout: cdk.Duration.seconds({{timeout}}),
+      vpc: props.vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
+      securityGroups: [lambdaSecurityGroup],
+      role: lambdaRole,
+      environment: {
+        ...commonEnvironment,
+        ROUTE: '{{path}}',
+        METHOD: '{{method}}',
+      },
+      logRetention: logs.RetentionDays.{{#eq ../environment "production"}}ONE_MONTH{{else}}ONE_WEEK{{/eq}},
+      {{#if ../compute.reservedConcurrency}}
+      reservedConcurrentExecutions: {{../compute.reservedConcurrency}},
+      {{/if}}
+      tracing: lambda.Tracing.{{#if ../monitoring.xrayEnabled}}ACTIVE{{else}}PASS_THROUGH{{/if}},
+    });
+
+    this.lambdaFunctions.set('{{method}}-{{path}}', {{camelCase (concat method path)}}Function);
+
+    {{/each}}
+
+    // REST API Gateway
+    this.api = new apigateway.RestApi(this, 'Api', {
+      restApiName: '{{projectName}}-api',
+      description: '{{description}}',
+      deployOptions: {
+        stageName: props.environment,
+        metricsEnabled: {{monitoring.enabled}},
+        loggingLevel: apigateway.MethodLoggingLevel.{{#if monitoring.enabled}}INFO{{else}}ERROR{{/if}},
+        dataTraceEnabled: {{monitoring.detailedMetrics}},
+        tracingEnabled: {{monitoring.xrayEnabled}},
+        throttlingRateLimit: {{api.rateLimit}},
+        throttlingBurstLimit: {{api.burstLimit}},
+      },
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: ['Content-Type', 'Authorization', 'X-Api-Key'],
+      },
+      {{#if api.customDomain}}
+      domainName: {
+        domainName: '{{api.customDomain}}',
+        certificate: acm.Certificate.fromCertificateArn(
+          this,
+          'Certificate',
+          '{{api.certificateArn}}'
+        ),
+      },
+      {{/if}}
+    });
+
+    {{#each endpoints}}
+    // {{method}} {{path}} endpoint
+    const {{camelCase (concat method path)}}Resource = this.api.root{{#each (split path '/')}}{{#if this}}.resourceForPath('{{this}}'){{/if}}{{/each}};
+    {{camelCase (concat method path)}}Resource.addMethod(
+      '{{method}}',
+      new apigateway.LambdaIntegration({{camelCase (concat method path)}}Function, {
+        proxy: true,
+        allowTestInvoke: {{#eq ../environment "development"}}true{{else}}false{{/eq}},
+      }),
+      {{#if requiresAuth}}
+      {
+        authorizationType: apigateway.AuthorizationType.{{#eq authType "cognito"}}COGNITO{{/eq}}{{#eq authType "iam"}}IAM{{/eq}}{{#eq authType "custom"}}CUSTOM{{/eq}},
+        {{#if apiKey}}
+        apiKeyRequired: true,
+        {{/if}}
+      }
+      {{/if}}
+    );
+
+    {{/each}}
+
+    {{#if api.apiKey}}
+    // API Key for external access
+    const apiKey = this.api.addApiKey('ApiKey', {
+      apiKeyName: '{{kebabCase projectName}}-${props.environment}-key',
+    });
+
+    const usagePlan = this.api.addUsagePlan('UsagePlan', {
+      name: '{{kebabCase projectName}}-${props.environment}-plan',
+      throttle: {
+        rateLimit: {{api.rateLimit}},
+        burstLimit: {{api.burstLimit}},
+      },
+      {{#if api.quota}}
+      quota: {
+        limit: {{api.quota.limit}},
+        period: apigateway.Period.{{uppercase api.quota.period}},
+      },
+      {{/if}}
+    });
+
+    usagePlan.addApiKey(apiKey);
+    usagePlan.addApiStage({
+      stage: this.api.deploymentStage,
+    });
+    {{/if}}
+
+    // CloudWatch alarms for API
+    {{#if monitoring.enabled}}
+    const api4xxAlarm = new cdk.aws_cloudwatch.Alarm(this, 'Api4xxAlarm', {
+      metric: this.api.metricClientError(),
+      threshold: 10,
+      evaluationPeriods: 2,
+      alarmDescription: 'Alert when 4xx errors exceed 10 per period',
+    });
+
+    const api5xxAlarm = new cdk.aws_cloudwatch.Alarm(this, 'Api5xxAlarm', {
+      metric: this.api.metricServerError(),
+      threshold: 5,
+      evaluationPeriods: 1,
+      alarmDescription: 'Alert on any 5xx errors',
+    });
+
+    const apiLatencyAlarm = new cdk.aws_cloudwatch.Alarm(this, 'ApiLatencyAlarm', {
+      metric: this.api.metricLatency(),
+      threshold: 1000,
+      evaluationPeriods: 2,
+      alarmDescription: 'Alert when latency exceeds 1 second',
+    });
+    {{/if}}
+
+    // Stack outputs
+    new cdk.CfnOutput(this, 'ApiEndpoint', {
+      value: this.api.url,
+      description: 'API Gateway endpoint URL',
+      exportName: `{{pascalCase projectName}}-${props.environment}-api-url`,
+    });
+
+    {{#if api.apiKey}}
+    new cdk.CfnOutput(this, 'ApiKeyId', {
+      value: apiKey.keyId,
+      description: 'API Key ID',
+      exportName: `{{pascalCase projectName}}-${props.environment}-api-key-id`,
+    });
+    {{/if}}
+
+    // Tags
+    cdk.Tags.of(this).add('Project', '{{projectName}}');
+    cdk.Tags.of(this).add('Environment', props.environment);
+    cdk.Tags.of(this).add('ManagedBy', 'CDK');
+  }
+}

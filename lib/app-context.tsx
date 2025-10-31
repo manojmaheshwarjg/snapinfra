@@ -81,6 +81,7 @@ export interface TableSchema {
   position?: { x: number; y: number } // for visualization
   color?: string
   estimatedRows?: number
+  updatedAt?: Date
 }
 
 export type FieldType = 

@@ -1,0 +1,132 @@
+# Database: {{resourceName}}
+# {{resource.reasoning}}
+
+{{#if includeComments}}
+# Resource type: {{resource.type}}
+# Provider: {{resource.provider}}
+# Generated from validated schema
+{{/if}}
+
+resource "aws_db_instance" "{{naming.snakeCase resourceName}}" {
+  identifier = "{{projectName}}-{{naming.kebabCase resourceName}}"
+  
+  # Engine configuration
+  engine         = "{{resource.properties.engine}}"
+  {{#if resource.properties.engineVersion}}
+  engine_version = "{{resource.properties.engineVersion}}"
+  {{/if}}
+  
+  # Instance configuration
+  instance_class    = "{{resource.properties.instanceClass}}"
+  allocated_storage = {{resource.properties.allocatedStorage}}
+  {{#if resource.properties.storageType}}
+  storage_type      = "{{resource.properties.storageType}}"
+  {{/if}}
+  {{#if resource.properties.storageEncrypted}}
+  storage_encrypted = {{resource.properties.storageEncrypted}}
+  {{else}}
+  storage_encrypted = true  # Security best practice
+  {{/if}}
+  
+  # Database credentials
+  db_name  = "{{naming.snakeCase projectName}}"
+  username = var.{{naming.snakeCase resourceName}}_username
+  password = var.{{naming.snakeCase resourceName}}_password
+  
+  # High availability
+  {{#if resource.properties.multiAZ}}
+  multi_az = {{resource.properties.multiAZ}}
+  {{else}}
+  multi_az = false  # Set to true for production
+  {{/if}}
+  
+  # Backup configuration
+  backup_retention_period = {{#if resource.properties.backupRetentionPeriod}}{{resource.properties.backupRetentionPeriod}}{{else}}7{{/if}}
+  {{#if resource.properties.backupWindow}}
+  backup_window           = "{{resource.properties.backupWindow}}"
+  {{/if}}
+  {{#if resource.properties.maintenanceWindow}}
+  maintenance_window      = "{{resource.properties.maintenanceWindow}}"
+  {{/if}}
+  
+  # Network configuration
+  {{#if resource.properties.publiclyAccessible}}
+  publicly_accessible = {{resource.properties.publiclyAccessible}}
+  {{else}}
+  publicly_accessible = false  # Security best practice
+  {{/if}}
+  {{#if resource.properties.vpcSecurityGroupIds}}
+  vpc_security_group_ids = [{{#each resource.properties.vpcSecurityGroupIds}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}]
+  {{/if}}
+  {{#if resource.properties.subnetGroupName}}
+  db_subnet_group_name   = "{{resource.properties.subnetGroupName}}"
+  {{/if}}
+  
+  # Performance configuration
+  {{#if resource.properties.parameterGroupName}}
+  parameter_group_name = "{{resource.properties.parameterGroupName}}"
+  {{/if}}
+  {{#if resource.properties.iops}}
+  iops = {{resource.properties.iops}}
+  {{/if}}
+  
+  # Deletion protection
+  {{#if environment "production"}}
+  deletion_protection = true
+  {{else}}
+  deletion_protection = false
+  {{/if}}
+  skip_final_snapshot = {{#if environment "production"}}false{{else}}true{{/if}}
+  {{#unless environment "development"}}
+  final_snapshot_identifier = "{{projectName}}-{{naming.kebabCase resourceName}}-final-snapshot"
+  {{/unless}}
+  
+  # Tags
+  tags = {
+    Name        = "{{projectName}}-{{naming.kebabCase resourceName}}"
+    Environment = "{{environment}}"
+    ManagedBy   = "Snapinfra"
+    Project     = "{{projectName}}"
+    {{#each tags}}
+    {{@key}} = "{{this}}"
+    {{/each}}
+  }
+  
+  {{#if dependencies.length}}
+  depends_on = [
+    {{#each dependencies}}
+    aws_{{../../schema.resources.[this].type}}.{{naming.snakeCase this}}{{#unless @last}},{{/unless}}
+    {{/each}}
+  ]
+  {{/if}}
+}
+
+# Variables for database credentials
+variable "{{naming.snakeCase resourceName}}_username" {
+  description = "Database username for {{resourceName}}"
+  type        = string
+  sensitive   = true
+}
+
+variable "{{naming.snakeCase resourceName}}_password" {
+  description = "Database password for {{resourceName}}"
+  type        = string
+  sensitive   = true
+}
+
+# Outputs
+output "{{naming.snakeCase resourceName}}_endpoint" {
+  description = "Database endpoint for {{resourceName}}"
+  value       = aws_db_instance.{{naming.snakeCase resourceName}}.endpoint
+}
+
+output "{{naming.snakeCase resourceName}}_arn" {
+  description = "ARN of {{resourceName}}"
+  value       = aws_db_instance.{{naming.snakeCase resourceName}}.arn
+}
+
+output "{{naming.snakeCase resourceName}}_connection_string" {
+  description = "Connection string for {{resourceName}}"
+  value       = "postgresql://${var.{{naming.snakeCase resourceName}}_username}:${var.{{naming.snakeCase resourceName}}_password}@${aws_db_instance.{{naming.snakeCase resourceName}}.endpoint}/{{naming.snakeCase projectName}}"
+  sensitive   = true
+}

@@ -1,8 +1,12 @@
 "use client"
 
 import React from 'react'
+import { usePathname } from 'next/navigation'
 import { useWorkspace } from '@/lib/workspace-context'
+import { useAppContext } from '@/lib/app-context'
 import { WorkspaceSidebar } from '@/components/workspace-sidebar'
+import { ProjectContextBar } from '@/components/project-context-bar'
+import { ProjectTabsNav } from '@/components/project-tabs-nav'
 import { CommandPalette } from '@/components/command-palette'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -32,9 +36,25 @@ export function EnterpriseDashboardLayout({
   title, 
   description, 
   actions,
-  breadcrumbs 
+  breadcrumbs
 }: EnterpriseDashboardLayoutProps) {
   const { sidebarCollapsed } = useWorkspace()
+  const { state } = useAppContext()
+  const pathname = usePathname()
+  
+  // Pages where project context should NOT be shown (list/browse views)
+  const hideProjectContext = [
+    '/projects',
+    '/analytics', 
+    '/ai-chat',
+    '/activity',
+    '/docs',
+    '/team',
+    '/settings'
+  ].includes(pathname)
+  
+  // Show project context only if: project is selected AND not on a list page
+  const showProjectContext = state.currentProject && !hideProjectContext
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -48,32 +68,39 @@ export function EnterpriseDashboardLayout({
         )}
       >
         {/* Top Navigation Bar - Clean and Professional */}
-        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white">
-          <div className="flex h-14 items-center justify-between px-6">
-            {/* Breadcrumbs */}
-            {breadcrumbs && breadcrumbs.length > 0 && (
-              <nav className="flex items-center space-x-1 text-sm">
-                {breadcrumbs.map((crumb, index) => (
-                  <React.Fragment key={index}>
-                    {index > 0 && (
-                      <ChevronRight className="h-3.5 w-3.5 text-gray-400 mx-0.5" />
-                    )}
-                    {crumb.href ? (
-                      <a
-                        href={crumb.href}
-                        className="text-gray-600 hover:text-gray-900 font-medium transition-colors px-1 py-0.5 rounded hover:bg-gray-50"
-                      >
-                        {crumb.label}
-                      </a>
-                    ) : (
-                      <span className="text-gray-900 font-semibold px-1">
-                        {crumb.label}
-                      </span>
-                    )}
-                  </React.Fragment>
-                ))}
-              </nav>
-            )}
+        <header className="sticky top-0 z-30 bg-white">
+          {/* Primary Nav - Project Switcher + Global Actions */}
+          <div className="flex h-14 items-center justify-between px-6 border-b border-gray-200">
+            {/* Left Side - Project Context + Breadcrumbs */}
+            <div className="flex items-center gap-4">
+              {/* Project Context Bar - Shows current project on project-specific pages */}
+              {showProjectContext && <ProjectContextBar />}
+              
+              {/* Breadcrumbs - Only show if no project context */}
+              {breadcrumbs && breadcrumbs.length > 0 && !showProjectContext && (
+                <nav className="flex items-center space-x-1 text-sm">
+                  {breadcrumbs.map((crumb, index) => (
+                    <React.Fragment key={index}>
+                      {index > 0 && (
+                        <ChevronRight className="h-3.5 w-3.5 text-gray-400 mx-0.5" />
+                      )}
+                      {crumb.href ? (
+                        <a
+                          href={crumb.href}
+                          className="text-gray-600 hover:text-gray-900 font-medium transition-colors px-1 py-0.5 rounded hover:bg-gray-50"
+                        >
+                          {crumb.label}
+                        </a>
+                      ) : (
+                        <span className="text-gray-900 font-semibold px-1">
+                          {crumb.label}
+                        </span>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </nav>
+              )}
+            </div>
 
             {/* Right side actions */}
             <div className="flex items-center gap-3">
@@ -101,6 +128,15 @@ export function EnterpriseDashboardLayout({
               <UserButton afterSignOutUrl="/" />
             </div>
           </div>
+          
+          {/* Secondary Tab Bar - Only shown when project is selected on project pages */}
+          {showProjectContext && (
+            <div className="border-b border-gray-200 bg-white">
+              <div className="h-12 px-6 flex items-center">
+                <ProjectTabsNav />
+              </div>
+            </div>
+          )}
         </header>
 
         {/* Page Header - Professional and Clean */}

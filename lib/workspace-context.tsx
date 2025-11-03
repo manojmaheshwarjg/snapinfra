@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react'
 
 export interface Workspace {
   id: string
@@ -94,18 +94,29 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     setSidebarCollapsed((prev) => !prev)
   }, [])
 
+  const value = useMemo(
+    () => ({
+      currentWorkspace,
+      workspaces,
+      switchWorkspace,
+      createWorkspace,
+      updateWorkspace,
+      sidebarCollapsed,
+      toggleSidebar,
+    }),
+    [
+      currentWorkspace,
+      workspaces,
+      switchWorkspace,
+      createWorkspace,
+      updateWorkspace,
+      sidebarCollapsed,
+      toggleSidebar,
+    ]
+  )
+
   return (
-    <WorkspaceContext.Provider
-      value={{
-        currentWorkspace,
-        workspaces,
-        switchWorkspace,
-        createWorkspace,
-        updateWorkspace,
-        sidebarCollapsed,
-        toggleSidebar,
-      }}
-    >
+    <WorkspaceContext.Provider value={value}>
       {children}
     </WorkspaceContext.Provider>
   )

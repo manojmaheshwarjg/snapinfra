@@ -173,25 +173,25 @@ function TableNode({ data, selected }: NodeProps<TableNodeData>) {
                 )}
               </div>
 
-              {/* Field-specific connection handles */}
-              {field.isForeignKey && (
-                <Handle
-                  type="source"
-                  position={Position.Right}
-                  id={`${data.id}-${field.id}-source`}
-                  className="w-2 h-2 !bg-blue-400 border border-white"
-                  style={{ top: `${((index + 1) / data.fields.length) * 100}%` }}
-                />
-              )}
-              {field.isPrimary && (
-                <Handle
-                  type="target"
-                  position={Position.Left}
-                  id={`${data.id}-${field.id}-target`}
-                  className="w-2 h-2 !bg-yellow-400 border border-white"
-                  style={{ top: `${((index + 1) / data.fields.length) * 100}%` }}
-                />
-              )}
+              {/* Field-specific connection handles - add both source and target for all fields */}
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={`${data.id}-${field.id}-source`}
+                className={`w-2 h-2 border border-white ${
+                  field.isForeignKey ? '!bg-blue-400' : '!bg-gray-300 opacity-0 hover:opacity-100'
+                }`}
+                style={{ top: `${((index + 1) / data.fields.length) * 100}%` }}
+              />
+              <Handle
+                type="target"
+                position={Position.Left}
+                id={`${data.id}-${field.id}-target`}
+                className={`w-2 h-2 border border-white ${
+                  field.isPrimary ? '!bg-yellow-400' : '!bg-gray-300 opacity-0 hover:opacity-100'
+                }`}
+                style={{ top: `${((index + 1) / data.fields.length) * 100}%` }}
+              />
             </div>
           ))}
         </div>

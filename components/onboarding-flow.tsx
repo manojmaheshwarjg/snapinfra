@@ -506,17 +506,38 @@ What would you like to explore next?`,
             ))}
           </div>
           
-          {/* Right: Start Over Button - Always visible */}
-          <button
-            onClick={() => {
-              localStorage.removeItem('onboarding-data')
-              setGeneratedData(null)
-              updateStep(1)
-            }}
-            className="text-xs text-[#605A57] hover:text-destructive transition-colors px-3 py-1.5 rounded-lg border border-[rgba(55,50,47,0.08)] hover:border-destructive"
-          >
-            Start Over
-          </button>
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                // Save current progress
+                const progressData = {
+                  step: currentStep,
+                  data: generatedData,
+                  timestamp: new Date().toISOString()
+                }
+                localStorage.setItem('onboarding-progress', JSON.stringify(progressData))
+                alert('Progress saved! You can resume later from where you left off.')
+                router.push('/dashboard')
+              }}
+              className="text-xs text-[#005BE3] hover:text-[#004CC2] transition-colors px-3 py-1.5 rounded-lg border border-[#005BE3]/20 hover:border-[#005BE3] hover:bg-[#005BE3]/5 font-medium"
+            >
+              Save & Resume Later
+            </button>
+            <button
+              onClick={() => {
+                if (confirm('Are you sure? This will delete all progress and start over.')) {
+                  localStorage.removeItem('onboarding-data')
+                  localStorage.removeItem('onboarding-progress')
+                  setGeneratedData(null)
+                  updateStep(1)
+                }
+              }}
+              className="text-xs text-[#605A57] hover:text-destructive transition-colors px-3 py-1.5 rounded-lg border border-[rgba(55,50,47,0.08)] hover:border-destructive"
+            >
+              Start Over
+            </button>
+          </div>
         </div>
       </div>
       

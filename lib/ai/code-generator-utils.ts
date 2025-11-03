@@ -1183,28 +1183,55 @@ export function buildFileRegistryContext(ctx: GenerationContext): string {
 
 export async function generateWithRetry(
   generateFn: () => Promise<any>,
-  maxRetries = 4,
-  baseDelay = 5000
+  maxRetries = 3,
+  baseDelay = 2000,
+  timeout = 45000 // 45 second timeout per attempt
 ): Promise<any> {
   let lastError = null;
+  
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      return await generateFn();
+      // Wrap generation with timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Generation timeout')), timeout)
+      );
+      
+      const result = await Promise.race([
+        generateFn(),
+        timeoutPromise
+      ]);
+      
+      return result;
+      
     } catch (error: any) {
       lastError = error;
+      
+      // Rate limit - exponential backoff
       if (error.message?.includes('Rate limit') || error.message?.includes('429')) {
         const waitTime = baseDelay * Math.pow(2, attempt);
         console.log(`   ⏳ Rate limited. Waiting ${(waitTime / 1000).toFixed(1)}s...`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
         continue;
       }
+      
+      // Timeout - shorter delay, immediate retry
+      if (error.message?.includes('timeout')) {
+        if (attempt < maxRetries - 1) {
+          console.log(`   ⏱️  Timeout. Retrying immediately...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        continue;
+      }
+      
+      // Other errors - exponential backoff
       if (attempt < maxRetries - 1) {
-        const waitTime = baseDelay * (attempt + 1);
+        const waitTime = baseDelay * Math.pow(2, attempt);
         console.log(`   🔄 Retry ${attempt + 1}/${maxRetries} in ${(waitTime / 1000).toFixed(1)}s...`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
       }
     }
   }
+  
   throw lastError || new Error('Max retries exceeded');
 }
 

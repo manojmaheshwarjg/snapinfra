@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
 import { useAppContext } from "@/lib/app-context"
+import { getProjectById } from "@/lib/api-client"
 import { EnterpriseDashboardLayout } from "@/components/enterprise-dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,11 +26,32 @@ import { SystemArchitecture } from '@/lib/types/architecture'
 import { generateArchitectureFromData } from '@/lib/utils/architecture'
 
 export default function ArchitecturePage() {
+  const params = useParams()
+  const projectId = params.id as string
+  const router = useRouter()
   const { state, dispatch } = useAppContext()
   const [architecture, setArchitecture] = useState<SystemArchitecture | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [selectedEnvironment, setSelectedEnvironment] = useState('production')
+
+  // Load project if not in context (e.g., on page refresh)
+  useEffect(() => {
+    if (!projectId) return
+    if (!state.currentProject || state.currentProject.id !== projectId) {
+      getProjectById(projectId)
+        .then((project) => {
+          const normalizedProject = {
+            ...project,
+            schema: Array.isArray(project.schema)
+              ? project.schema
+              : (project.schema?.tables || [])
+          }
+          dispatch({ type: 'SET_CURRENT_PROJECT', payload: normalizedProject })
+        })
+        .catch(() => router.push('/projects'))
+    }
+  }, [projectId, state.currentProject, dispatch, router])
 
   // Load or generate architecture from current project
   useEffect(() => {
@@ -126,6 +149,7 @@ export default function ArchitecturePage() {
         description="Visualize and manage your system components"
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
+          { label: "Projects", href: "/projects" },
           { label: "Architecture" },
         ]}
       >
@@ -146,6 +170,8 @@ export default function ArchitecturePage() {
         description="Visualize and manage your system components"
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
+          { label: "Projects", href: "/projects" },
+          { label: state.currentProject?.name || "Project", href: `/projects/${projectId}` },
           { label: "Architecture" },
         ]}
       >
@@ -165,6 +191,8 @@ export default function ArchitecturePage() {
       description={`Architecture for ${state.currentProject.name}`}
       breadcrumbs={[
         { label: "Dashboard", href: "/dashboard" },
+        { label: "Projects", href: "/projects" },
+        { label: state.currentProject.name, href: `/projects/${projectId}` },
         { label: "Architecture" },
       ]}
       actions={

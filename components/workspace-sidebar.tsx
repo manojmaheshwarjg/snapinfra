@@ -60,11 +60,7 @@ interface NavItem {
 
 const navigationItems: NavItem[] = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, description: 'Overview & metrics' },
-  { title: 'Projects', href: '/projects', icon: Boxes, badge: 'New', description: 'Manage all projects' },
-  { title: 'Schema', href: '/schema', icon: Database, description: 'Database design' },
-  { title: 'Architecture', href: '/architecture', icon: Layers, description: 'System architecture' },
-  { title: 'Code Gen', href: '/code-generation', icon: Code2, description: 'Generate code' },
-  { title: 'Deployments', href: '/deployments', icon: Rocket, description: 'Deploy & monitor' },
+  { title: 'Projects', href: '/projects', icon: Boxes, description: 'Manage all projects' },
   { title: 'Analytics', href: '/analytics', icon: BarChart3, description: 'Project insights' },
   { title: 'AI Assistant', href: '/ai-chat', icon: Sparkles, badge: 3, description: 'AI-powered help' },
 ]
@@ -222,15 +218,14 @@ export function WorkspaceSidebar() {
             )}
           </div>
           
-          {/* Home Link */}
+          {/* New Project Button */}
           {!sidebarCollapsed && (
-            <div className="px-5 py-2">
-              <Link
-                href="/"
-                className="flex items-center gap-3 rounded-md px-2 py-2 text-sm font-normal text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-              >
-                <LayoutDashboard className="h-5 w-5 text-gray-500" />
-                <span>Home</span>
+            <div className="px-5 py-3">
+              <Link href="/onboarding?new=true">
+                <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white h-10 shadow-sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Project
+                </Button>
               </Link>
             </div>
           )}
@@ -241,9 +236,10 @@ export function WorkspaceSidebar() {
             sidebarCollapsed ? "px-2" : "px-5"
           )}>
             <div className="space-y-1">
+              {/* Main Navigation */}
               {!sidebarCollapsed && (
                 <div className="mb-2 mt-4 px-2 text-xs font-normal text-gray-500">
-                  Build
+                  Main
                 </div>
               )}
               {navigationItems.map((item) => (
@@ -255,9 +251,10 @@ export function WorkspaceSidebar() {
                 />
               ))}
 
+              {/* Workspace */}
               {!sidebarCollapsed && (
                 <div className="mb-2 mt-4 px-2 text-xs font-normal text-gray-500">
-                  Evaluate
+                  Workspace
                 </div>
               )}
               {secondaryItems.map((item) => (
@@ -269,13 +266,6 @@ export function WorkspaceSidebar() {
                 />
               ))}
             </div>
-
-            {/* Integrations Section */}
-            {!sidebarCollapsed && (
-              <div className="mb-2 mt-4 px-2 text-xs font-normal text-gray-500">
-                Integrations
-              </div>
-            )}
           </div>
           
           {/* Footer */}

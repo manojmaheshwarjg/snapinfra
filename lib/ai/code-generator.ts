@@ -355,13 +355,32 @@ OTHER RULES:
       ctx.fileRegistry.set(file.path, fileContext);
     });
 
+    // Validate critical files are present
+    const hasCriticalFiles = moduleSpec.criticalFiles?.every(criticalFile => 
+      parsed.files.some(f => f.path === criticalFile)
+    ) ?? true;
+
+    // Require 90% of files AND all critical files
+    const hasEnoughFiles = parsed.files.length >= Math.ceil(moduleSpec.requiredFiles.length * 0.9);
+    const isFullyValidated = hasCriticalFiles && hasEnoughFiles && validationIssues.length === 0;
+
+    // If validation failed and we have attempts left, throw to trigger retry
+    if (!isFullyValidated && attemptNumber < MAX_ATTEMPTS) {
+      throw new Error(
+        `Validation failed: ` +
+        `${!hasCriticalFiles ? 'Missing critical files. ' : ''}` +
+        `${!hasEnoughFiles ? `Only ${parsed.files.length}/${moduleSpec.requiredFiles.length} files. ` : ''}` +
+        `${validationIssues.length > 0 ? `${validationIssues.length} import issues. ` : ''}`
+      );
+    }
+
     return {
       type: moduleSpec.type,
       files: parsed.files,
       dependencies: parsed.dependencies || {},
       devDependencies: parsed.devDependencies || {},
       success: true,
-      validated: parsed.files.length >= Math.ceil(moduleSpec.requiredFiles.length * 0.7),
+      validated: isFullyValidated,
       attempt: attemptNumber
     };
 
@@ -369,8 +388,9 @@ OTHER RULES:
     console.error(`   ❌ Error: ${error.message}`);
 
     if (attemptNumber < MAX_ATTEMPTS) {
-      const delay = 10000 * attemptNumber;
-      console.log(`   🔄 Retrying in ${delay / 1000}s...`);
+      // Exponential backoff: 3s, 6s, 12s instead of 10s, 20s, 30s
+      const delay = 3000 * Math.pow(2, attemptNumber - 1);
+      console.log(`   🔄 Retry ${attemptNumber}/${MAX_ATTEMPTS} in ${(delay / 1000).toFixed(1)}s...`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return generateModuleWithValidation(moduleSpec, ctx, attemptNumber + 1);
     }
@@ -397,11 +417,30 @@ export async function generateCode(
   options: CodeGenOptions,
   onProgress?: ProgressCallback
 ): Promise<CodeGenerationResult> {
+  // Overall timeout: 5 minutes for entire generation
+  const GENERATION_TIMEOUT = 5 * 60 * 1000;
+  
+  return await Promise.race([
+    generateCodeInternal(project, options, onProgress),
+    new Promise<CodeGenerationResult>((_, reject) => 
+      setTimeout(() => reject(new Error('Overall generation timeout exceeded (5 minutes)')), GENERATION_TIMEOUT)
+    )
+  ]);
+}
+
+async function generateCodeInternal(
+  project: Project,
+  options: CodeGenOptions,
+  onProgress?: ProgressCallback
+): Promise<CodeGenerationResult> {
+  const startTime = Date.now();
+  
   console.log('\n🚀 Starting code generation with function tracking...');
   console.log(`📦 Project: ${project.name}`);
   console.log(`🏗️  Framework: ${options.framework}`);
   console.log(`🔐 Auth: ${options.includeAuth ? 'Yes' : 'No'}`);
   console.log(`🧪 Tests: ${options.includeTests ? 'Yes' : 'No'}`);
+  console.log(`⏱️  Timeout: 5 minutes`);
 
   // Initialize enhanced context with function registry
   const ctx: EnhancedGenerationContext = {
@@ -426,20 +465,65 @@ export async function generateCode(
     // Add conditional dependencies
     addConditionalDependencies(project, options, ctx.allDependencies, ctx.allDevDependencies);
 
-    // Get module specs
+    // Get module specs and categorize them
     const moduleSpecs = getModuleSpecs(project, options);
     console.log(`\n📋 Generating ${moduleSpecs.length} modules...`);
 
-    // Generate modules in priority order
-    for (let i = 0; i < moduleSpecs.length; i++) {
-      const spec = moduleSpecs[i];
+    // Separate independent modules (can run in parallel) from dependent ones
+    const independentModules = moduleSpecs.filter(spec => 
+      spec.dependencies.length === 0 && ['config', 'docker', 'terraform', 'utils'].includes(spec.type)
+    );
+    const dependentModules = moduleSpecs.filter(spec => 
+      !independentModules.includes(spec)
+    ).sort((a, b) => a.priority - b.priority);
+
+    console.log(`   🔀 Parallel: ${independentModules.length} modules`);
+    console.log(`   ➡️  Sequential: ${dependentModules.length} modules`);
+
+    // Phase 1: Generate independent modules in parallel
+    console.log('\n🚀 Phase 1: Generating independent modules in parallel...');
+    const independentResults = await Promise.allSettled(
+      independentModules.map(async (spec, index) => {
+        if (onProgress) {
+          onProgress(spec.type, index + 1, moduleSpecs.length);
+        }
+        console.log(`   [Parallel] 🔨 ${spec.type}`);
+        return { spec, result: await generateModuleWithValidation(spec, ctx) };
+      })
+    );
+
+    // Process parallel results
+    independentResults.forEach((promiseResult, index) => {
+      if (promiseResult.status === 'fulfilled') {
+        const { spec, result } = promiseResult.value;
+        ctx.moduleResults.set(spec.type, result);
+        
+        if (result.success) {
+          result.files.forEach(file => ctx.generatedFiles.set(file.path, file));
+          Object.assign(ctx.allDependencies, result.dependencies);
+          Object.assign(ctx.allDevDependencies, result.devDependencies);
+          console.log(`   ✅ ${spec.type}: ${result.files.length} files`);
+        } else {
+          console.warn(`   ⚠️  ${spec.type} failed: ${result.error}`);
+        }
+      } else {
+        console.error(`   ❌ Parallel module failed: ${promiseResult.reason}`);
+      }
+    });
+
+    // Phase 2: Generate dependent modules sequentially
+    console.log('\n🔗 Phase 2: Generating dependent modules sequentially...');
+    for (let i = 0; i < dependentModules.length; i++) {
+      const spec = dependentModules[i];
+      const totalProgress = independentModules.length + i + 1;
 
       if (onProgress) {
-        onProgress(spec.type, i + 1, moduleSpecs.length);
+        onProgress(spec.type, totalProgress, moduleSpecs.length);
       }
 
-      console.log(`\n[${i + 1}/${moduleSpecs.length}] 🔨 Module: ${spec.type}`);
+      console.log(`\n[${totalProgress}/${moduleSpecs.length}] 🔨 Module: ${spec.type}`);
       console.log(`   Description: ${spec.description}`);
+      console.log(`   Dependencies: ${spec.dependencies.join(', ') || 'none'}`);
 
       const result = await generateModuleWithValidation(spec, ctx);
       ctx.moduleResults.set(spec.type, result);
@@ -452,14 +536,14 @@ export async function generateCode(
         Object.assign(ctx.allDependencies, result.dependencies);
         Object.assign(ctx.allDevDependencies, result.devDependencies);
 
-        console.log(`   ✅ Success: ${result.files.length} files`);
+        console.log(`   ✅ Success: ${result.files.length} files (validated: ${result.validated})`);
       } else {
         console.warn(`   ⚠️  Failed: ${result.error || 'Unknown error'}`);
       }
 
-      // Rate limiting delay
-      if (i < moduleSpecs.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+      // Reduced delay between sequential modules
+      if (i < dependentModules.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
 
@@ -482,36 +566,80 @@ export async function generateCode(
     console.log('📝 Generating instructions...');
     const instructions = generateEnhancedInstructions(project, options, ctx);
 
-    // Calculate final stats
-    const successfulModules = Array.from(ctx.moduleResults.values()).filter(m => m.success && m.validated);
+    // Calculate final stats with strict validation
+    const allModules = Array.from(ctx.moduleResults.values());
+    const successfulModules = allModules.filter(m => m.success && m.validated);
+    const partialModules = allModules.filter(m => m.success && !m.validated);
+    const failedModules = allModules.filter(m => !m.success);
     const totalModules = ctx.moduleResults.size;
     const successRate = (successfulModules.length / totalModules) * 100;
     const registryStats = ctx.functionRegistry.getStats();
 
+    const endTime = Date.now();
+    const duration = ((endTime - startTime) / 1000).toFixed(1);
+    
     console.log('\n' + '='.repeat(60));
     console.log('✅ CODE GENERATION COMPLETE!');
     console.log('='.repeat(60));
+    console.log(`⏱️  Duration: ${duration}s`);
     console.log(`📊 Success Rate: ${successRate.toFixed(1)}%`);
+    console.log(`✅ Fully Validated: ${successfulModules.length}/${totalModules}`);
+    console.log(`⚠️  Partially Complete: ${partialModules.length}/${totalModules}`);
+    console.log(`❌ Failed: ${failedModules.length}/${totalModules}`);
     console.log(`📦 Total Files: ${ctx.generatedFiles.size}`);
-    console.log(`✅ Validated Modules: ${successfulModules.length}/${totalModules}`);
     console.log(`🔧 Total Functions: ${registryStats.totalFunctions}`);
     console.log(`📤 Total Exports: ${registryStats.totalExports}`);
     console.log(`🏭 Factories: ${registryStats.factoryCount}`);
     console.log(`🎯 Handlers: ${registryStats.handlerCount}`);
     console.log('='.repeat(60) + '\n');
 
+    // Strict success criteria: 95% success rate AND all critical modules validated
+    const criticalModules = ['database', 'models', 'services', 'handlers', 'routes'];
+    const criticalModuleResults = criticalModules
+      .map(type => ctx.moduleResults.get(type))
+      .filter(Boolean);
+    const allCriticalValidated = criticalModuleResults.every(m => m?.success && m?.validated);
+
+    const isSuccess = successRate >= 95 && allCriticalValidated;
+    const errorMessage = !isSuccess 
+      ? `Generation incomplete: ${successRate.toFixed(0)}% success rate. ` +
+        (!allCriticalValidated ? 'Critical modules failed validation.' : '')
+      : undefined;
+
+    if (!isSuccess) {
+      console.error('\n⚠️  QUALITY CHECK FAILED:');
+      if (successRate < 95) {
+        console.error(`   - Success rate ${successRate.toFixed(1)}% is below 95% threshold`);
+      }
+      if (!allCriticalValidated) {
+        console.error('   - Critical modules not fully validated:');
+        criticalModuleResults.forEach(m => {
+          if (m && (!m.success || !m.validated)) {
+            console.error(`     • ${m.type}: ${m.success ? 'partial' : 'failed'}`);
+          }
+        });
+      }
+    }
+
     return {
       files: Array.from(ctx.generatedFiles.values()),
       instructions,
       dependencies: ctx.allDependencies,
       devDependencies: ctx.allDevDependencies,
-      success: successRate >= 70,
-      error: successRate < 70 ? 'Some modules failed validation' : undefined
+      success: isSuccess,
+      error: errorMessage
     };
 
   } catch (error: any) {
+    const endTime = Date.now();
+    const duration = ((endTime - startTime) / 1000).toFixed(1);
+    
     console.error('\n❌ FATAL ERROR:', error.message);
-    console.error(error.stack);
+    console.error(`⏱️  Failed after ${duration}s`);
+    
+    if (error.message?.includes('timeout')) {
+      console.error('💡 Tip: Try generating with fewer tables or disable tests/auth to speed up.');
+    }
 
     return {
       files: Array.from(ctx.generatedFiles.values()),

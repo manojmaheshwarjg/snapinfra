@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 // Error logging utility
@@ -136,22 +136,30 @@ export function EnterpriseQueryProvider({ children }: { children: React.ReactNod
 export function NetworkStatusMonitor() {
   const [isOnline, setIsOnline] = useState(true)
 
-  if (typeof window !== 'undefined') {
-    window.addEventListener('online', () => {
+  useEffect(() => {
+    const handleOnline = () => {
       setIsOnline(true)
       toast.success('Connection restored', {
         description: 'You are back online'
       })
-    })
+    }
 
-    window.addEventListener('offline', () => {
+    const handleOffline = () => {
       setIsOnline(false)
       toast.error('Connection lost', {
         description: 'You are currently offline',
         duration: Infinity,
       })
-    })
-  }
+    }
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   if (!isOnline) {
     return (

@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
 import { useAppContext } from "@/lib/app-context"
-import { updateProject as updateProjectAPI } from "@/lib/api-client"
+import { updateProject as updateProjectAPI, getProjectById } from "@/lib/api-client"
 import { EnterpriseDashboardLayout } from "@/components/enterprise-dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,10 +23,31 @@ import {
 
 
 export default function CodeGenerationPage() {
+  const params = useParams()
+  const projectId = params.id as string
+  const router = useRouter()
   const { state, dispatch } = useAppContext()
   const { currentProject } = state
   const [isGeneratingCode, setIsGeneratingCode] = useState(false)
   const [isGeneratingIac, setIsGeneratingIac] = useState(false)
+
+  // Load project if not in context (e.g., on page refresh)
+  useEffect(() => {
+    if (!projectId) return
+    if (!currentProject || currentProject.id !== projectId) {
+      getProjectById(projectId)
+        .then((project) => {
+          const normalizedProject = {
+            ...project,
+            schema: Array.isArray(project.schema)
+              ? project.schema
+              : (project.schema?.tables || [])
+          }
+          dispatch({ type: 'SET_CURRENT_PROJECT', payload: normalizedProject })
+        })
+        .catch(() => router.push('/projects'))
+    }
+  }, [projectId, currentProject, dispatch, router])
 
   async function retryGenerate(kind: 'code'|'iac') {
     if (!currentProject) return
@@ -112,6 +134,8 @@ export default function CodeGenerationPage() {
       description="Generate production-ready backend code from your schema"
       breadcrumbs={[
         { label: "Dashboard", href: "/dashboard" },
+        { label: "Projects", href: "/projects" },
+        { label: currentProject?.name || "Project", href: `/projects/${projectId}` },
         { label: "Code Generation" },
       ]}
     >

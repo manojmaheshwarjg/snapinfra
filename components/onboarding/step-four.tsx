@@ -542,29 +542,29 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
       </div>
 
 
-      {/* Subtle Divider */}
-      <div className="max-w-[1000px] mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
+      {/* Sticky Continue Button */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-[rgba(55,50,47,0.08)] py-4 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <button
+            onClick={onBack}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 group"
+          >
+            <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
+            Back
+          </button>
+          <Button 
+            onClick={() => onComplete(architecture)} 
+            size="lg" 
+            className="px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:shadow-xl transition-all hover:scale-105 text-base font-semibold"
+          >
+            Select Infrastructure Tools
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-center items-center gap-4 pt-8 max-w-[800px] mx-auto">
-        <button
-          onClick={onBack}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 group"
-        >
-          <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
-          Back
-        </button>
-        <Button 
-          onClick={() => onComplete(architecture)} 
-          size="lg" 
-          className="px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:shadow-xl transition-all hover:scale-105 text-base font-semibold"
-        >
-          Select Infrastructure Tools
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
-      </div>
+      {/* Bottom padding to prevent content from being hidden under sticky button */}
+      <div className="h-24"></div>
     </div>
   )
 }

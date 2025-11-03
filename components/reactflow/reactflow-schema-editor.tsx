@@ -51,16 +51,198 @@ const nodeTypes: NodeTypes = {
   table: TableNode,
 }
 
+// Auto-layout algorithm for distributing tables based on relationships
+const calculateAutoLayout = (tables: TableSchema[]): Record<string, { x: number; y: number }> => {
+  const positions: Record<string, { x: number; y: number }> = {}
+  
+  if (tables.length === 0) return positions
+  
+  const NODE_WIDTH = 320
+  const NODE_HEIGHT = 400 // Increased to account for varying table heights
+  const HORIZONTAL_GAP = 400 // Increased gap
+  const VERTICAL_GAP = 250 // Increased gap
+  const START_X = 100 // Starting X position
+  const START_Y = 100 // Starting Y position
+  
+  // Check if tables have meaningful manual positions (not just 0,0 or near-zero)
+  const hasManualPositions = tables.some(t => 
+    t.position && 
+    (Math.abs(t.position.x) > 50 || Math.abs(t.position.y) > 50) &&
+    tables.filter(other => 
+      other.position && 
+      Math.abs(other.position.x - t.position.x) < 50 && 
+      Math.abs(other.position.y - t.position.y) < 50
+    ).length === 1 // Not stacked with another table
+  )
+  
+  if (hasManualPositions) {
+    // Use saved positions only if they're properly distributed
+    let allValid = true
+    tables.forEach(table => {
+      if (!table.position || (table.position.x === 0 && table.position.y === 0)) {
+        allValid = false
+      }
+    })
+    
+    if (allValid) {
+      tables.forEach(table => {
+        positions[table.id] = table.position!
+      })
+      return positions
+    }
+  }
+  
+  // Build relationship graph
+  const relationships = new Map<string, Set<string>>()
+  tables.forEach(table => {
+    relationships.set(table.id, new Set())
+  })
+  
+  // Add foreign key relationships
+  tables.forEach(table => {
+    table.fields.forEach(field => {
+      const isForeignKey = field.isForeignKey || 
+        field.name.toLowerCase().endsWith('_id') ||
+        field.name.toLowerCase().endsWith('id') ||
+        field.name.toLowerCase().startsWith('fk_')
+      
+      if (isForeignKey) {
+        const cleanFieldName = field.name.toLowerCase()
+          .replace(/_?id$/i, '')
+          .replace(/_?(uuid|key)$/i, '')
+          .replace(/^fk_/i, '')
+        
+        const referencedTable = tables.find(t => {
+          if (t.id === table.id) return false
+          const tableName = t.name.toLowerCase()
+          return tableName === cleanFieldName || 
+                 tableName === cleanFieldName + 's' || 
+                 tableName + 's' === cleanFieldName ||
+                 cleanFieldName.includes(tableName) || 
+                 tableName.includes(cleanFieldName)
+        })
+        
+        if (referencedTable) {
+          relationships.get(table.id)?.add(referencedTable.id)
+        }
+      }
+    })
+    
+    // Add explicit relationships
+    if (table.relationships) {
+      table.relationships.forEach(rel => {
+        relationships.get(table.id)?.add(rel.targetTable)
+      })
+    }
+  })
+  
+  // Find root nodes (tables with no incoming references)
+  const incomingEdges = new Map<string, number>()
+  tables.forEach(t => incomingEdges.set(t.id, 0))
+  
+  relationships.forEach((targets) => {
+    targets.forEach(targetId => {
+      incomingEdges.set(targetId, (incomingEdges.get(targetId) || 0) + 1)
+    })
+  })
+  
+  // Hierarchical layout: arrange by levels
+  const levels: string[][] = []
+  const visited = new Set<string>()
+  const levelMap = new Map<string, number>()
+  
+  // BFS from root nodes
+  const queue: Array<{ id: string; level: number }> = []
+  
+  tables.forEach(table => {
+    if ((incomingEdges.get(table.id) || 0) === 0) {
+      queue.push({ id: table.id, level: 0 })
+    }
+  })
+  
+  // If no root nodes, start with first table
+  if (queue.length === 0 && tables.length > 0) {
+    queue.push({ id: tables[0].id, level: 0 })
+  }
+  
+  while (queue.length > 0) {
+    const { id, level } = queue.shift()!
+    
+    if (visited.has(id)) continue
+    visited.add(id)
+    
+    if (!levels[level]) levels[level] = []
+    levels[level].push(id)
+    levelMap.set(id, level)
+    
+    // Add children to next level
+    const children = relationships.get(id) || new Set()
+    children.forEach(childId => {
+      if (!visited.has(childId)) {
+        queue.push({ id: childId, level: level + 1 })
+      }
+    })
+  }
+  
+  // Add any unvisited nodes to the last level
+  tables.forEach(table => {
+    if (!visited.has(table.id)) {
+      const lastLevel = levels.length
+      if (!levels[lastLevel]) levels[lastLevel] = []
+      levels[lastLevel].push(table.id)
+      levelMap.set(table.id, lastLevel)
+    }
+  })
+  
+  // Position nodes by level with proper spacing
+  levels.forEach((levelNodes, levelIndex) => {
+    const nodesInLevel = levelNodes.length
+    
+    // Calculate positions to prevent stacking
+    levelNodes.forEach((nodeId, indexInLevel) => {
+      // Use simple left-to-right, top-to-bottom layout
+      positions[nodeId] = {
+        x: START_X + (indexInLevel * (NODE_WIDTH + HORIZONTAL_GAP)),
+        y: START_Y + (levelIndex * (NODE_HEIGHT + VERTICAL_GAP))
+      }
+    })
+  })
+  
+  // Ensure no overlapping positions (collision detection)
+  const occupiedPositions = new Set<string>()
+  Object.keys(positions).forEach(nodeId => {
+    let pos = positions[nodeId]
+    let posKey = `${Math.floor(pos.x / 100)},${Math.floor(pos.y / 100)}`
+    let offset = 0
+    
+    // If position is occupied, shift right
+    while (occupiedPositions.has(posKey) && offset < 10) {
+      offset++
+      pos = {
+        x: positions[nodeId].x + (offset * (NODE_WIDTH + HORIZONTAL_GAP)),
+        y: positions[nodeId].y
+      }
+      posKey = `${Math.floor(pos.x / 100)},${Math.floor(pos.y / 100)}`
+    }
+    
+    positions[nodeId] = pos
+    occupiedPositions.add(posKey)
+  })
+  
+  return positions
+}
+
 // Convert TableSchema to ReactFlow Node
 const convertTableToNode = (
   table: TableSchema,
+  position: { x: number; y: number },
   onEdit?: () => void,
   onDelete?: () => void,
   onDuplicate?: () => void
 ): Node<TableNodeData> => ({
   id: table.id,
   type: 'table',
-  position: table.position || { x: 0, y: 0 },
+  position,
   data: {
     id: table.id,
     name: table.name,
@@ -86,19 +268,54 @@ const convertTableToNode = (
 const generateEdges = (tables: TableSchema[]): Edge[] => {
   const edges: Edge[] = []
   const edgeIds = new Set<string>()
+  
+  console.log('🔍 Generating edges for tables:', tables.map(t => ({ name: t.name, id: t.id, fields: t.fields.map(f => f.name) })))
+
+  // Helper function to find referenced table by field name
+  const findReferencedTable = (fieldName: string, currentTableId: string): TableSchema | undefined => {
+    const cleanFieldName = fieldName.toLowerCase()
+      .replace(/_?id$/i, '')           // Remove _id, id suffix
+      .replace(/_?(uuid|key)$/i, '')   // Remove _uuid, uuid, _key, key suffix
+      .replace(/^fk_/i, '')            // Remove fk_ prefix
+    
+    // Try multiple matching strategies
+    return tables.find(t => {
+      if (t.id === currentTableId) return false // Don't match self
+      const tableName = t.name.toLowerCase()
+      
+      // Direct match
+      if (tableName === cleanFieldName) return true
+      
+      // Singular/plural variations
+      if (tableName === cleanFieldName + 's' || tableName + 's' === cleanFieldName) return true
+      
+      // Check if field name contains table name
+      if (cleanFieldName.includes(tableName) || tableName.includes(cleanFieldName)) return true
+      
+      return false
+    })
+  }
 
   // Add edges from foreign key fields
   tables.forEach(table => {
     table.fields.forEach(field => {
-      if (field.isForeignKey) {
-        // Find the referenced table (simplified logic)
-        const referencedTable = tables.find(t =>
-          t.name.toLowerCase() === field.name.replace(/_?id$/i, '').toLowerCase() ||
-          t.name.toLowerCase() === field.name.replace(/_?(uuid|key)$/i, '').toLowerCase()
-        )
+      // Check if field is explicitly marked as FK OR has FK naming pattern
+      const isForeignKey = field.isForeignKey || 
+        field.name.toLowerCase().endsWith('_id') ||
+        field.name.toLowerCase().endsWith('id') ||
+        field.name.toLowerCase().startsWith('fk_')
+      
+      if (isForeignKey) {
+        console.log(`🔗 Found FK field: ${table.name}.${field.name} (isForeignKey=${field.isForeignKey})`)
+        const referencedTable = findReferencedTable(field.name, table.id)
 
         if (referencedTable) {
-          const primaryKeyField = referencedTable.fields.find(f => f.isPrimary)
+          console.log(`  ✅ Matched to table: ${referencedTable.name}`)
+          // Find primary key, or use first field as fallback (usually 'id')
+          const primaryKeyField = referencedTable.fields.find(f => f.isPrimary) || 
+                                 referencedTable.fields.find(f => f.name.toLowerCase() === 'id') ||
+                                 referencedTable.fields[0]
+          
           if (primaryKeyField) {
             const edgeId = `${table.id}-${field.id}-${referencedTable.id}-${primaryKeyField.id}`
             if (!edgeIds.has(edgeId)) {
@@ -110,26 +327,27 @@ const generateEdges = (tables: TableSchema[]): Edge[] => {
                 sourceHandle: `${table.id}-${field.id}-source`,
                 targetHandle: `${referencedTable.id}-${primaryKeyField.id}-target`,
                 type: 'smoothstep',
-                animated: true,
+                animated: false,
                 style: {
-                  stroke: '#6b7280',
-                  strokeWidth: 2,
+                  stroke: '#3b82f6',
+                  strokeWidth: 2.5,
+                  strokeDasharray: '0',
                 },
                 markerEnd: {
                   type: MarkerType.ArrowClosed,
-                  width: 20,
-                  height: 20,
-                  color: '#6b7280',
+                  width: 25,
+                  height: 25,
+                  color: '#3b82f6',
                 },
-                label: 'FK',
-                labelStyle: {
-                  fontSize: '10px',
-                  fontWeight: 'bold',
-                  color: '#6b7280',
-                },
+                // Remove label for cleaner look
               })
+              console.log(`  ➕ Added edge from ${table.name} to ${referencedTable.name}`)
             }
+          } else {
+            console.log(`  ⚠️ No fields found in ${referencedTable.name}`)
           }
+        } else {
+          console.log(`  ❌ No matching table found for ${field.name}`)
         }
       }
     })
@@ -142,6 +360,9 @@ const generateEdges = (tables: TableSchema[]): Edge[] => {
           const edgeId = `rel-${table.id}-${rel.targetTable}`
           if (!edgeIds.has(edgeId)) {
             edgeIds.add(edgeId)
+            const relColor = rel.type === 'one-to-many' ? '#10b981' : rel.type === 'one-to-one' ? '#f59e0b' : '#8b5cf6'
+            const relLabel = rel.type === 'one-to-many' ? '1:N' : rel.type === 'one-to-one' ? '1:1' : 'N:N'
+            
             edges.push({
               id: edgeId,
               source: table.id,
@@ -149,22 +370,32 @@ const generateEdges = (tables: TableSchema[]): Edge[] => {
               sourceHandle: rel.sourceField,
               targetHandle: rel.targetField,
               type: 'smoothstep',
-              animated: true,
+              animated: false,
               style: {
-                stroke: '#6b7280',
-                strokeWidth: 2,
+                stroke: relColor,
+                strokeWidth: 2.5,
+                strokeDasharray: '5,5',
               },
               markerEnd: {
                 type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: '#6b7280',
+                width: 25,
+                height: 25,
+                color: relColor,
               },
-              label: rel.type === 'one-to-many' ? '1:N' : rel.type === 'one-to-one' ? '1:1' : 'N:N',
+              label: relLabel,
               labelStyle: {
-                fontSize: '10px',
-                fontWeight: 'bold',
-                color: '#6b7280',
+                fontSize: '9px',
+                fontWeight: '600',
+                color: relColor,
+                background: 'white',
+                padding: '2px 6px',
+                borderRadius: '3px',
+                border: `1px solid ${relColor}`,
+              },
+              labelBgPadding: [4, 4],
+              labelBgStyle: {
+                fill: 'white',
+                fillOpacity: 0.9,
               },
             })
           }
@@ -172,6 +403,8 @@ const generateEdges = (tables: TableSchema[]): Edge[] => {
       })
     }
   })
+  
+  console.log(`🎯 Total edges generated: ${edges.length}`)
 
   return edges
 }
@@ -213,8 +446,11 @@ export function ReactFlowSchemaEditor({
   const initialNodes = useMemo(() => {
     if (!Array.isArray(schema) || schema.length === 0) return []
     
+    const positions = calculateAutoLayout(schema)
+    
     return schema.map(table => convertTableToNode(
       table,
+      positions[table.id],
       () => handleEditTable(table),
       () => onTableDelete?.(table.id),
       () => onTableDuplicate?.(table)
@@ -228,117 +464,88 @@ export function ReactFlowSchemaEditor({
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(showRelations ? initialEdges : [])
+  const schemaVersionRef = React.useRef(0)
+  const prevSchemaLengthRef = React.useRef(schema.length)
 
-  // Update nodes when schema changes
+  // Update nodes when schema changes - ONLY when table count or structure actually changes
   useEffect(() => {
+    // Quick check: if length is the same and we're already synced, skip
+    if (schema.length === prevSchemaLengthRef.current && schemaVersionRef.current > 0) {
+      return
+    }
+    
+    prevSchemaLengthRef.current = schema.length
+    schemaVersionRef.current++
+    
     if (!Array.isArray(schema) || schema.length === 0) {
       setNodes([])
       return
     }
     
+    const positions = calculateAutoLayout(schema)
+    
     const updatedNodes = schema.map(table => convertTableToNode(
       table,
+      positions[table.id],
       () => handleEditTable(table),
       () => onTableDelete?.(table.id),
       () => onTableDuplicate?.(table)
     ))
     setNodes(updatedNodes)
-  }, [schema, handleEditTable, onTableDelete, onTableDuplicate])
+  }, [schema.length, handleEditTable, onTableDelete, onTableDuplicate, setNodes])
 
   // Update edges when showRelations changes
   useEffect(() => {
     setEdges(showRelations ? generateEdges(schema) : [])
-  }, [showRelations, schema])
+  }, [showRelations, schema.length, setEdges])
 
-  // Handle node position changes and sync back to schema
+  // Handle node position changes - DO NOT dispatch during drag to prevent loops
   const handleNodesChange = useCallback((changes: any[]) => {
     onNodesChange(changes)
     
-    if (!Array.isArray(schema) || schema.length === 0) return
-    
-    // Update schema with new positions
-    const positionChanges = changes.filter(change => change.type === 'position' && change.position)
-    if (positionChanges.length > 0) {
-      const updatedSchema = schema.map(table => {
-        const positionChange = positionChanges.find(change => change.id === table.id)
-        if (positionChange) {
-          return {
-            ...table,
-            position: positionChange.position
-          }
-        }
-        return table
-      })
-      dispatch({ type: 'UPDATE_SCHEMA', payload: updatedSchema })
-    }
-  }, [onNodesChange, schema, dispatch])
+    // REMOVED: Position syncing to prevent infinite loops
+    // Position changes are local to ReactFlow only
+    // If you need to persist positions, do it on manual save action only
+  }, [onNodesChange])
 
   const onConnect = useCallback((params: Connection) => {
     if (!params.source || !params.target) return
     
-    // Add the edge to the UI
+    // Add the edge to the UI only - do not sync to schema to prevent loops
     setEdges((eds) => addEdge({
       ...params,
       type: 'smoothstep',
-      animated: true,
+      animated: false,
       style: {
-        stroke: '#6b7280',
-        strokeWidth: 2,
+        stroke: '#8b5cf6',
+        strokeWidth: 2.5,
+        strokeDasharray: '5,5',
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-        color: '#6b7280',
+        width: 25,
+        height: 25,
+        color: '#8b5cf6',
       },
+      // Remove label for custom edges
     }, eds))
     
-    // Save the relationship to schema
     const sourceTable = schema.find(t => t.id === params.source)
     const targetTable = schema.find(t => t.id === params.target)
     
     if (sourceTable && targetTable) {
-      const updatedSchema = schema.map(table => {
-        if (table.id === params.source) {
-          const newRelationship: Relationship = {
-            type: 'one-to-many',
-            targetTable: params.target!,
-            sourceField: params.sourceHandle || '',
-            targetField: params.targetHandle || ''
-          }
-          return {
-            ...table,
-            relationships: [...(table.relationships || []), newRelationship]
-          }
-        }
-        return table
-      })
-      dispatch({ type: 'UPDATE_SCHEMA', payload: updatedSchema })
-      
       toast({
         title: "Relationship created",
         description: `Connected ${sourceTable.name} to ${targetTable.name}`
       })
     }
-  }, [setEdges, schema, dispatch, toast])
+  }, [setEdges, schema, toast])
 
   const onEdgesDelete = useCallback((edgesToDelete: Edge[]) => {
     edgesToDelete.forEach(edge => {
       // Only delete manual relationships (those with 'rel-' prefix)
+      // Do not sync to schema to prevent loops
       if (edge.id.startsWith('rel-')) {
-        const updatedSchema = schema.map(table => {
-          if (table.id === edge.source) {
-            return {
-              ...table,
-              relationships: (table.relationships || []).filter(
-                rel => rel.targetTable !== edge.target
-              )
-            }
-          }
-          return table
-        })
-        dispatch({ type: 'UPDATE_SCHEMA', payload: updatedSchema })
-        
         const sourceTable = schema.find(t => t.id === edge.source)
         const targetTable = schema.find(t => t.id === edge.target)
         if (sourceTable && targetTable) {
@@ -349,7 +556,7 @@ export function ReactFlowSchemaEditor({
         }
       }
     })
-  }, [schema, dispatch, toast])
+  }, [schema, toast])
 
   const handleAddTable = useCallback(() => {
     const newTable: TableSchema = {
@@ -547,6 +754,31 @@ export function ReactFlowSchemaEditor({
                 <p className="text-gray-600 mb-4 max-w-sm">
                   Start building your database schema by adding tables or chatting with AI
                 </p>
+              </div>
+            </Panel>
+          )}
+
+          {/* Relationship Legend */}
+          {showRelations && schema.length > 0 && initialEdges.length > 0 && (
+            <Panel position="top-right" className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
+              <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Relationships</h4>
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-0.5 bg-blue-500" style={{ minWidth: '40px' }} />
+                  <span className="text-xs text-gray-600 whitespace-nowrap">Foreign Key</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-0.5 bg-emerald-500" style={{ minWidth: '40px', borderTop: '2px dashed' }} />
+                  <span className="text-xs text-gray-600 whitespace-nowrap">One-to-Many (1:N)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-0.5 bg-amber-500" style={{ minWidth: '40px', borderTop: '2px dashed' }} />
+                  <span className="text-xs text-gray-600 whitespace-nowrap">One-to-One (1:1)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-0.5 bg-purple-500" style={{ minWidth: '40px', borderTop: '2px dashed' }} />
+                  <span className="text-xs text-gray-600 whitespace-nowrap">Many-to-Many (N:N)</span>
+                </div>
               </div>
             </Panel>
           )}

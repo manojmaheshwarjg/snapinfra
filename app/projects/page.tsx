@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Plus, Search, Filter, MoreVertical, Database, Calendar, Settings, Trash2, ExternalLink } from "lucide-react"
+import { Plus, Search, Filter, MoreVertical, Database, Calendar, Settings, Trash2, ExternalLink, LayoutGrid, List, Folder, Clock, GitBranch } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import type { Project } from "@/lib/app-context"
 
@@ -22,6 +22,7 @@ export default function ProjectsPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("updated")
   const [isLoadingProjects, setIsLoadingProjects] = useState(false)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   // Fetch projects from backend on mount - AWS is the ONLY source of truth
   useEffect(() => {
@@ -44,13 +45,22 @@ export default function ProjectsPage() {
         
         console.log(`📦 Received ${backendProjects.length} projects from AWS`)
         
-        // Add each backend project to state
+        // Normalize and add each backend project to state
         backendProjects.forEach((backendProject, index) => {
           try {
             console.log(`➡️ Project ${index + 1}:`, backendProject.name, '(ID:', backendProject.id, ')')
+            
+            // Normalize schema format: AWS returns { tables: [...] }, but app expects array
+            const normalizedProject = {
+              ...backendProject,
+              schema: Array.isArray(backendProject.schema)
+                ? backendProject.schema
+                : (backendProject.schema?.tables || [])
+            }
+            
             dispatch({ 
               type: 'ADD_PROJECT', 
-              payload: backendProject
+              payload: normalizedProject
             })
           } catch (err) {
             console.error(`❌ Failed to add project ${index + 1}:`, err)
@@ -143,102 +153,69 @@ export default function ProjectsPage() {
         </Button>
       }
     >
-      <div className="space-y-8">
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Projects</p>
-                  <p className="text-2xl font-bold text-gray-900">{state.projects.length}</p>
-                </div>
-                <Database className="w-8 h-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {state.projects.filter(p => p.status === 'active').length}
-                  </p>
-                </div>
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Draft</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {state.projects.filter(p => p.status === 'draft').length}
-                  </p>
-                </div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Archived</p>
-                  <p className="text-2xl font-bold text-gray-600">
-                    {state.projects.filter(p => p.status === 'archived').length}
-                  </p>
-                </div>
-                <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-6">
 
         {/* Filters and Search */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-9"
             />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Filter className="w-4 h-4" />
-                Status: {statusFilter === "all" ? "All" : statusFilter}
+          <div className="flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Filter className="w-4 h-4" />
+                  {statusFilter === "all" ? "All Status" : statusFilter}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setStatusFilter("all")}>All Status</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("active")}>Active</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("draft")}>Draft</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("archived")}>Archived</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Clock className="w-4 h-4" />
+                  {sortBy === "updated" ? "Updated" : sortBy === "created" ? "Created" : "Name"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setSortBy("updated")}>Recently Updated</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("created")}>Recently Created</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("name")}>Name</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div className="flex border border-gray-200 rounded-md">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("list")}
+                className={`h-9 px-3 rounded-none ${viewMode === "list" ? "bg-gray-100" : ""}`}
+              >
+                <List className="w-4 h-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setStatusFilter("all")}>All</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("active")}>Active</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("draft")}>Draft</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("archived")}>Archived</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                Sort: {sortBy === "updated" ? "Recently Updated" : sortBy === "created" ? "Recently Created" : "Name"}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className={`h-9 px-3 rounded-none ${viewMode === "grid" ? "bg-gray-100" : ""}`}
+              >
+                <LayoutGrid className="w-4 h-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setSortBy("updated")}>Recently Updated</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy("created")}>Recently Created</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy("name")}>Name</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          </div>
         </div>
 
-        {/* Projects Grid */}
+        {/* Projects List/Grid */}
         {filteredProjects.length === 0 ? (
           <div className="text-center py-12">
             <Database className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -258,32 +235,49 @@ export default function ProjectsPage() {
               </Button>
             )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => (
-              <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1" onClick={() => router.push(`/dashboard?project=${project.id}`)}>
-                      <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+        ) : viewMode === "list" ? (
+          <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+            <div className="divide-y divide-gray-200">
+              {filteredProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer group"
+                  onClick={() => router.push(`/projects/${project.id}`)}
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="flex items-center justify-center w-10 h-10 bg-blue-50 rounded-lg flex-shrink-0">
+                      <Folder className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors mb-1">
                         {project.name}
-                      </CardTitle>
-                      <Badge className={`mt-1 text-xs ${getStatusColor(project.status)}`}>
-                        {project.status}
-                      </Badge>
+                      </h3>
+                      <p className="text-xs text-gray-500 truncate">{project.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6 flex-shrink-0">
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-1.5">
+                        <Database className="w-4 h-4" />
+                        <span>{Array.isArray(project.schema) ? project.schema.length : (project.schema?.tables?.length || 0)} tables</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4" />
+                        <span>{formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })}</span>
+                      </div>
                     </div>
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => router.push(`/dashboard?project=${project.id}`)}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/dashboard?project=${project.id}`) }}>
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Open
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push(`/settings?project=${project.id}`)}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/settings?project=${project.id}`) }}>
                           <Settings className="w-4 h-4 mr-2" />
                           Settings
                         </DropdownMenuItem>
@@ -294,7 +288,7 @@ export default function ProjectsPage() {
                               Delete
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Project</AlertDialogTitle>
                               <AlertDialogDescription>
@@ -304,7 +298,7 @@ export default function ProjectsPage() {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction 
-                                onClick={() => handleDeleteProject(project.id)}
+                                onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id) }}
                                 className="bg-red-600 hover:bg-red-700"
                               >
                                 Delete
@@ -315,19 +309,79 @@ export default function ProjectsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                </CardHeader>
-                <CardContent onClick={() => router.push(`/dashboard?project=${project.id}`)}>
-                  <CardDescription className="mb-4 line-clamp-2">
-                    {project.description}
-                  </CardDescription>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Database className="w-4 h-4" />
-                      {Array.isArray(project.schema) ? project.schema.length : (project.schema?.tables?.length || 0)} tables
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProjects.map((project) => (
+              <Card key={project.id} className="hover:shadow-md transition-all cursor-pointer group border-gray-200">
+                <CardContent className="p-4" onClick={() => router.push(`/projects/${project.id}`)}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div className="flex items-center justify-center w-10 h-10 bg-blue-50 rounded-lg flex-shrink-0">
+                        <Folder className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                          {project.name}
+                        </h3>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/projects/${project.id}`) }}>
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Open
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/projects/${project.id}/settings`) }}>
+
+                          <Settings className="w-4 h-4 mr-2" />
+                          Settings
+                        </DropdownMenuItem>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Project</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{project.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id) }}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-3 line-clamp-2 min-h-[2rem]">{project.description}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500 pt-3 border-t border-gray-100">
+                    <div className="flex items-center gap-1.5">
+                      <Database className="w-3.5 h-3.5" />
+                      <span>{Array.isArray(project.schema) ? project.schema.length : (project.schema?.tables?.length || 0)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })}</span>
                     </div>
                   </div>
                 </CardContent>

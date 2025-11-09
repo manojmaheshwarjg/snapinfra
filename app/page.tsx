@@ -656,7 +656,7 @@ export default function LandingPage() {
     )
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://snapinfra.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://snapinfra.ai'
 
   // Memoize JSON-LD schemas to prevent recreation on every render
   const organizationSchema = useMemo(() => ({
@@ -1032,7 +1032,7 @@ export default function LandingPage() {
                 <div className="text-center">
                   <Link href="/sign-up">
                     <button className="px-8 py-4 bg-[#1d1d1f] text-white text-base sm:text-lg font-semibold rounded-lg transition-opacity hover:opacity-90">
-                      Get Architecture Consultation →
+                      Get Started for Free →
                     </button>
                   </Link>
                 </div>

@@ -82,7 +82,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://snapinfra.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://snapinfra.ai"),
   alternates: {
     canonical: "/",
   },
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: process.env.NEXT_PUBLIC_APP_URL || "https://snapinfra.com",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://snapinfra.ai",
     siteName: "Snapinfra",
     title: "Snapinfra - Enterprise Backend Infrastructure in One Prompt",
     description: "Generate production-ready backend infrastructure with AI. Multi-tenant architecture, database schemas, API layers, and security built-in. Deploy to AWS, GCP, or Azure in minutes.",

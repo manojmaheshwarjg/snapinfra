@@ -1,0 +1,1368 @@
+{
+    "description": "Build a enterprise healthcare data exchange platform for connecting hospitals and insurance providers serving 100K+ patient records daily. Key features: record aggregation, consent management, audit logs, clinical decision support, claim automation. Scale to 200 to 2K facilities with regional data residency and ensure HIPAA, GDPR, HITRUST compliance.",
+    "schemas": [
+        {
+            "name": "facilities",
+            "comment": "Hospitals and insurance providers",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "name",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "address",
+                    "type": "text",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_facilities_name",
+                    "type": "unique",
+                    "fields": [
+                        "name"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_facilities_name",
+                    "type": "check",
+                    "definition": "CHECK (name <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "patients",
+            "comment": "Patient records",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "facility_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "facilities",
+                        "field": "id"
+                    },
+                    "nullable": false
+                },
+                {
+                    "name": "name",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "date_of_birth",
+                    "type": "date",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_patients_facility_id",
+                    "type": "btree",
+                    "fields": [
+                        "facility_id"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_patients_name",
+                    "type": "check",
+                    "definition": "CHECK (name <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "consents",
+            "comment": "Patient consent records",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "patient_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "patients",
+                        "field": "id"
+                    },
+                    "nullable": false
+                },
+                {
+                    "name": "facility_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "facilities",
+                        "field": "id"
+                    },
+                    "nullable": false
+                },
+                {
+                    "name": "consent_type",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_consents_patient_id",
+                    "type": "btree",
+                    "fields": [
+                        "patient_id"
+                    ]
+                },
+                {
+                    "name": "idx_consents_facility_id",
+                    "type": "btree",
+                    "fields": [
+                        "facility_id"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_consents_consent_type",
+                    "type": "check",
+                    "definition": "CHECK (consent_type <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "claims",
+            "comment": "Insurance claims",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "patient_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "patients",
+                        "field": "id"
+                    },
+                    "nullable": false
+                },
+                {
+                    "name": "facility_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "facilities",
+                        "field": "id"
+                    },
+                    "nullable": false
+                },
+                {
+                    "name": "claim_type",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_claims_patient_id",
+                    "type": "btree",
+                    "fields": [
+                        "patient_id"
+                    ]
+                },
+                {
+                    "name": "idx_claims_facility_id",
+                    "type": "btree",
+                    "fields": [
+                        "facility_id"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_claims_claim_type",
+                    "type": "check",
+                    "definition": "CHECK (claim_type <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "audit_logs",
+            "comment": "Audit logs for all activities",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "facility_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "facilities",
+                        "field": "id"
+                    },
+                    "nullable": false
+                },
+                {
+                    "name": "patient_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "patients",
+                        "field": "id"
+                    },
+                    "nullable": true
+                },
+                {
+                    "name": "activity_type",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_audit_logs_facility_id",
+                    "type": "btree",
+                    "fields": [
+                        "facility_id"
+                    ]
+                },
+                {
+                    "name": "idx_audit_logs_patient_id",
+                    "type": "btree",
+                    "fields": [
+                        "patient_id"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_audit_logs_activity_type",
+                    "type": "check",
+                    "definition": "CHECK (activity_type <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "clinical_decision_support",
+            "comment": "Clinical decision support rules",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "rule_type",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "rule_description",
+                    "type": "text",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_clinical_decision_support_rule_type",
+                    "type": "btree",
+                    "fields": [
+                        "rule_type"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_clinical_decision_support_rule_type",
+                    "type": "check",
+                    "definition": "CHECK (rule_type <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "claim_automation",
+            "comment": "Claim automation rules",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "rule_type",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "rule_description",
+                    "type": "text",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_claim_automation_rule_type",
+                    "type": "btree",
+                    "fields": [
+                        "rule_type"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_claim_automation_rule_type",
+                    "type": "check",
+                    "definition": "CHECK (rule_type <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "settings",
+            "comment": "System settings",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "setting_name",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "setting_value",
+                    "type": "text",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_settings_setting_name",
+                    "type": "unique",
+                    "fields": [
+                        "setting_name"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_settings_setting_name",
+                    "type": "check",
+                    "definition": "CHECK (setting_name <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "permissions",
+            "comment": "User permissions",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "references": {
+                        "table": "users",
+                        "field": "id"
+                    },
+                    "nullable": false
+                },
+                {
+                    "name": "permission_type",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_permissions_user_id",
+                    "type": "btree",
+                    "fields": [
+                        "user_id"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_permissions_permission_type",
+                    "type": "check",
+                    "definition": "CHECK (permission_type <> '')"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "name": "users",
+            "comment": "System users",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary": true,
+                    "default": "gen_random_uuid()"
+                },
+                {
+                    "name": "username",
+                    "type": "varchar",
+                    "length": 255,
+                    "nullable": false
+                },
+                {
+                    "name": "password",
+                    "type": "text",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz",
+                    "default": "NOW()",
+                    "nullable": false
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "idx_users_username",
+                    "type": "unique",
+                    "fields": [
+                        "username"
+                    ]
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "chk_users_username",
+                    "type": "check",
+                    "definition": "CHECK (username <> '')"
+                }
+            ],
+            "triggers": []
+        }
+    ],
+    "database": "PostgreSQL",
+    "endpoints": [
+        {
+            "group": "Facilities",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/facilities",
+                    "description": "Get all facilities",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/facilities/{id}",
+                    "description": "Get a facility by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/facilities",
+                    "description": "Create a new facility",
+                    "body": {
+                        "name": "string",
+                        "address": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/facilities/{id}",
+                    "description": "Update a facility",
+                    "body": {
+                        "name": "string",
+                        "address": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/facilities/{id}",
+                    "description": "Delete a facility",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Patients",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/patients",
+                    "description": "Get all patients",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/patients/{id}",
+                    "description": "Get a patient by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/patients",
+                    "description": "Create a new patient",
+                    "body": {
+                        "name": "string",
+                        "date_of_birth": "date"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/patients/{id}",
+                    "description": "Update a patient",
+                    "body": {
+                        "name": "string",
+                        "date_of_birth": "date"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/patients/{id}",
+                    "description": "Delete a patient",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Consents",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/consents",
+                    "description": "Get all consents",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/consents/{id}",
+                    "description": "Get a consent by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/consents",
+                    "description": "Create a new consent",
+                    "body": {
+                        "patient_id": "uuid",
+                        "facility_id": "uuid",
+                        "consent_type": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/consents/{id}",
+                    "description": "Update a consent",
+                    "body": {
+                        "patient_id": "uuid",
+                        "facility_id": "uuid",
+                        "consent_type": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/consents/{id}",
+                    "description": "Delete a consent",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Claims",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/claims",
+                    "description": "Get all claims",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/claims/{id}",
+                    "description": "Get a claim by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/claims",
+                    "description": "Create a new claim",
+                    "body": {
+                        "patient_id": "uuid",
+                        "facility_id": "uuid",
+                        "claim_type": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/claims/{id}",
+                    "description": "Update a claim",
+                    "body": {
+                        "patient_id": "uuid",
+                        "facility_id": "uuid",
+                        "claim_type": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/claims/{id}",
+                    "description": "Delete a claim",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Audit Logs",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/audit-logs",
+                    "description": "Get all audit logs",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/audit-logs/{id}",
+                    "description": "Get an audit log by ID",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Clinical Decision Support",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/clinical-decision-support",
+                    "description": "Get all clinical decision support rules",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/clinical-decision-support/{id}",
+                    "description": "Get a clinical decision support rule by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/clinical-decision-support",
+                    "description": "Create a new clinical decision support rule",
+                    "body": {
+                        "rule_type": "string",
+                        "rule_description": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/clinical-decision-support/{id}",
+                    "description": "Update a clinical decision support rule",
+                    "body": {
+                        "rule_type": "string",
+                        "rule_description": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/clinical-decision-support/{id}",
+                    "description": "Delete a clinical decision support rule",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Claim Automation",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/claim-automation",
+                    "description": "Get all claim automation rules",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/claim-automation/{id}",
+                    "description": "Get a claim automation rule by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/claim-automation",
+                    "description": "Create a new claim automation rule",
+                    "body": {
+                        "rule_type": "string",
+                        "rule_description": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/claim-automation/{id}",
+                    "description": "Update a claim automation rule",
+                    "body": {
+                        "rule_type": "string",
+                        "rule_description": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/claim-automation/{id}",
+                    "description": "Delete a claim automation rule",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Settings",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/settings",
+                    "description": "Get all settings",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/settings/{id}",
+                    "description": "Get a setting by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/settings",
+                    "description": "Create a new setting",
+                    "body": {
+                        "setting_name": "string",
+                        "setting_value": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/settings/{id}",
+                    "description": "Update a setting",
+                    "body": {
+                        "setting_name": "string",
+                        "setting_value": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/settings/{id}",
+                    "description": "Delete a setting",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Permissions",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/permissions",
+                    "description": "Get all permissions",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/permissions/{id}",
+                    "description": "Get a permission by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/permissions",
+                    "description": "Create a new permission",
+                    "body": {
+                        "user_id": "uuid",
+                        "permission_type": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/permissions/{id}",
+                    "description": "Update a permission",
+                    "body": {
+                        "user_id": "uuid",
+                        "permission_type": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/permissions/{id}",
+                    "description": "Delete a permission",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Users",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "path": "/api/v1/users",
+                    "description": "Get all users",
+                    "auth": true
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/users/{id}",
+                    "description": "Get a user by ID",
+                    "auth": true
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/users",
+                    "description": "Create a new user",
+                    "body": {
+                        "username": "string",
+                        "password": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "PUT",
+                    "path": "/api/v1/users/{id}",
+                    "description": "Update a user",
+                    "body": {
+                        "username": "string",
+                        "password": "string"
+                    },
+                    "auth": true
+                },
+                {
+                    "method": "DELETE",
+                    "path": "/api/v1/users/{id}",
+                    "description": "Delete a user",
+                    "auth": true
+                }
+            ]
+        },
+        {
+            "group": "Authentication",
+            "endpoints": [
+                {
+                    "method": "POST",
+                    "path": "/api/v1/auth/login",
+                    "description": "Login to the system",
+                    "body": {
+                        "username": "string",
+                        "password": "string"
+                    },
+                    "auth": false
+                },
+                {
+                    "method": "POST",
+                    "path": "/api/v1/auth/logout",
+                    "description": "Logout from the system",
+                    "auth": true
+                }
+            ]
+        }
+    ],
+    "success": true,
+    "validation": {
+        "schemas": {
+            "isValid": true,
+            "errors": []
+        },
+        "endpoints": {
+            "isValid": true,
+            "errors": []
+        }
+    },
+    "projectName": "Fitness App",
+    "analysis": {
+        "success": true,
+        "useCase": {
+            "key": "healthcare",
+            "label": "Enterprise Healthcare Data Exchange Platform",
+            "features": [
+                "record aggregation",
+                "consent management",
+                "audit logs",
+                "clinical decision support",
+                "claim automation"
+            ],
+            "complexity": "complex"
+        },
+        "databaseRecommendations": [
+            {
+                "name": "PostgreSQL",
+                "score": 92,
+                "reasons": [
+                    "robust support for ACID transactions",
+                    "strong data typing and schema enforcement",
+                    "excellent support for indexing and query optimization"
+                ],
+                "bestFor": "transactional workloads with high data integrity requirements",
+                "pros": [
+                    "mature and widely adopted",
+                    "supports advanced data types and operators",
+                    "strong security features"
+                ],
+                "cons": [
+                    "may require additional configuration for high availability",
+                    "can be resource-intensive"
+                ],
+                "whyForUseCase": [
+                    "supports HIPAA, GDPR, and HITRUST compliance requirements",
+                    "can handle large volumes of patient records and claims data"
+                ]
+            },
+            {
+                "name": "MySQL",
+                "score": 88,
+                "reasons": [
+                    "high performance and scalability",
+                    "wide range of storage engines and plugins",
+                    "strong support for SQL and data modeling"
+                ],
+                "bestFor": "high-traffic web applications with complex data models",
+                "pros": [
+                    "easy to set up and manage",
+                    "large community of users and developers",
+                    "supports a wide range of programming languages"
+                ],
+                "cons": [
+                    "may not be as robust as PostgreSQL for transactional workloads",
+                    "can be vulnerable to SQL injection attacks"
+                ],
+                "whyForUseCase": [
+                    "can handle large volumes of patient records and claims data",
+                    "supports data replication and high availability"
+                ]
+            },
+            {
+                "name": "MongoDB",
+                "score": 85,
+                "reasons": [
+                    "flexible and dynamic schema",
+                    "high performance and scalability",
+                    "strong support for document-based data models"
+                ],
+                "bestFor": "big data and real-time web applications with complex data models",
+                "pros": [
+                    "easy to set up and manage",
+                    "supports a wide range of programming languages",
+                    "highly scalable and performant"
+                ],
+                "cons": [
+                    "may not be as robust as relational databases for transactional workloads",
+                    "can be challenging to optimize queries"
+                ],
+                "whyForUseCase": [
+                    "can handle large volumes of unstructured or semi-structured data",
+                    "supports data aggregation and analytics"
+                ]
+            },
+            {
+                "name": "Microsoft SQL Server",
+                "score": 90,
+                "reasons": [
+                    "robust support for transactional workloads",
+                    "strong data typing and schema enforcement",
+                    "excellent support for indexing and query optimization"
+                ],
+                "bestFor": "enterprise-level applications with high data integrity requirements",
+                "pros": [
+                    "mature and widely adopted",
+                    "supports advanced data types and operators",
+                    "strong security features"
+                ],
+                "cons": [
+                    "can be resource-intensive and expensive",
+                    "may require additional configuration for high availability"
+                ],
+                "whyForUseCase": [
+                    "supports HIPAA, GDPR, and HITRUST compliance requirements",
+                    "can handle large volumes of patient records and claims data"
+                ]
+            }
+        ],
+        "smartRecommendations": [
+            {
+                "title": "Implement Microservices Architecture",
+                "description": "Design the platform using a microservices architecture to enable scalability, modularity, and maintainability. Each feature such as record aggregation, consent management, and claim automation can be a separate service, allowing for independent development, deployment, and scaling.",
+                "type": "architecture",
+                "priority": "High",
+                "implementationEffort": "High"
+            },
+            {
+                "title": "Use a Cloud-Native Database with Data Encryption",
+                "description": "Utilize a cloud-native database such as Amazon Aurora or Google Cloud SQL that supports data encryption at rest and in transit. This ensures the protection of sensitive patient data and facilitates compliance with HIPAA, GDPR, and HITRUST regulations.",
+                "type": "security",
+                "priority": "High",
+                "implementationEffort": "Medium"
+            },
+            {
+                "title": "Implement Caching Mechanism for Frequently Accessed Data",
+                "description": "Implement a caching mechanism such as Redis or Memcached to store frequently accessed data, reducing the load on the database and improving performance. This is particularly beneficial for features like clinical decision support and claim automation.",
+                "type": "performance",
+                "priority": "Medium",
+                "implementationEffort": "Low"
+            },
+            {
+                "title": "Design a Scalable Audit Log System",
+                "description": "Design an audit log system that can handle a high volume of logs from multiple facilities and users. Consider using a distributed logging system like ELK Stack or Splunk to ensure scalability and facilitate compliance with regulatory requirements.",
+                "type": "scalability",
+                "priority": "Medium",
+                "implementationEffort": "Medium"
+            },
+            {
+                "title": "Implement Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC)",
+                "description": "Implement RBAC and ABAC to ensure that users and systems have access to authorized data and features based on their roles and attributes. This enhances security and facilitates compliance with regulatory requirements.",
+                "type": "security",
+                "priority": "High",
+                "implementationEffort": "Medium"
+            },
+            {
+                "title": "Use a Load Balancer and Auto-Scaling to Ensure High Availability",
+                "description": "Use a load balancer to distribute traffic across multiple instances of the platform, and implement auto-scaling to ensure that the platform can handle changes in traffic and workload. This ensures high availability and scalability.",
+                "type": "scalability",
+                "priority": "Medium",
+                "implementationEffort": "Low"
+            }
+        ],
+        "optimizationSuggestions": [
+            {
+                "type": "indexing",
+                "title": "Optimize Database Indexes for Patient Records",
+                "description": "Create composite indexes on columns used in WHERE and JOIN clauses for patient records, such as patient_id, facility_id, and consent_id. This will improve query performance and reduce latency for record aggregation and consent management.",
+                "impact": "High",
+                "complexity": "Medium"
+            },
+            {
+                "type": "caching",
+                "title": "Implement Redis Caching for Frequently Accessed Data",
+                "description": "Use Redis to cache frequently accessed data, such as patient demographics and facility information. This will reduce the load on the database and improve performance for clinical decision support and claim automation.",
+                "impact": "Medium",
+                "complexity": "Low"
+            },
+            {
+                "type": "infrastructure",
+                "title": "Use Load Balancing and Auto-Scaling for High Availability",
+                "description": "Implement load balancing and auto-scaling to ensure high availability and scalability for the platform. This will enable the platform to handle increased traffic and patient records, while maintaining performance and reducing downtime.",
+                "impact": "High",
+                "complexity": "High"
+            },
+            {
+                "type": "performance",
+                "title": "Optimize Query Performance for Record Aggregation",
+                "description": "Optimize database queries for record aggregation, using techniques such as query rewriting, indexing, and materialized views. This will improve performance and reduce latency for record aggregation and consent management.",
+                "impact": "Medium",
+                "complexity": "Medium"
+            },
+            {
+                "type": "security",
+                "title": "Implement Efficient Authentication and Authorization",
+                "description": "Implement efficient authentication and authorization mechanisms, such as OAuth and role-based access control, to ensure secure access to patient records and platform features. This will improve security and compliance with HIPAA, GDPR, and HITRUST regulations.",
+                "impact": "High",
+                "complexity": "Medium"
+            },
+            {
+                "type": "monitoring",
+                "title": "Implement Performance Monitoring and Alerting",
+                "description": "Implement performance monitoring and alerting tools, such as Prometheus and Grafana, to track platform performance and latency. This will enable proactive identification and resolution of performance issues, improving overall platform reliability and uptime.",
+                "impact": "Medium",
+                "complexity": "Low"
+            },
+            {
+                "type": "maintenance",
+                "title": "Schedule Regular Database Maintenance and Cleanup",
+                "description": "Schedule regular database maintenance and cleanup tasks, such as index rebuilding and log rotation, to ensure optimal database performance and reduce storage costs. This will improve overall platform performance and reduce the risk of data corruption or loss.",
+                "impact": "Low",
+                "complexity": "Low"
+            }
+        ],
+        "securityRecommendations": [
+            {
+                "title": "Implement Multi-Factor Authentication (MFA) for All Users",
+                "description": "Enforce MFA for all users accessing the platform to prevent unauthorized access and ensure compliance with HIPAA and HITRUST regulations. This can be achieved through a combination of password policies, smart cards, and one-time passwords.",
+                "priority": "High",
+                "category": "authentication"
+            },
+            {
+                "title": "Encrypt Patient Data Both in Transit and at Rest",
+                "description": "Use industry-standard encryption protocols such as TLS 1.2 or higher for data in transit, and AES-256 or higher for data at rest. This ensures the confidentiality and integrity of patient data and meets GDPR and HIPAA requirements.",
+                "priority": "High",
+                "category": "data"
+            },
+            {
+                "title": "Implement Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC)",
+                "description": "Use RBAC and ABAC to restrict access to patient data based on user roles, permissions, and attributes. This ensures that only authorized personnel can access sensitive patient information and meets HITRUST and HIPAA requirements.",
+                "priority": "Medium",
+                "category": "authorization"
+            },
+            {
+                "title": "Regularly Update and Patch Dependencies and Libraries",
+                "description": "Regularly update and patch dependencies and libraries to prevent exploitation of known vulnerabilities. This ensures the security and integrity of the platform and meets HIPAA and HITRUST requirements.",
+                "priority": "Medium",
+                "category": "infrastructure"
+            },
+            {
+                "title": "Implement Audit Logging and Monitoring",
+                "description": "Implement audit logging and monitoring to track all access and modifications to patient data. This ensures compliance with HIPAA and HITRUST regulations and enables prompt detection and response to security incidents.",
+                "priority": "High",
+                "category": "infrastructure"
+            },
+            {
+                "title": "Conduct Regular Security Awareness Training for Users",
+                "description": "Conduct regular security awareness training for users to educate them on security best practices, phishing attacks, and the importance of data confidentiality. This ensures that users are aware of security risks and can take steps to prevent security incidents.",
+                "priority": "Low",
+                "category": "authentication"
+            }
+        ],
+        "scalingInsights": {
+            "expectedLoad": "High",
+            "readWriteRatio": "60:40",
+            "cachingStrategy": "Redis + CDN",
+            "indexingPriority": [
+                {
+                    "table": "patients",
+                    "priority": "High",
+                    "reason": "Frequent queries and large data volume"
+                },
+                {
+                    "table": "claims",
+                    "priority": "Medium",
+                    "reason": "Regular updates and moderate data volume"
+                },
+                {
+                    "table": "audit_logs",
+                    "priority": "Low",
+                    "reason": "Infrequent queries and low data volume"
+                }
+            ]
+        },
+        "performanceMetrics": [
+            {
+                "label": "Expected QPS",
+                "value": "5000-20000",
+                "description": "Queries per second estimate for 100K+ patient records daily"
+            },
+            {
+                "label": "Data Growth",
+                "value": "1TB/year",
+                "description": "Estimated data growth rate for 200 to 2K facilities"
+            }
+        ]
+    }
+}

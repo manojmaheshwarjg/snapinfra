@@ -47,6 +47,21 @@ export interface User {
 import type { SystemArchitecture } from './types/architecture'
 import type { SystemDecisionsSummary } from './types/system-decisions'
 
+// Add GeneratedData interface
+export interface GeneratedData {
+  projectName?: string
+  customProjectName?: string
+  description: string
+  schemas: any[]
+  analysis?: any
+  database: string
+  endpoints: any[]
+  architecture?: any
+  decisions?: any
+  selectedTools?: Record<string, string>
+  lld?: any
+}
+
 export interface Project {
   id: string
   name: string
@@ -214,6 +229,10 @@ export interface AppState {
   // Filters and search
   searchQuery: string
   selectedTables: string[]
+
+  // Onboarding state
+  onboardingData: GeneratedData | null
+  onboardingStep: number
 }
 
 // Actions
@@ -238,6 +257,10 @@ type AppAction =
   | { type: 'UPDATE_DATABASE'; payload: DatabaseConfig }
   | { type: 'UPDATE_ARCHITECTURE'; payload: SystemArchitecture }
   | { type: 'UPDATE_DECISIONS'; payload: { decisions: SystemDecisionsSummary; selectedTools?: Record<string, string> } }
+  | { type: 'SET_ONBOARDING_DATA'; payload: GeneratedData | null }
+  | { type: 'SET_ONBOARDING_STEP'; payload: number }
+  | { type: 'CLEAR_ONBOARDING_DATA'; payload: void }
+  | { type: 'UPDATE_ONBOARDING_DATA'; payload: Partial<GeneratedData> }
 
 // Initial state
 const initialState: AppState = {
@@ -253,7 +276,9 @@ const initialState: AppState = {
   activeTab: 'schema',
   previewPanelCollapsed: false,
   searchQuery: '',
-  selectedTables: []
+  selectedTables: [],
+  onboardingData: null,
+  onboardingStep: 1
 }
 
 // Reducer
@@ -474,6 +499,33 @@ function appReducer(state: AppState, action: AppAction): AppState {
           updatedAt: new Date()
         }
       }
+
+    case 'SET_ONBOARDING_DATA':
+      return {
+        ...state,
+        onboardingData: action.payload
+      }
+    
+    case 'SET_ONBOARDING_STEP':
+      return {
+        ...state,
+        onboardingStep: action.payload
+      }
+    
+    case 'CLEAR_ONBOARDING_DATA':
+      return {
+        ...state,
+        onboardingData: null,
+        onboardingStep: 1
+      }
+    
+    case 'UPDATE_ONBOARDING_DATA':
+      return {
+        ...state,
+        onboardingData: state.onboardingData 
+          ? { ...state.onboardingData, ...action.payload }
+          : null
+      }
     
     default:
       return state
@@ -495,7 +547,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Initialize API authentication
   useApiAuth()
   
-  // Load persisted data on mount - ONLY user preferences, NOT projects
+  // Load persisted data on mount
   useEffect(() => {
     if (initializedRef.current) return
     initializedRef.current = true
@@ -503,7 +555,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Clean up any old demo projects and localStorage
     cleanupDemoProjects()
     
-    // Only load user preferences (UI state)
+    // Load user preferences (UI state)
     const preferences = loadUserPreferences()
     
     // Apply user preferences
@@ -513,7 +565,80 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (preferences.activeTab) {
       dispatch({ type: 'SET_ACTIVE_TAB', payload: preferences.activeTab as 'schema' | 'api' | 'analytics' })
     }
+    
+    // Load onboarding data from localStorage
+    const savedOnboardingData = localStorage.getItem('onboarding-data')
+    const savedOnboardingStep = localStorage.getItem('onboarding-step')
+    
+    if (savedOnboardingData) {
+      try {
+        const parsedData = JSON.parse(savedOnboardingData)
+        dispatch({ type: 'SET_ONBOARDING_DATA', payload: parsedData })
+      } catch (error) {
+        console.warn('Failed to parse saved onboarding data:', error)
+        // localStorage.removeItem('onboarding-data')
+      }
+    }
+    
+    if (savedOnboardingStep) {
+      try {
+        const step = parseInt(savedOnboardingStep, 10)
+        if (step >= 1 && step <= 6) {
+          dispatch({ type: 'SET_ONBOARDING_STEP', payload: step })
+        }
+      } catch (error) {
+        console.warn('Failed to parse saved onboarding step:', error)
+      }
+    }
   }, [])
+  
+  // Persist onboarding data to localStorage when it changes
+useEffect(() => {
+  if (state.onboardingData) {
+    try {
+      // Create a safe copy of onboarding data without circular references
+      const safeData = {
+        ...state.onboardingData,
+        // Clean the architecture object if it exists
+        architecture: state.onboardingData.architecture ? {
+          name: state.onboardingData.architecture.name,
+          description: state.onboardingData.architecture.description,
+          nodes: state.onboardingData.architecture.nodes?.map((node: any) => ({
+            id: node.id,
+            type: node.type,
+            position: node.position,
+            data: node.data
+          })) || [],
+          edges: state.onboardingData.architecture.edges?.map((edge: any) => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            label: edge.label
+          })) || []
+        } : undefined
+      }
+      
+      localStorage.setItem('onboarding-data', JSON.stringify(safeData))
+    } catch (error) {
+      console.error('Failed to persist onboarding data:', error)
+      // Fallback: save without architecture
+      try {
+        const { architecture, ...dataWithoutArchitecture } = state.onboardingData
+        localStorage.setItem('onboarding-data', JSON.stringify(dataWithoutArchitecture))
+      } catch (fallbackError) {
+        console.error('Complete failure to persist onboarding data:', fallbackError)
+        // localStorage.removeItem('onboarding-data')
+      }
+    }
+  } else {
+    // localStorage.removeItem('onboarding-data')
+  }
+}, [state.onboardingData])
+  
+  // Persist onboarding step to localStorage
+  useEffect(() => {
+    localStorage.setItem('onboarding-step', state.onboardingStep.toString())
+  }, [state.onboardingStep])
   
   // DO NOT auto-save projects to localStorage - AWS is source of truth
   // Projects are only saved to AWS backend via explicit API calls
@@ -588,4 +713,24 @@ export function useCurrentProject() {
 export function useChatMessages() {
   const { state } = useAppContext()
   return state.chatMessages
+}
+
+// Onboarding data convenience hook
+export function useOnboardingData() {
+  const { state, dispatch } = useAppContext()
+
+  console.log(state.onboardingData,'onboarding data in hook')
+  
+  return {
+    data: state.onboardingData,
+    step: state.onboardingStep,
+    setData: (data: GeneratedData | null) => 
+      dispatch({ type: 'SET_ONBOARDING_DATA', payload: data }),
+    setStep: (step: number) => 
+      dispatch({ type: 'SET_ONBOARDING_STEP', payload: step }),
+    updateData: (updates: Partial<GeneratedData>) =>
+      dispatch({ type: 'UPDATE_ONBOARDING_DATA', payload: updates }),
+    clearData: () => 
+      dispatch({ type: 'CLEAR_ONBOARDING_DATA' })
+  }
 }

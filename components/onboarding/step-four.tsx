@@ -3,12 +3,11 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, ArrowLeft, Network, Lightbulb, Download, Upload, Eye, BarChart, Zap, Shield, Save, CheckCircle, Check, Activity, AlertTriangle, Cloud, Code2, Clock, Globe, GitBranch, Share2, ChevronRight, TrendingUp, Layers } from "lucide-react"
+import { ArrowRight, ArrowLeft, Network, Download, Eye, BarChart, Zap, Shield, Save, CheckCircle, Activity, AlertTriangle, Cloud, Code2, Clock, Globe, GitBranch, ChevronRight, TrendingUp, Layers } from "lucide-react"
 import { ReactFlowProvider } from '@xyflow/react'
 
 import { SystemArchitectureEditor } from '@/components/architecture/system-architecture-editor'
-import { SystemArchitecture, DatabaseSchemaToArchitecture, ApiEndpointsToArchitecture } from '@/lib/types/architecture'
-import { generateArchitectureFromData } from '@/lib/utils/architecture-new'
+import { SystemArchitecture } from '@/lib/types/architecture'
 
 interface StepFourProps {
   data: {
@@ -17,64 +16,25 @@ interface StepFourProps {
     schemas?: any[]
     analysis?: any
     endpoints?: any[]
+    architecture?: SystemArchitecture  // Pre-generated from step-one
+    hldMetadata?: any
   }
   onComplete: () => void
   onBack: () => void
 }
 
 export function StepFour({ data, onComplete, onBack }: StepFourProps) {
-  const [architecture, setArchitecture] = useState<SystemArchitecture | null>(null)
-  const [isGenerating, setIsGenerating] = useState(true)
+  const [architecture, setArchitecture] = useState<SystemArchitecture | null>(data.architecture || null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const architectureCanvasRef = useRef<HTMLDivElement>(null)
 
-  // Generate architecture from Step 2 and Step 3 data
+  // If no architecture was provided, show error
   useEffect(() => {
-    const generateArchitecture = async () => {
-      setIsGenerating(true)
-      
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      try {
-        const schemaData: DatabaseSchemaToArchitecture = {
-          schemas: data.schemas || [],
-          analysis: data.analysis || {}
-        }
-        
-        const apiData: ApiEndpointsToArchitecture = {
-          endpoints: data.endpoints || [],
-          groups: [...new Set((data.endpoints || []).map((group: any) => group.group))]
-        }
-        
-        const generatedArchitecture = generateArchitectureFromData(
-          schemaData,
-          apiData,
-          data.projectName || 'Project'
-        )
-        
-        setArchitecture(generatedArchitecture)
-      } catch (error) {
-        console.error('Error generating architecture:', error)
-        setArchitecture({
-          id: `arch-${Date.now()}`,
-          name: `${data.projectName || 'Project'} Architecture`,
-          description: 'Generated system architecture',
-          nodes: [],
-          edges: [],
-          metadata: {
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            version: '1.0.0'
-          }
-        })
-      } finally {
-        setIsGenerating(false)
-      }
+    if (!data.architecture) {
+      console.error('No architecture data found. It should have been generated in step-one.')
     }
-    
-    generateArchitecture()
-  }, [data])
+  }, [data.architecture])
 
   const handleArchitectureChange = (updatedArchitecture: SystemArchitecture) => {
     setArchitecture(updatedArchitecture)
@@ -91,44 +51,36 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
       alert('Canvas not found. Please try again.')
       return
     }
-    
+
     setIsExporting(true)
-    
+
     try {
-      // Dynamically import html-to-image to avoid SSR issues
       const { toPng } = await import('html-to-image')
-      
-      // Give a slight delay to ensure React Flow has fully rendered
       await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // Try to get the React Flow container for better export
+
       const reactFlowWrapper = architectureCanvasRef.current.querySelector('.react-flow') as HTMLElement
       const exportElement = reactFlowWrapper || architectureCanvasRef.current
-      
-      // Export as PNG with high quality settings
+
       const dataUrl = await toPng(exportElement, {
         backgroundColor: '#ffffff',
         quality: 1.0,
-        pixelRatio: 2, // 2x resolution for crisp images
+        pixelRatio: 2,
         cacheBust: true,
         filter: (node) => {
-          // Exclude buttons and controls from export
           if (node.classList) {
             return !node.classList.contains('react-flow__controls') &&
-                   !node.classList.contains('react-flow__attribution')
+              !node.classList.contains('react-flow__attribution')
           }
           return true
         }
       })
-      
-      // Create and trigger download
+
       const link = document.createElement('a')
       const projectName = architecture?.name?.replace(/\s+/g, '-').toLowerCase() || 'architecture'
       link.download = `${projectName}-diagram.png`
       link.href = dataUrl
       link.click()
-      
-      // Show success message
+
       console.log('Diagram exported successfully as PNG')
     } catch (error) {
       console.error('Error exporting PNG:', error)
@@ -142,8 +94,8 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
     if (!architecture) return null
 
     const insights = {
-      complexity: architecture.nodes.length <= 3 ? 'Simple' : 
-                   architecture.nodes.length <= 6 ? 'Moderate' : 'Complex',
+      complexity: architecture.nodes.length <= 3 ? 'Simple' :
+        architecture.nodes.length <= 6 ? 'Moderate' : 'Complex',
       componentsCount: architecture.nodes.length,
       connectionsCount: architecture.edges.length,
       hasAuth: architecture.nodes.some(n => n.type === 'authentication'),
@@ -157,45 +109,6 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
 
   const insights = getArchitectureInsights()
 
-  if (isGenerating) {
-    return (
-      <div className="w-full max-w-7xl mx-auto py-6 px-6 space-y-12">
-        <div className="text-center space-y-6 max-w-[900px] mx-auto">
-          <div className="flex justify-center">
-            <div className="relative">
-              <div className="w-20 h-20 border-4 border-[#005BE3]/20 border-t-[#005BE3] rounded-full animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Network className="w-8 h-8 text-[#005BE3]" />
-              </div>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-[32px] font-normal text-[#1d1d1f] leading-tight" style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '-0.01em' }}>
-              Generating Your System Architecture
-            </h2>
-            <p className="text-base text-[#605A57] leading-relaxed max-w-xl mx-auto">
-              Analyzing your database schema and API endpoints to create an intelligent system architecture diagram.
-            </p>
-          </div>
-          <div className="flex justify-center gap-6 text-sm">
-            <span className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span className="text-[#605A57]">Database Analysis</span>
-            </span>
-            <span className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></div>
-              <span className="text-[#605A57]">API Mapping</span>
-            </span>
-            <span className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></div>
-              <span className="text-[#605A57]">Architecture Generation</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   if (!architecture) {
     return (
       <div className="w-full max-w-7xl mx-auto py-6 px-6 space-y-12">
@@ -203,13 +116,13 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
           <div className="p-4 bg-red-50 rounded-full w-20 h-20 mx-auto flex items-center justify-center">
             <AlertTriangle className="w-10 h-10 text-red-600" />
           </div>
-          <h2 className="text-2xl font-semibold text-[#1d1d1f]">Error Generating Architecture</h2>
+          <h2 className="text-2xl font-semibold text-[#1d1d1f]">No Architecture Data Found</h2>
           <p className="text-sm text-[#605A57]">
-            There was an issue generating your system architecture. Please try again.
+            The architecture should have been generated in the previous steps. Please go back and try again.
           </p>
           <Button onClick={onBack} size="lg">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Return to API Testing
+            Go Back
           </Button>
         </div>
       </div>
@@ -250,7 +163,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
         <div className="h-px bg-gradient-to-r from-transparent via-[#005BE3]/20 to-transparent"></div>
       </div>
 
-      {/* Enhanced Stats Grid - Monochrome */}
+      {/* Enhanced Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <div className="group relative bg-gradient-to-br from-white to-gray-50 border border-[rgba(55,50,47,0.12)] rounded-lg p-4 transition-all duration-300 hover:border-[#1d1d1f]/20 hover:shadow-md">
           <div className="absolute top-2 right-2 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -310,7 +223,6 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
 
       {/* Full Width Architecture Canvas */}
       <div className="space-y-6">
-        {/* Full Width Editor Section */}
         <div className="bg-white border border-[rgba(55,50,47,0.12)] rounded-xl overflow-hidden shadow-lg">
           <div className="px-5 py-3.5 bg-gradient-to-r from-[#fafafa] to-white border-b border-[rgba(55,50,47,0.08)] flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -327,9 +239,9 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
                 Preview
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="h-8 text-xs px-3 hover:bg-[#005BE3]/5"
                 onClick={handleExportPNG}
                 disabled={isExporting}
@@ -354,10 +266,10 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 <Clock className="w-3.5 h-3.5 text-yellow-600 animate-pulse" />
                 <span className="text-yellow-800 font-medium">Unsaved changes detected</span>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleSaveArchitecture} 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSaveArchitecture}
                 className="h-7 bg-white hover:bg-yellow-50 border-yellow-300 text-yellow-800 font-medium text-xs"
               >
                 <Save className="w-3 h-3 mr-1" />
@@ -377,9 +289,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
             </div>
             <div className="space-y-2.5">
               <Button
-                onClick={() => {
-                  console.log('Add component clicked')
-                }}
+                onClick={() => console.log('Add component clicked')}
                 variant="ghost"
                 className="w-full justify-between px-4 py-2.5 bg-white/60 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#1d1d1f] text-sm font-medium group h-auto"
               >
@@ -387,9 +297,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 <ChevronRight className="w-3.5 h-3.5 text-[#005BE3] group-hover:translate-x-0.5 transition-transform" />
               </Button>
               <Button
-                onClick={() => {
-                  handleSaveArchitecture()
-                }}
+                onClick={handleSaveArchitecture}
                 variant="ghost"
                 className="w-full justify-between px-4 py-2.5 bg-white/60 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#1d1d1f] text-sm font-medium group h-auto"
               >
@@ -398,9 +306,31 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
               </Button>
               <Button
                 onClick={() => {
-                  const architectureJson = JSON.stringify(architecture, null, 2)
-                  navigator.clipboard.writeText(architectureJson)
-                  alert('Architecture diagram copied to clipboard!')
+                  try {
+                    // Create a clean copy without circular references
+                    const cleanArchitecture = {
+                      name: architecture.name,
+                      description: architecture.description,
+                      nodes: architecture.nodes.map(node => ({
+                        id: node.id,
+                        type: node.type,
+                        position: node.position,
+                        data: node.data
+                      })),
+                      edges: architecture.edges.map(edge => ({
+                        id: edge.id,
+                        source: edge.source,
+                        target: edge.target,
+                        label: edge.label
+                      }))
+                    }
+                    const architectureJson = JSON.stringify(cleanArchitecture, null, 2)
+                    navigator.clipboard.writeText(architectureJson)
+                    alert('Architecture diagram copied to clipboard!')
+                  } catch (error) {
+                    console.error('Error copying architecture:', error)
+                    alert('Failed to copy diagram. Please try again.')
+                  }
                 }}
                 variant="ghost"
                 className="w-full justify-between px-4 py-2.5 bg-white/60 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#1d1d1f] text-sm font-medium group h-auto"
@@ -419,9 +349,9 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
             </div>
             <div className="text-center mb-4">
               <div className="text-4xl font-bold text-[#005BE3] mb-1">
-                {insights && insights.hasCache && insights.hasLoadBalancer && insights.hasAuth ? '95' : 
-                 insights && ((insights.hasCache && insights.hasAuth) || (insights.hasLoadBalancer && insights.hasAuth)) ? '82' :
-                 insights && (insights.hasCache || insights.hasLoadBalancer || insights.hasAuth) ? '65' : '48'}
+                {insights && insights.hasCache && insights.hasLoadBalancer && insights.hasAuth ? '95' :
+                  insights && ((insights.hasCache && insights.hasAuth) || (insights.hasLoadBalancer && insights.hasAuth)) ? '82' :
+                    insights && (insights.hasCache || insights.hasLoadBalancer || insights.hasAuth) ? '65' : '48'}
               </div>
               <div className="text-xs text-[#605A57]">Out of 100</div>
             </div>
@@ -430,16 +360,16 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                 <div className="flex justify-between text-xs mb-1.5">
                   <span className="text-[#605A57]">Scalability</span>
                   <span className="font-semibold text-[#1d1d1f]">
-                    {insights && insights.hasCache && insights.hasLoadBalancer ? '95%' : 
-                     insights && (insights.hasCache || insights.hasLoadBalancer) ? '75%' : '60%'}
+                    {insights && insights.hasCache && insights.hasLoadBalancer ? '95%' :
+                      insights && (insights.hasCache || insights.hasLoadBalancer) ? '75%' : '60%'}
                   </span>
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-[#005BE3] to-blue-500 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: insights && insights.hasCache && insights.hasLoadBalancer ? '95%' : 
-                             insights && (insights.hasCache || insights.hasLoadBalancer) ? '75%' : '60%'
+                    style={{
+                      width: insights && insights.hasCache && insights.hasLoadBalancer ? '95%' :
+                        insights && (insights.hasCache || insights.hasLoadBalancer) ? '75%' : '60%'
                     }}
                   ></div>
                 </div>
@@ -450,7 +380,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                   <span className="font-semibold text-[#1d1d1f]">{insights?.hasAuth ? '90%' : '40%'}</span>
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-[#005BE3] to-blue-500 rounded-full transition-all duration-500"
                     style={{ width: insights?.hasAuth ? '90%' : '40%' }}
                   ></div>
@@ -464,7 +394,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
                   </span>
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-[#005BE3] to-blue-500 rounded-full transition-all duration-500"
                     style={{ width: insights && insights.hasCache ? '88%' : '62%' }}
                   ></div>
@@ -541,7 +471,6 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
         </div>
       </div>
 
-
       {/* Sticky Continue Button */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-[rgba(55,50,47,0.08)] py-4 px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -552,9 +481,9 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
             <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
             Back
           </button>
-          <Button 
-            onClick={() => onComplete(architecture)} 
-            size="lg" 
+          <Button
+            onClick={() => onComplete(architecture)}
+            size="lg"
             className="px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:shadow-xl transition-all hover:scale-105 text-base font-semibold"
           >
             Select Infrastructure Tools
@@ -563,7 +492,7 @@ export function StepFour({ data, onComplete, onBack }: StepFourProps) {
         </div>
       </div>
 
-      {/* Bottom padding to prevent content from being hidden under sticky button */}
+      {/* Bottom padding */}
       <div className="h-24"></div>
     </div>
   )

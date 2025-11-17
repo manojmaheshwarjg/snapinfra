@@ -61,10 +61,81 @@ import {
 // ============================================================================
 // ENHANCED CONTEXT WITH PROPER CONTEXT BUILDING
 // ============================================================================
+export interface APIEndpoint {
+  path: string;
+  method: string;
+  description: string;
+  auth: boolean;
+  group: string;
+  body?: Record<string, string>;
+}
+
 
 export interface EnhancedGenerationContext extends GenerationContext {
   functionRegistry: FunctionRegistry;
+  apiEndpoints?: Map<string, APIEndpoint[]>;
 }
+
+
+/**
+ * Extract endpoints from project data by group/table
+ */
+function getEndpointsForTable(project: Project, tableName: string): APIEndpoint[] {
+  if (!project.endpoints || !Array.isArray(project.endpoints)) {
+    return [];
+  }
+
+  // Find endpoints that match this table's group
+  const tableGroup = toPascalCase(tableName);
+  
+  return project.endpoints.filter((endpoint: any) => {
+    // Match by group name (case-insensitive)
+    if (endpoint.group && endpoint.group.toLowerCase() === tableName.toLowerCase()) {
+      return true;
+    }
+    
+    // Match by path pattern (e.g., /api/v1/tasks)
+    const pathMatch = endpoint.path.match(/\/api\/v\d+\/(\w+)/);
+    if (pathMatch && pathMatch[1] === tableName.toLowerCase()) {
+      return true;
+    }
+    
+    return false;
+  });
+}
+
+/**
+ * Generate route method name from endpoint
+ */
+function getRouteMethodName(endpoint: APIEndpoint): string {
+  const method = endpoint.method.toLowerCase();
+  const pathParts = endpoint.path.split('/').filter(p => p && p !== 'api' && !p.startsWith('v'));
+  
+  // Extract action from path
+  let action = '';
+  if (endpoint.path.includes(':id')) {
+    // Single resource operations
+    if (method === 'get') action = 'Get';
+    else if (method === 'put') action = 'Update';
+    else if (method === 'delete') action = 'Delete';
+  } else {
+    // Collection operations
+    if (method === 'get') action = 'GetAll';
+    else if (method === 'post') action = 'Create';
+  }
+  
+  return action;
+}
+
+/**
+ * Generate handler function name from endpoint
+ */
+function getHandlerName(endpoint: APIEndpoint, tableName: string): string {
+  const action = getRouteMethodName(endpoint);
+  const pascalTable = toPascalCase(tableName);
+  return `handle${action}${pascalTable}Records`;
+}
+
 
 // ============================================================================
 // IMPROVED CONTEXT BUILDER - PASSES ALL GENERATED FUNCTIONS
@@ -81,11 +152,15 @@ function buildEnhancedContextPrompt(
   let contextPrompt = EXPORT_STANDARDS + '\n\n';
   contextPrompt += modulePrompts[moduleSpec.type] || '';
 
-  // 🔥 FIX: Show available functions with EXACT import syntax
+  if (ctx.project.onboardingContext) {
+    contextPrompt += buildOnboardingContextPrompt(ctx.project, moduleSpec);
+  }
+
+  // Function registry context
   const registryContext = ctx.functionRegistry.buildContextForAI();
   contextPrompt += '\n\n' + registryContext;
 
-  // 🔥 FIX: Enhanced dependency context with explicit import examples
+  // Enhanced dependency context with explicit import examples
   if (moduleSpec.dependencies.length > 0) {
     contextPrompt += '\n\n🎯 CRITICAL: IMPORT EXACTLY AS SHOWN BELOW:\n';
     contextPrompt += '='.repeat(80) + '\n';
@@ -105,7 +180,6 @@ function buildEnhancedContextPrompt(
             contextPrompt += `\n  📄 File: ${file.path}\n`;
             contextPrompt += `     Exports: ${file.exports.join(', ')}\n`;
 
-            // Show functions with their signatures
             if (file.functions.length > 0) {
               contextPrompt += `\n     Available Functions:\n`;
               file.functions.forEach(func => {
@@ -115,7 +189,6 @@ function buildEnhancedContextPrompt(
               });
             }
 
-            // 🔥 CRITICAL: Show EXACT import statement
             const relativePath = file.path
               .replace(/^src\//, '../')
               .replace(/\.js$/, '');
@@ -130,37 +203,97 @@ function buildEnhancedContextPrompt(
     contextPrompt += '\n' + '='.repeat(80) + '\n';
   }
 
-  // 🔥 FIX: Retry context with specific examples
+  // Retry context
   if (attemptNumber > 1) {
     contextPrompt += `\n\n🔄 RETRY ATTEMPT ${attemptNumber} - COMMON MISTAKES TO AVOID:\n`;
     contextPrompt += '='.repeat(80) + '\n';
     contextPrompt += '❌ WRONG Examples:\n';
     contextPrompt += '   const { createUserModel } = require("../models/user");\n';
-    contextPrompt += '   const userService = require("../services/userService");\n';
     contextPrompt += '   module.exports = createUserService;\n\n';
     contextPrompt += '✅ CORRECT Examples:\n';
     contextPrompt += '   const { createUserModels } = require("../models/userModels");\n';
-    contextPrompt += '   const { createUserServices } = require("../services/userServices");\n';
     contextPrompt += '   module.exports = { createUserServices };\n\n';
-    contextPrompt += '🚨 RULES:\n';
-    contextPrompt += '1. ALL factory names are PLURAL: createUserModels, createProductModels\n';
-    contextPrompt += '2. ALL filenames are PLURAL: userModels.js, productServices.js\n';
-    contextPrompt += '3. ALWAYS use named exports: module.exports = { fn1, fn2 }\n';
-    contextPrompt += '4. COPY import statements EXACTLY from "COPY THIS IMPORT EXACTLY" sections above\n';
     contextPrompt += '='.repeat(80) + '\n';
   }
 
-  // 🔥 FIX: Table-specific context with explicit naming
+  // ============================================================================
+  // NEW: API ENDPOINT CONTEXT FOR ROUTES AND HANDLERS
+  // ============================================================================
+  if ((moduleSpec.type === 'routes' || moduleSpec.type === 'handlers') && 
+      moduleSpec.tables && moduleSpec.tables.length > 0 &&
+      ctx.apiEndpoints) {
+    
+    contextPrompt += `\n\n🌐 API ENDPOINTS SPECIFICATION:\n`;
+    contextPrompt += '='.repeat(80) + '\n';
+    contextPrompt += '⚠️  CRITICAL: Use EXACT endpoint paths and methods as specified below!\n\n';
+
+    moduleSpec.tables.forEach(tableName => {
+      const endpoints = ctx.apiEndpoints?.get(tableName) || [];
+      const table = ctx.project.schema.find(t => t.name === tableName);
+      
+      if (endpoints.length > 0) {
+        contextPrompt += `\n📋 ${tableName.toUpperCase()} ENDPOINTS (${endpoints.length} total):\n`;
+        contextPrompt += '-'.repeat(80) + '\n';
+        
+        endpoints.forEach((endpoint, idx) => {
+          contextPrompt += `\n${idx + 1}. ${endpoint.method.toUpperCase()} ${endpoint.path}\n`;
+          contextPrompt += `   Description: ${endpoint.description}\n`;
+          contextPrompt += `   Auth Required: ${endpoint.auth ? 'Yes' : 'No'}\n`;
+          
+          if (endpoint.body && Object.keys(endpoint.body).length > 0) {
+            contextPrompt += `   Body Parameters:\n`;
+            Object.entries(endpoint.body).forEach(([key, type]) => {
+              contextPrompt += `     - ${key}: ${type}\n`;
+            });
+          }
+          
+          if (moduleSpec.type === 'handlers') {
+            const handlerName = getHandlerName(endpoint, tableName);
+            contextPrompt += `   ✅ Handler Function: ${handlerName}\n`;
+          }
+        });
+        
+        contextPrompt += '\n';
+      }
+    });
+
+    // Add handler/route generation rules
+    if (moduleSpec.type === 'handlers') {
+      contextPrompt += `\n🎯 HANDLER GENERATION RULES:\n`;
+      contextPrompt += '='.repeat(80) + '\n';
+      contextPrompt += '1. Create ONE handler function for EACH endpoint listed above\n';
+      contextPrompt += '2. Use EXACT handler names as specified\n';
+      contextPrompt += '3. Handler signature: async (req, res, next) => { ... }\n';
+      contextPrompt += '4. Use try-catch with next(error) for error handling\n';
+      contextPrompt += '5. Call appropriate service methods\n';
+      contextPrompt += '6. Use response utilities (sendSuccess, sendError, etc.)\n';
+      contextPrompt += '='.repeat(80) + '\n';
+    } else if (moduleSpec.type === 'routes') {
+      contextPrompt += `\n🎯 ROUTE GENERATION RULES:\n`;
+      contextPrompt += '='.repeat(80) + '\n';
+      contextPrompt += '1. Create ONE route for EACH endpoint listed above\n';
+      contextPrompt += '2. Use EXACT paths and HTTP methods as specified\n';
+      contextPrompt += '3. Mount routes using Express Router\n';
+      contextPrompt += '4. Import and use handler functions with EXACT names\n';
+      contextPrompt += '5. Add authentication middleware where auth: true\n';
+      contextPrompt += '6. Add validation middleware for body parameters\n';
+      contextPrompt += '='.repeat(80) + '\n';
+    }
+  }
+
+  // Table-specific context with API mapping
   if (moduleSpec.tables && moduleSpec.tables.length > 0) {
     contextPrompt += `\n\n📊 ENTITIES FOR THIS MODULE:\n`;
     contextPrompt += '='.repeat(80) + '\n';
 
     moduleSpec.tables.forEach(tableName => {
       const table = ctx.project.schema.find(t => t.name === tableName);
+      const endpoints = ctx.apiEndpoints?.get(tableName) || [];
+      
       if (table) {
         contextPrompt += `\n🗂️  ${tableName.toUpperCase()}\n`;
 
-        // 🔥 CRITICAL: Show exact names based on module type
+        // Show exact names based on module type
         if (moduleSpec.type === 'models') {
           const filename = NAMING_STANDARDS.MODEL_FILE(tableName);
           const factory = NAMING_STANDARDS.MODEL_FACTORY(tableName);
@@ -187,32 +320,56 @@ function buildEnhancedContextPrompt(
           const pascalName = toPascalCase(tableName);
           
           contextPrompt += `   ✅ Filename: ${filename}\n`;
-          contextPrompt += `   ✅ Functions: handleGetAll${pascalName}Records, handleGet${pascalName}Records, handleCreate${pascalName}Records, handleUpdate${pascalName}Records, handleDelete${pascalName}Records\n`;
+          
+          // NEW: Show exact handler names from endpoints
+          if (endpoints.length > 0) {
+            contextPrompt += `   ✅ Handler Functions (${endpoints.length} total):\n`;
+            endpoints.forEach(endpoint => {
+              const handlerName = getHandlerName(endpoint, tableName);
+              contextPrompt += `     - ${handlerName}\n`;
+            });
+          }
+          
           contextPrompt += `\n   ✅ IMPORT SERVICE (COPY EXACTLY):\n`;
           contextPrompt += `   const { ${serviceFactory} } = require('${servicePath}');\n`;
           contextPrompt += `\n   ✅ EXPORTS (COPY EXACTLY):\n`;
           contextPrompt += `   module.exports = {\n`;
-          contextPrompt += `     handleGetAll${pascalName}Records,\n`;
-          contextPrompt += `     handleGet${pascalName}Records,\n`;
-          contextPrompt += `     handleCreate${pascalName}Records,\n`;
-          contextPrompt += `     handleUpdate${pascalName}Records,\n`;
-          contextPrompt += `     handleDelete${pascalName}Records\n`;
+          
+          if (endpoints.length > 0) {
+            endpoints.forEach(endpoint => {
+              const handlerName = getHandlerName(endpoint, tableName);
+              contextPrompt += `     ${handlerName},\n`;
+            });
+          }
+          
           contextPrompt += `   };\n`;
           
         } else if (moduleSpec.type === 'routes') {
           const filename = NAMING_STANDARDS.ROUTE_FILE(tableName);
           const handlerPath = NAMING_STANDARDS.HANDLER_PATH(tableName);
-          const pascalName = toPascalCase(tableName);
           
           contextPrompt += `   ✅ Filename: ${filename}\n`;
           contextPrompt += `\n   ✅ IMPORT HANDLERS (COPY EXACTLY):\n`;
           contextPrompt += `   const {\n`;
-          contextPrompt += `     handleGetAll${pascalName}Records,\n`;
-          contextPrompt += `     handleGet${pascalName}Records,\n`;
-          contextPrompt += `     handleCreate${pascalName}Records,\n`;
-          contextPrompt += `     handleUpdate${pascalName}Records,\n`;
-          contextPrompt += `     handleDelete${pascalName}Records\n`;
+          
+          if (endpoints.length > 0) {
+            endpoints.forEach(endpoint => {
+              const handlerName = getHandlerName(endpoint, tableName);
+              contextPrompt += `     ${handlerName},\n`;
+            });
+          }
+          
           contextPrompt += `   } = require('${handlerPath}');\n`;
+          contextPrompt += `\n   ✅ ROUTES TO CREATE:\n`;
+          
+          if (endpoints.length > 0) {
+            endpoints.forEach(endpoint => {
+              const handlerName = getHandlerName(endpoint, tableName);
+              const routePath = endpoint.path.replace(/\/api\/v\d+\/\w+/, '');
+              contextPrompt += `     router.${endpoint.method.toLowerCase()}('${routePath}', ${handlerName});\n`;
+            });
+          }
+          
           contextPrompt += `\n   ✅ EXPORT ROUTER (COPY EXACTLY):\n`;
           contextPrompt += `   module.exports = { router };\n`;
         }
@@ -241,6 +398,128 @@ function buildEnhancedContextPrompt(
   contextPrompt += '='.repeat(80) + '\n';
 
   return contextPrompt;
+}
+
+
+function buildOnboardingContextPrompt(project: Project, moduleSpec?: ModuleSpec): string {
+  if (!project.onboardingContext) return '';
+
+  let prompt = '\n\n🎯 PROJECT CONTEXT & ARCHITECTURE DECISIONS:\n';
+  prompt += '='.repeat(80) + '\n';
+
+  const context = project.onboardingContext;
+
+  // Use case and analysis
+  if (context.analysis?.useCase) {
+    prompt += `\n📊 USE CASE: ${context.analysis.useCase.label}\n`;
+    prompt += `Complexity: ${context.analysis.useCase.complexity}\n`;
+    if (context.analysis.useCase.features) {
+      prompt += `Features: ${context.analysis.useCase.features.join(', ')}\n`;
+    }
+  }
+
+  // Architecture decisions
+  if (project.decisions?.decisions) {
+    prompt += `\n🏗️  ARCHITECTURE DECISIONS:\n`;
+    project.decisions.decisions.forEach(decision => {
+      if (decision.selectedTool) {
+        prompt += `\n${decision.category.toUpperCase()}: ${decision.selectedTool}\n`;
+        const selected = decision.recommendations?.find(r => r.id === decision.selectedTool);
+        if (selected) {
+          prompt += `  Reasoning: ${selected.description}\n`;
+          if (selected.pros) {
+            prompt += `  Pros: ${selected.pros.slice(0, 3).join('; ')}\n`;
+          }
+        }
+      }
+    });
+  }
+
+  // Database recommendations
+  if (context.analysis?.databaseRecommendations) {
+    const topDb = context.analysis.databaseRecommendations[0];
+    if (topDb) {
+      prompt += `\n💾 DATABASE CHOICE: ${topDb.name} (Score: ${topDb.score})\n`;
+      prompt += `  Why: ${topDb.whyForUseCase?.join('; ')}\n`;
+    }
+  }
+
+  // Security recommendations
+  if (context.analysis?.securityRecommendations) {
+    prompt += `\n🔒 SECURITY REQUIREMENTS (${context.analysis.securityRecommendations.length} total):\n`;
+    context.analysis.securityRecommendations
+      .filter(rec => rec.priority === 'High')
+      .slice(0, 3)
+      .forEach(rec => {
+        prompt += `  • ${rec.title}: ${rec.description}\n`;
+      });
+  }
+
+  // Smart recommendations for specific modules
+  if (context.analysis?.smartRecommendations && moduleSpec.type) {
+    const relevantRecs = context.analysis.smartRecommendations.filter(rec => 
+      rec.type.toLowerCase().includes(moduleSpec.type) ||
+      rec.priority === 'High'
+    );
+    
+    if (relevantRecs.length > 0) {
+      prompt += `\n💡 IMPLEMENTATION GUIDELINES for ${moduleSpec.type.toUpperCase()}:\n`;
+      relevantRecs.slice(0, 3).forEach(rec => {
+        prompt += `  • ${rec.title}\n`;
+        prompt += `    ${rec.description}\n`;
+      });
+    }
+  }
+
+  // Scaling insights
+  if (context.analysis?.scalingInsights) {
+    prompt += `\n📈 SCALING CONSIDERATIONS:\n`;
+    prompt += `  Expected Load: ${context.analysis.scalingInsights.expectedLoad}\n`;
+    prompt += `  Read/Write Ratio: ${context.analysis.scalingInsights.readWriteRatio}\n`;
+    prompt += `  Caching Strategy: ${context.analysis.scalingInsights.cachingStrategy}\n`;
+  }
+
+  // LLD component mapping (for specific module types)
+  if (context.lld?.nodes && ['services', 'handlers', 'routes'].includes(moduleSpec.type)) {
+    prompt += buildLLDContextForModule(context.lld, moduleSpec);
+  }
+
+  prompt += '\n' + '='.repeat(80) + '\n';
+  return prompt;
+}
+
+
+function buildLLDContextForModule(lld: any, moduleSpec: ModuleSpec): string {
+  let prompt = '\n\n🔧 LOW-LEVEL DESIGN COMPONENTS:\n';
+  
+  const layerMap: Record<string, string[]> = {
+    'services': ['Services/Business Logic Layer', 'Repositories/Data Access Layer'],
+    'handlers': ['Controllers Layer'],
+    'routes': ['Controllers Layer'],
+    'models': ['Models/Entities Layer'],
+    'middleware': ['Middleware & Utilities Layer']
+  };
+
+  const relevantLayers = layerMap[moduleSpec.type] || [];
+  const relevantNodes = lld.nodes.filter((node: any) => 
+    relevantLayers.some(layer => node.data?.metadata?.layer === layer)
+  );
+
+  if (relevantNodes.length > 0) {
+    prompt += `Found ${relevantNodes.length} relevant components:\n`;
+    relevantNodes.forEach((node: any) => {
+      prompt += `\n  Component: ${node.data.name}\n`;
+      prompt += `  Description: ${node.data.description}\n`;
+      if (node.data.metadata?.methods?.length > 0) {
+        prompt += `  Methods: ${node.data.metadata.methods.join(', ')}\n`;
+      }
+      if (node.data.metadata?.dependencies?.length > 0) {
+        prompt += `  Dependencies: ${node.data.metadata.dependencies.join(', ')}\n`;
+      }
+    });
+  }
+
+  return prompt;
 }
 
 // ============================================================================
@@ -329,6 +608,14 @@ async function generateModuleWithValidation(
 
     // 🔥 IMPROVED: System prompt with stricter rules
     const systemPrompt = `You are a code generator that outputs ONLY valid JSON.
+    This project follows specific architecture decisions and recommendations.
+Review the "PROJECT CONTEXT & ARCHITECTURE DECISIONS" section carefully.
+
+${ctx.project.onboardingContext ? 
+  'IMPORTANT: This project has predefined architecture and design decisions. ' +
+  'Follow the selected tools, patterns, and recommendations provided in the context.' 
+  : ''}
+
 
 OUTPUT FORMAT:
 {
@@ -713,19 +1000,33 @@ module.exports = { migrateUp, getExecutedMigrations };`;
 // MAIN GENERATION FUNCTION
 // ============================================================================
 
+// ============================================================================
+// MAIN GENERATION FUNCTION - REPLACE THIS ENTIRE SECTION
+// ============================================================================
+
 export async function generateCode(
   project: Project,
   options: CodeGenOptions,
   onProgress?: ProgressCallback
 ): Promise<CodeGenerationResult> {
-  console.log('\n🚀 Starting code generation with enhanced context passing...');
+  console.log('\n🚀 Starting code generation with API endpoint integration...');
   console.log(`📦 Project: ${project.name}`);
-  console.log(`🗄️  Database: ${getConsistentDbName(project)}`);
+  console.log(`🌐 API Endpoints: ${project.endpoints?.length || 0}`);
   console.log(`🏗️  Framework: ${options.framework}`);
-  console.log(`🔐 Auth: ${options.includeAuth ? 'Yes' : 'No'}`);
-  console.log(`🧪 Tests: ${options.includeTests ? 'Yes' : 'No'}`);
 
-  // Initialize context
+  // NEW: Build endpoint map by table
+  const apiEndpoints = new Map<string, APIEndpoint[]>();
+  if (project.endpoints && Array.isArray(project.endpoints)) {
+    project.schema.forEach(table => {
+      const endpoints = getEndpointsForTable(project, table.name);
+      if (endpoints.length > 0) {
+        apiEndpoints.set(table.name, endpoints);
+        console.log(`   ✓ ${table.name}: ${endpoints.length} endpoints`);
+      }
+    });
+  }
+
+  // Initialize context with API endpoints
   const ctx: EnhancedGenerationContext = {
     project,
     options,
@@ -736,7 +1037,8 @@ export async function generateCode(
     allDependencies: {},
     allDevDependencies: {},
     tableNames: project.schema.map(t => t.name),
-    failedAttempts: new Map()
+    failedAttempts: new Map(),
+    apiEndpoints // NEW: Add endpoints to context
   };
 
   try {
@@ -749,9 +1051,9 @@ export async function generateCode(
 
     // Get module specs
     const moduleSpecs = getModuleSpecs(project, options);
-    console.log(`\n📋 Generating ${moduleSpecs.length} modules in dependency order...\n`);
+    console.log(`\n📋 Generating ${moduleSpecs.length} modules...\n`);
 
-    // Generate modules in priority order (dependencies first)
+    // Generate modules
     for (let i = 0; i < moduleSpecs.length; i++) {
       const spec = moduleSpecs[i];
 
@@ -760,9 +1062,14 @@ export async function generateCode(
       }
 
       console.log(`\n[${i + 1}/${moduleSpecs.length}] 🔨 Module: ${spec.type}`);
-      console.log(`   Priority: ${spec.priority}`);
-      console.log(`   Dependencies: ${spec.dependencies.length > 0 ? spec.dependencies.join(', ') : 'none'}`);
-      console.log(`   Description: ${spec.description}`);
+      
+      // Show endpoint info for routes/handlers
+      if ((spec.type === 'routes' || spec.type === 'handlers') && spec.tables) {
+        const totalEndpoints = spec.tables.reduce((sum, table) => {
+          return sum + (apiEndpoints.get(table)?.length || 0);
+        }, 0);
+        console.log(`   🌐 API Endpoints: ${totalEndpoints}`);
+      }
 
       const result = await generateModuleWithValidation(spec, ctx);
       ctx.moduleResults.set(spec.type, result);
@@ -776,34 +1083,29 @@ export async function generateCode(
         Object.assign(ctx.allDevDependencies, result.devDependencies);
 
         console.log(`   ✅ Success: ${result.files.length} files generated`);
-
-        // Show what's now available for next modules
-        const stats = ctx.functionRegistry.getStats();
-        console.log(`   📊 Registry: ${stats.totalFunctions} functions, ${stats.totalExports} exports`);
-      } else {
-        console.warn(`   ⚠️  Failed: ${result.error || 'Unknown error'}`);
       }
 
-      // Rate limiting
       if (i < moduleSpecs.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
 
-    // Generate remaining files
+    // 🔥 FIX: Generate ALL remaining files in correct order
     console.log('\n📦 Generating package.json...');
     const packageJson = generatePackageJson(project, options, ctx.allDependencies, ctx.allDevDependencies);
     ctx.generatedFiles.set(packageJson.path, packageJson);
 
-    console.log('🔄 Generating migration utility...');
-    const migrationUtil = generateMigrationUtility(project);
-    ctx.generatedFiles.set(migrationUtil.path, migrationUtil);
-    ctx.functionRegistry.register(migrationUtil.path, migrationUtil.content);
-
-    console.log('🚪 Generating entry point...');
+    // 🔥 NEW: Generate entry point (src/index.js)
+    console.log('📝 Generating entry point (src/index.js)...');
     const entryPoint = generateEntryPoint(project, options, ctx);
     ctx.generatedFiles.set(entryPoint.path, entryPoint);
     ctx.functionRegistry.register(entryPoint.path, entryPoint.content);
+
+    // 🔥 NEW: Generate migration utility (src/database/migrate.js)
+    console.log('🗄️  Generating migration utility (src/database/migrate.js)...');
+    const migrationUtil = generateMigrationUtility(project);
+    ctx.generatedFiles.set(migrationUtil.path, migrationUtil);
+    ctx.functionRegistry.register(migrationUtil.path, migrationUtil.content);
 
     // Generate instructions
     console.log('📝 Generating setup instructions...');
@@ -813,19 +1115,13 @@ export async function generateCode(
     const successfulModules = Array.from(ctx.moduleResults.values()).filter(m => m.success && m.validated);
     const totalModules = ctx.moduleResults.size;
     const successRate = (successfulModules.length / totalModules) * 100;
-    const registryStats = ctx.functionRegistry.getStats();
 
     console.log('\n' + '='.repeat(70));
-    console.log('✅ CODE GENERATION COMPLETE!');
+    console.log('✅ CODE GENERATION COMPLETE WITH API INTEGRATION!');
     console.log('='.repeat(70));
     console.log(`📊 Success Rate: ${successRate.toFixed(1)}%`);
     console.log(`📦 Total Files: ${ctx.generatedFiles.size}`);
-    console.log(`✅ Validated Modules: ${successfulModules.length}/${totalModules}`);
-    console.log(`🔧 Total Functions: ${registryStats.totalFunctions}`);
-    console.log(`📤 Total Exports: ${registryStats.totalExports}`);
-    console.log(`🏭 Factories: ${registryStats.factoryCount}`);
-    console.log(`🎯 Handlers: ${registryStats.handlerCount}`);
-    console.log(`🗄️  Database: ${getConsistentDbName(project)}`);
+    console.log(`🌐 API Endpoints Integrated: ${project.endpoints?.length || 0}`);
     console.log('='.repeat(70) + '\n');
 
     return {
@@ -839,7 +1135,6 @@ export async function generateCode(
 
   } catch (error: any) {
     console.error('\n❌ FATAL ERROR:', error.message);
-    console.error(error.stack);
 
     return {
       files: Array.from(ctx.generatedFiles.values()),

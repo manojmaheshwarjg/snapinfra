@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { StepOne } from "@/components/onboarding/step-one"
 import { StepTwo } from "@/components/onboarding/step-two"
@@ -9,73 +8,52 @@ import { StepThree } from "@/components/onboarding/step-three"
 import { StepFour } from "@/components/onboarding/step-four"
 import { StepFive } from "@/components/onboarding/step-five"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Sparkles, Database, Rocket, Network, Settings, Menu, X } from "lucide-react"
+import { Sparkles, Database, Rocket, Network, Settings, FileCode } from "lucide-react"
 import { GridPattern } from "@/components/ui/shadcn-io/grid-pattern"
-import { useAppContext } from "@/lib/app-context"
+import { useAppContext, useOnboardingData } from "@/lib/app-context"
 import type { Project, TableSchema, ChatMessage } from "@/lib/app-context"
 import { createProject as createProjectAPI, isBackendAvailable } from "@/lib/api-client"
 import { markOnboardingComplete } from "@/lib/storage"
 import { ProjectNameDialog } from "@/components/project-name-dialog"
 import Image from "next/image"
 import Link from "next/link"
-
-interface GeneratedData {
-  projectName?: string
-  customProjectName?: string
-  description: string
-  schemas: any[]
-  analysis?: any
-  database: string
-  endpoints: any[]
-  architecture?: any
-}
+import { LLDStep } from "./onboarding/lld-step"
 
 export function OnboardingFlow() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [generatedData, setGeneratedData] = useState<GeneratedData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isNewProject, setIsNewProject] = useState(false)
   const [showNameDialog, setShowNameDialog] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { state, dispatch } = useAppContext()
+  const { data: generatedData, step: currentStep, setData, setStep, updateData, clearData } = useOnboardingData()
 
-  const totalSteps = 5
-  const progress = (currentStep / totalSteps) * 100
+  const totalSteps = 6
 
-  // Initialize state from URL and localStorage on component mount
+  // Initialize state from URL and AppContext on component mount
   useEffect(() => {
     const stepFromUrl = searchParams.get('step')
-    const stepNumber = stepFromUrl ? parseInt(stepFromUrl, 10) : 1
+    const stepNumber = stepFromUrl ? parseInt(stepFromUrl, 10) : currentStep
     const isNewProjectFlag = searchParams.get('new') === 'true'
     
-    // If this is a new project, clear any existing data immediately
+    // If this is a new project, clear all data immediately
     if (isNewProjectFlag) {
       console.log('New project detected, clearing all data')
-      console.log('Current project before clear:', state.currentProject)
       
       // Clear ALL data immediately
-      localStorage.removeItem('onboarding-data')
+      clearData()
       localStorage.removeItem('onboarding-decisions')
       localStorage.removeItem('current-project')
       localStorage.removeItem('chat-history')
       
-      // Reset local state
-      setGeneratedData(null)
-      setCurrentStep(1)
-      setIsNewProject(true)
-      
-      // Clear current project from app state to ensure fresh start
+      // Clear current project from app state
       dispatch({ type: 'SET_CURRENT_PROJECT', payload: null })
       
       console.log('Data cleared for new project')
       
-      // Remove the 'new' parameter from URL after a short delay
+      // Remove the 'new' parameter from URL
       setTimeout(() => {
         const url = new URL(window.location.href)
         url.searchParams.delete('new')
-        
-        // Force a hard reload to ensure all state is cleared
         window.location.href = url.pathname + url.search
       }, 100)
       
@@ -85,48 +63,27 @@ export function OnboardingFlow() {
     
     // Validate step number
     const validStep = stepNumber >= 1 && stepNumber <= totalSteps ? stepNumber : 1
-    setCurrentStep(validStep)
+    setStep(validStep)
     
-    // Only load data from localStorage if this is NOT a new project
-    if (!isNewProjectFlag) {
-      const savedData = localStorage.getItem('onboarding-data')
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData)
-          setGeneratedData(parsedData)
-        } catch (error) {
-          console.warn('Failed to parse saved onboarding data:', error)
-          localStorage.removeItem('onboarding-data')
-        }
-      }
-      
-      // If we're on step 2 or 3 but don't have data, redirect to step 1
-      if (validStep > 1 && !savedData) {
-        updateStep(1)
-      }
+    // If we're on step 2+ but don't have data, redirect to step 1
+    if (validStep > 1 && !generatedData) {
+      updateStep(1)
     }
     
     setIsLoading(false)
   }, [searchParams])
-  
 
-  // Function to update step in both state and URL
+  // Function to update step in both AppContext and URL
   const updateStep = (step: number) => {
-    setCurrentStep(step)
+    setStep(step)
     const url = new URL(window.location.href)
     url.searchParams.set('step', step.toString())
     router.push(url.pathname + url.search, { scroll: false })
   }
 
-  // Function to save data to localStorage
-  const saveData = (data: GeneratedData) => {
-    setGeneratedData(data)
-    localStorage.setItem('onboarding-data', JSON.stringify(data))
-  }
-
   // Function to create project and initiate chat conversation
-  const createProjectAndChat = async (data: GeneratedData | null) => {
-    if (!data) {
+  const createProjectAndChat = async () => {
+    if (!generatedData) {
       console.error('No data available to create project')
       router.push('/dashboard')
       return
@@ -136,7 +93,7 @@ export function OnboardingFlow() {
       console.log('🚀 Creating project with backend integration...')
       
       // Convert generated schemas to TableSchema format
-      const tables: TableSchema[] = data.schemas?.map((schema: any, index: number) => ({
+      const tables: TableSchema[] = generatedData.schemas?.map((schema: any, index: number) => ({
         id: `table_${Date.now()}_${index}`,
         name: schema.name || `table_${index + 1}`,
         description: schema.description || '',
@@ -160,9 +117,9 @@ export function OnboardingFlow() {
         estimatedRows: 0,
       })) || []
 
-      // Flatten grouped endpoints into a single array with group info
-      const flattenedEndpoints = Array.isArray(data.endpoints)
-        ? data.endpoints.flatMap((group: any) => 
+      // Flatten grouped endpoints
+      const flattenedEndpoints = Array.isArray(generatedData.endpoints)
+        ? generatedData.endpoints.flatMap((group: any) => 
             Array.isArray(group.endpoints)
               ? group.endpoints.map((endpoint: any) => ({
                   ...endpoint,
@@ -172,11 +129,10 @@ export function OnboardingFlow() {
           )
         : []
 
-      // Generate a smart project name from description
+      // Generate smart project name
       const generateProjectName = (description: string): string => {
         if (!description) return 'My Project'
         
-        // Common project type patterns
         const patterns = [
           { regex: /social media|social network/i, name: 'Social Media App' },
           { regex: /e-?commerce|online store|shop/i, name: 'E-commerce Platform' },
@@ -195,14 +151,12 @@ export function OnboardingFlow() {
           { regex: /music|streaming/i, name: 'Music Platform' },
         ]
         
-        // Check for pattern matches
         for (const pattern of patterns) {
           if (pattern.regex.test(description)) {
             return pattern.name
           }
         }
         
-        // Extract first meaningful words as fallback
         const words = description
           .replace(/[^a-zA-Z0-9\s]/g, '')
           .split(/\s+/)
@@ -217,16 +171,12 @@ export function OnboardingFlow() {
         return 'My Project'
       }
 
-      // Generate unique project name (avoid duplicates)
       const makeUniqueProjectName = (baseName: string): string => {
         const existingNames = state.projects.map(p => p.name)
-        
-        // If the base name doesn't exist, use it
         if (!existingNames.includes(baseName)) {
           return baseName
         }
         
-        // Find the next available number
         let counter = 2
         let candidateName = `${baseName} ${counter}`
         while (existingNames.includes(candidateName)) {
@@ -236,23 +186,20 @@ export function OnboardingFlow() {
         return candidateName
       }
 
-      // Use custom name if provided, otherwise generate smart name
-      const baseName = data.customProjectName || generateProjectName(data.description || '')
+      const baseName = generatedData.customProjectName || generateProjectName(generatedData.description || '')
       const projectName = makeUniqueProjectName(baseName)
       
-      // Check if backend is available
       const backendAvailable = await isBackendAvailable()
       console.log('Backend availability:', backendAvailable)
       
       let project: Project
       
       if (backendAvailable) {
-        // Create project in backend (AWS DynamoDB)
         try {
-          console.log('📡 Calling backend API to create project with full onboarding data...')
+          console.log('📡 Calling backend API to create project...')
           const backendProject = await createProjectAPI({
             name: projectName,
-            description: data.description || 'Generated from onboarding',
+            description: generatedData.description || 'Generated from onboarding',
             schema: {
               name: projectName,
               tables: tables.map(t => ({
@@ -264,143 +211,157 @@ export function OnboardingFlow() {
             },
             endpoints: flattenedEndpoints,
             database: {
-              type: data.database?.toLowerCase() || 'postgresql',
-              reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
+              type: generatedData.database?.toLowerCase() || 'postgresql',
+              reasoning: `Recommended for this use case`,
               confidence: 0.9,
               features: ['ACID compliance', 'Complex queries', 'Scalability']
             },
-            architecture: (data as any)?.architecture,
-            decisions: (data as any)?.decisions,
-            selectedTools: (data as any)?.selectedTools,
-            analysis: (data as any)?.analysis
+            architecture: generatedData.architecture,
+            decisions: generatedData.decisions,
+            selectedTools: generatedData.selectedTools,
+            analysis: generatedData.analysis
           })
           
-          // Use the project from backend with server-generated ID
           project = {
             ...backendProject,
             schema: tables,
             endpoints: flattenedEndpoints,
             database: {
-              type: data.database?.toLowerCase() || 'postgresql',
-              reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
+              type: generatedData.database?.toLowerCase() || 'postgresql',
+              reasoning: `Recommended for this use case`,
               confidence: 0.9,
               features: ['ACID compliance', 'Complex queries', 'Scalability']
             },
-            architecture: (data as any)?.architecture,
-            decisions: (data as any)?.decisions,
-            selectedTools: (data as any)?.selectedTools,
-            analysis: (data as any)?.analysis
+            architecture: generatedData.architecture,
+            decisions: generatedData.decisions,
+            selectedTools: generatedData.selectedTools,
+            analysis: generatedData.analysis
           }
           
           console.log('✅ Project created in backend:', project.id)
         } catch (error) {
-          console.error('❌ Backend project creation failed, falling back to local:', error)
-          // Fallback to local creation if backend fails
+          console.error('❌ Backend failed, falling back to local:', error)
           project = {
             id: `project_${Date.now()}`,
             name: projectName,
-            description: data.description || 'Generated from onboarding',
+            description: generatedData.description || 'Generated from onboarding',
             status: 'draft',
             createdAt: new Date(),
             updatedAt: new Date(),
             schema: tables,
             endpoints: flattenedEndpoints,
             database: {
-              type: data.database?.toLowerCase() || 'postgresql',
-              reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
+              type: generatedData.database?.toLowerCase() || 'postgresql',
+              reasoning: `Recommended for this use case`,
               confidence: 0.9,
               features: ['ACID compliance', 'Complex queries', 'Scalability']
             },
-            architecture: (data as any)?.architecture,
-            decisions: (data as any)?.decisions,
-            selectedTools: (data as any)?.selectedTools,
-            analysis: (data as any)?.analysis
+            architecture: generatedData.architecture,
+            decisions: generatedData.decisions,
+            selectedTools: generatedData.selectedTools,
+            analysis: generatedData.analysis
           }
         }
       } else {
-        // Backend not available - create project locally only
-        console.log('⚠️ Backend not available, creating project locally only')
+        console.log('⚠️ Backend not available, creating locally')
         project = {
-        id: `project_${Date.now()}`,
-        name: projectName,
-        description: data.description || 'Generated from onboarding',
-        status: 'draft',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        schema: tables,
-        endpoints: flattenedEndpoints,
-        database: {
-          type: data.database?.toLowerCase() || 'postgresql',
-          reasoning: `Recommended for this ${data.description ? 'use case' : 'project'} based on AI analysis`,
-          confidence: 0.9,
-          features: ['ACID compliance', 'Complex queries', 'Scalability']
-        },
-        architecture: (data as any)?.architecture,
-        decisions: (data as any)?.decisions,
-        selectedTools: (data as any)?.selectedTools,
-        analysis: (data as any)?.analysis
-      }
+          id: `project_${Date.now()}`,
+          name: projectName,
+          description: generatedData.description || 'Generated from onboarding',
+          status: 'draft',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          schema: tables,
+          endpoints: flattenedEndpoints,
+          database: {
+            type: generatedData.database?.toLowerCase() || 'postgresql',
+            reasoning: `Recommended for this use case`,
+            confidence: 0.9,
+            features: ['ACID compliance', 'Complex queries', 'Scalability']
+          },
+          architecture: generatedData.architecture,
+          decisions: generatedData.decisions,
+          selectedTools: generatedData.selectedTools,
+          analysis: generatedData.analysis
+        }
       }
 
-      // Add project to state (this will also save to localStorage via app-context)
+      // Add project to state
       dispatch({ type: 'ADD_PROJECT', payload: project })
-
-      // Note: Code and IaC generation is now user-triggered from the dashboard
-      // This prevents automatic generation errors and gives users control
       
-      // Create initial chat message from user description
+      // Create chat messages
       const userMessage: ChatMessage = {
         id: `user_${Date.now()}`,
         type: 'user',
-        content: data.description || 'Create my backend project',
+        content: generatedData.description || 'Create my backend project',
         timestamp: new Date(),
       }
       
-      // Create AI response message
       const aiMessage: ChatMessage = {
         id: `ai_${Date.now()}`,
         type: 'ai',
-        content: `Perfect! I've analyzed your requirements and created a comprehensive backend for you.
+        content: `Perfect! I've created your backend: **${project.name}**
 
-**Project Created:** ${project.name}
-**Database Choice:** ${project.database.type.toUpperCase()}
-**Tables Generated:** ${tables.length}
+**Database:** ${project.database.type.toUpperCase()}
+**Tables:** ${tables.length}
 
 ${tables.length > 0 ? `**Generated Tables:**\n${tables.map(t => `• ${t.name} (${t.fields.length} fields)`).join('\n')}` : ''}
 
-Your backend structure is now ready! You can:
-• View the interactive schema diagram
-• Generate production-ready code
-• Deploy to cloud platforms
-• Continue chatting to refine your backend
-
-What would you like to explore next?`,
+Your backend is ready! You can view the schema, generate code, or continue chatting.`,
         timestamp: new Date(),
         metadata: {
           tablesGenerated: tables.length,
-          endpointsCreated: tables.length * 4,
+          endpointsCreated: flattenedEndpoints.length,
           action: 'schema_update'
         }
       }
       
-      // Add chat messages
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: userMessage })
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: aiMessage })
       
-      // Mark onboarding as complete and clear data
+      // Mark onboarding complete and clear data
       markOnboardingComplete()
-      localStorage.removeItem('onboarding-data')
+      clearData()
       localStorage.removeItem('onboarding-decisions')
-      // Redirect to the specific project overview page
+      
       router.push(`/projects/${project.id}`)
       
     } catch (error) {
-      console.error('Failed to create project and chat:', error)
-      // Navigate to dashboard anyway and mark onboarding complete
+      console.error('Failed to create project:', error)
       markOnboardingComplete()
-      localStorage.removeItem('onboarding-data')
+      clearData()
       localStorage.removeItem('onboarding-decisions')
       router.push('/dashboard')
+    }
+  }
+
+  const handleStepComplete = (data?: any) => {
+    console.log('Step complete with data:', data)
+    
+    if (currentStep === 1 && data) {
+      // Save generated data from AI
+      setData(data)
+    } else if (currentStep === 6 && data) {
+      // Save final decisions and show naming dialog
+      updateData({ 
+        decisions: data.decisions, 
+        selectedTools: data.selectedTools 
+      })
+      setShowNameDialog(true)
+      return
+    } else if (data) {
+      // Update data for other steps
+      updateData(data)
+    }
+
+    if (currentStep < totalSteps) {
+      updateStep(currentStep + 1)
+    }
+  }
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      updateStep(currentStep - 1)
     }
   }
 
@@ -435,44 +396,22 @@ What would you like to explore next?`,
     },
     {
       number: 5,
+      title: "Low-Level Design",
+      description: "Detailed component design",
+      icon: FileCode,
+      status: currentStep > 5 ? "completed" : currentStep === 5 ? "active" : "upcoming",
+    },
+    {
+      number: 6,
       title: "Configuration",
       description: "Finalize configuration",
       icon: Settings,
-      status: currentStep === 5 ? "active" : "upcoming",
+      status: currentStep === 6 ? "active" : "upcoming",
     },
   ]
 
-  const handleStepComplete = (data?: any) => {
-    if (currentStep === 1 && data) {
-      // AI generation happens here - save data to localStorage
-      saveData(data)
-    } else if (currentStep === 4 && data) {
-      // Save architecture data from Step 4
-      const updatedData = { ...generatedData, architecture: data }
-      saveData(updatedData)
-    } else if (currentStep === 5 && data) {
-      // Save tool decisions from Step 5 before project creation
-      const updatedData = { ...generatedData, decisions: data.decisions, selectedTools: data.selectedTools }
-      saveData(updatedData)
-      // Show project naming dialog before creating project
-      setShowNameDialog(true)
-      return
-    }
-
-    if (currentStep < totalSteps) {
-      updateStep(currentStep + 1)
-    }
-  }
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      updateStep(currentStep - 1)
-    }
-  }
-
   return (
     <div className="min-h-screen w-full bg-background relative overflow-hidden">
-      {/* Dashed Grid Pattern Background */}
       <GridPattern 
         width={60} 
         height={60} 
@@ -480,10 +419,9 @@ What would you like to explore next?`,
         className="opacity-30"
       />
       
-      {/* Top Bar with Logo, Project Indicator and Progress */}
+      {/* Top Bar */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[rgba(55,50,47,0.08)]">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          {/* Left: Logo and New Project Indicator */}
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center">
               <Image src="/snapinfra-logo.svg" alt="Snapinfra" width={100} height={24} className="h-6 w-auto" />
@@ -495,9 +433,9 @@ What would you like to explore next?`,
             </div>
           </div>
           
-          {/* Center: Progress Dots */}
+          {/* Progress Dots */}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
-            {[1, 2, 3, 4, 5].map((step) => (
+            {[1, 2, 3, 4, 5, 6].map((step) => (
               <div
                 key={step}
                 className={`transition-all duration-300 rounded-full ${
@@ -511,18 +449,11 @@ What would you like to explore next?`,
             ))}
           </div>
           
-          {/* Right: Actions */}
+          {/* Actions */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                // Save current progress
-                const progressData = {
-                  step: currentStep,
-                  data: generatedData,
-                  timestamp: new Date().toISOString()
-                }
-                localStorage.setItem('onboarding-progress', JSON.stringify(progressData))
-                alert('Progress saved! You can resume later from where you left off.')
+                alert('Progress saved! Resume later from where you left off.')
                 router.push('/dashboard')
               }}
               className="text-xs text-[#005BE3] hover:text-[#004CC2] transition-colors px-3 py-1.5 rounded-lg border border-[#005BE3]/20 hover:border-[#005BE3] hover:bg-[#005BE3]/5 font-medium"
@@ -531,10 +462,8 @@ What would you like to explore next?`,
             </button>
             <button
               onClick={() => {
-                if (confirm('Are you sure? This will delete all progress and start over.')) {
-                  localStorage.removeItem('onboarding-data')
-                  localStorage.removeItem('onboarding-progress')
-                  setGeneratedData(null)
+                if (confirm('Start over? This will delete all progress.')) {
+                  clearData()
                   updateStep(1)
                 }
               }}
@@ -546,10 +475,9 @@ What would you like to explore next?`,
         </div>
       </div>
       
-      {/* Main Content - Full Screen Magic */}
+      {/* Main Content */}
       <div className="min-h-screen flex items-center justify-center px-6 pt-24 pb-20 relative z-10">
         <div className="w-full">
-          {/* Magical transition wrapper */}
           <div 
             key={currentStep}
             className="animate-in fade-in slide-in-from-bottom-4 duration-700"
@@ -565,18 +493,21 @@ What would you like to explore next?`,
               <>
                 {currentStep === 1 && <StepOne onComplete={handleStepComplete} />}
                 {currentStep === 2 && generatedData && (
-                  <StepTwo data={generatedData} onComplete={handleStepComplete} onBack={handleBack} />
-                )}
-                {currentStep === 3 && generatedData && (
-                  <StepThree data={generatedData} onComplete={handleStepComplete} onBack={handleBack} />
-                )}
-                {currentStep === 4 && generatedData && (
                   <StepFour data={generatedData} onComplete={handleStepComplete} onBack={handleBack} />
                 )}
+                {currentStep === 3 && generatedData && (
+                  <StepTwo data={generatedData} onComplete={handleStepComplete} onBack={handleBack} />
+                )}
+                {currentStep === 4 && generatedData && (
+                  <StepThree data={generatedData} onComplete={handleStepComplete} onBack={handleBack} />
+                )}
                 {currentStep === 5 && generatedData && (
+                  <LLDStep data={generatedData} onComplete={handleStepComplete} onBack={handleBack} />
+                )}
+                {currentStep === 6 && generatedData && (
                   <StepFive data={generatedData} onComplete={handleStepComplete} onBack={handleBack} />
                 )}
-                {(currentStep === 2 || currentStep === 3 || currentStep === 4 || currentStep === 5) && !generatedData && (
+                {(currentStep >= 2 && currentStep <= 6) && !generatedData && (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground mb-4 text-sm">Let's start building your backend.</p>
                     <button 
@@ -597,9 +528,8 @@ What would you like to explore next?`,
         open={showNameDialog}
         onOpenChange={setShowNameDialog}
         onConfirm={(name) => {
-          const updatedData = { ...generatedData, customProjectName: name }
-          saveData(updatedData)
-          createProjectAndChat(updatedData)
+          updateData({ customProjectName: name })
+          createProjectAndChat()
         }}
         currentName={generatedData?.customProjectName || ''}
         existingNames={state.projects.map(p => p.name)}

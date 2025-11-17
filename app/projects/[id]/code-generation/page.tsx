@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { useAppContext } from "@/lib/app-context"
+import { useAppContext, useOnboardingData } from "@/lib/app-context"
 import { updateProject as updateProjectAPI, getProjectById } from "@/lib/api-client"
 import { EnterpriseDashboardLayout } from "@/components/enterprise-dashboard-layout"
 import { GenerationProgress } from "@/components/generation-progress"
@@ -30,12 +30,15 @@ export default function CodeGenerationPage() {
   const router = useRouter()
   const { state, dispatch } = useAppContext()
   const { currentProject } = state
+  const { data: onboardingData } = useOnboardingData()
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0)
   const [generationMessage, setGenerationMessage] = useState('')
 
   // Load project if not in context (e.g., on page refresh)
   useEffect(() => {
+
+    console.log(onboardingData,'onboarding data in page')
     if (!projectId) return
     if (!currentProject || currentProject.id !== projectId) {
       getProjectById(projectId)
@@ -69,20 +72,30 @@ export default function CodeGenerationPage() {
     setGenerationProgress(5)
     setGenerationMessage('Validating project schema...')
     
-    // Create normalized project with schema as array
-    const normalizedProject = {
+    // Create enriched project data with onboarding context
+    const enrichedProject = {
       ...currentProject,
-      schema: normalizedSchema
+      schema: normalizedSchema,
+      // Include all onboarding data for better code generation
+      onboardingContext: onboardingData ? {
+        description: onboardingData.description,
+        architecture: onboardingData.architecture,
+        decisions: onboardingData.decisions,
+        selectedTools: onboardingData.selectedTools,
+        analysis: onboardingData.analysis,
+        lld: onboardingData.lld,
+        database: onboardingData.database
+      } : undefined
     }
     
     try {
       // Simulate progressive updates
       const updates = [
-        { progress: 10, message: 'Generating backend configuration files...' },
-        { progress: 20, message: 'Creating database models...' },
-        { progress: 35, message: 'Building service layer...' },
-        { progress: 50, message: 'Setting up API routes...' },
-        { progress: 60, message: 'Analyzing infrastructure requirements...' },
+        { progress: 10, message: 'Analyzing project requirements...' },
+        { progress: 20, message: 'Generating database models based on schema...' },
+        { progress: 35, message: 'Building service layer with business logic...' },
+        { progress: 50, message: 'Creating RESTful API routes...' },
+        { progress: 60, message: 'Applying architecture decisions...' },
         { progress: 75, message: 'Generating Terraform configurations...' },
         { progress: 85, message: 'Creating Docker Compose files...' },
         { progress: 95, message: 'Finalizing code generation...' }
@@ -96,18 +109,32 @@ export default function CodeGenerationPage() {
           updateIndex++
         }
       }, 8000)
+      
       const resp = await fetch('/api/generate-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          project: normalizedProject, 
-          framework: 'express', 
+          project: enrichedProject, 
+          framework: onboardingData?.selectedTools?.backend || 'express',
           language: 'typescript', 
-          includeAuth: false, 
-          includeTests: false,
+          includeAuth: onboardingData?.decisions?.authentication?.required || false,
+          includeTests: true,
           options: {
             iacTargets: ['terraform', 'docker-compose'],
-            environment: 'development'
+            environment: 'development',
+            // Pass architecture context for better generation
+            architecture: onboardingData?.architecture,
+            // Pass technology decisions
+            technologies: {
+              database: currentProject.database?.type || onboardingData?.database,
+              caching: onboardingData?.selectedTools?.caching,
+              messageQueue: onboardingData?.selectedTools?.messageQueue,
+              storage: onboardingData?.selectedTools?.storage
+            },
+            // Pass scaling requirements
+            scaling: onboardingData?.analysis?.scaling,
+            // Pass security requirements
+            security: onboardingData?.analysis?.security
           }
         })
       })
@@ -177,12 +204,29 @@ export default function CodeGenerationPage() {
                     </CardTitle>
                     <CardDescription className="text-xs text-gray-600 mt-1">
                       Backend API + Infrastructure as Code (Terraform, Docker)
+                      {onboardingData && (
+                        <span className="ml-2 text-blue-600 font-medium">
+                          • Enhanced with onboarding context
+                        </span>
+                      )}
                     </CardDescription>
                   </div>
                   {(currentProject?.generatedCode?.files?.length || currentProject?.generatedIaC?.files?.length) ? (
-                    <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
-                      {(currentProject.generatedCode?.files?.length || 0) + (currentProject.generatedIaC?.files?.length || 0)} files
-                    </Badge>
+                    <div className="flex items-center gap-3">
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
+                        {(currentProject.generatedCode?.files?.length || 0) + (currentProject.generatedIaC?.files?.length || 0)} files
+                      </Badge>
+                      <Button 
+                        onClick={generateAll} 
+                        disabled={isGenerating}
+                        size="sm"
+                        variant="outline"
+                        className="shadow-sm"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Regenerate
+                      </Button>
+                    </div>
                   ) : (
                     <Button 
                       onClick={generateAll} 
@@ -195,6 +239,38 @@ export default function CodeGenerationPage() {
                     </Button>
                   )}
                 </div>
+
+                {/* Context Info Banner (when onboarding data available) */}
+                {onboardingData && !isGenerating && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-blue-900">Enhanced Generation Available</p>
+                        <p className="text-xs text-blue-700 mt-0.5">
+                          Using architecture decisions, technology choices, and requirements from onboarding
+                        </p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {onboardingData.architecture && (
+                            <Badge variant="outline" className="text-xs bg-white">
+                              Architecture: {onboardingData.architecture.style}
+                            </Badge>
+                          )}
+                          {onboardingData.selectedTools?.backend && (
+                            <Badge variant="outline" className="text-xs bg-white">
+                              Framework: {onboardingData.selectedTools.backend}
+                            </Badge>
+                          )}
+                          {onboardingData.database && (
+                            <Badge variant="outline" className="text-xs bg-white">
+                              Database: {onboardingData.database}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Progress Bar (shown when generating) */}
                 {isGenerating && (
@@ -241,7 +317,10 @@ export default function CodeGenerationPage() {
                         </div>
                         <div className="space-y-2">
                           <h4 className="text-base font-semibold text-gray-900">No Code Generated Yet</h4>
-                          <p className="text-sm text-gray-500 max-w-md">Click the button above to generate production-ready backend API and infrastructure code</p>
+                          <p className="text-sm text-gray-500 max-w-md">
+                            Click the button above to generate production-ready backend API and infrastructure code
+                            {onboardingData && " based on your onboarding requirements"}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -360,7 +439,7 @@ export default function CodeGenerationPage() {
   )
 }
 
-function GeneratedFilesList({ files, fileType, projectName }: { files: { path: string; content: string }[]; fileType: 'code'|'iac'; projectName: string }) {
+function GeneratedFilesList({ files, fileType, projectName }: { files: { path: string; content: string; category?: string }[]; fileType: 'code'|'iac'|'all'; projectName: string }) {
   const max = 8
   const list = files.slice(0, max)
   const more = files.length - list.length
@@ -393,7 +472,14 @@ function GeneratedFilesList({ files, fileType, projectName }: { files: { path: s
           <div key={i} className="border rounded-md p-2 flex items-start justify-between gap-2 hover:bg-gray-50 transition-colors">
             <div className="min-w-0 flex items-center gap-2">
               <FileText className="w-4 h-4 text-gray-600 flex-shrink-0" />
-              <div className="font-mono text-sm truncate" title={f.path}>{f.path}</div>
+              <div className="flex flex-col min-w-0">
+                <div className="font-mono text-sm truncate" title={f.path}>{f.path}</div>
+                {f.category && (
+                  <Badge variant="outline" className="text-xs w-fit mt-1">
+                    {f.category}
+                  </Badge>
+                )}
+              </div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => copy(f.content)} title="Copy" className="flex-shrink-0">
               <Copy className="w-3 h-3" />

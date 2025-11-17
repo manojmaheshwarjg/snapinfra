@@ -1693,26 +1693,67 @@ export function getBaseDependencies(framework: string): {
   return { dependencies: deps, devDependencies: devDeps };
 }
 
-export function addConditionalDependencies(
-  project: Project,
-  options: CodeGenOptions,
-  deps: Record<string, string>,
-  devDeps: Record<string, string>
-): void {
-  if (options.includeAuth) {
-    deps['jsonwebtoken'] = '^9.0.2';
-    deps['bcrypt'] = '^5.1.1';
-  }
-  if (options.includeTests) {
-    devDeps['jest'] = '^29.7.0';
-    devDeps['supertest'] = '^6.3.3';
-    devDeps['@jest/globals'] = '^29.7.0';
-  }
-}
+// export function addConditionalDependencies(
+//   project: Project,
+//   options: CodeGenOptions,
+//   deps: Record<string, string>,
+//   devDeps: Record<string, string>
+// ): void {
+//   if (options.includeAuth) {
+//     deps['jsonwebtoken'] = '^9.0.2';
+//     deps['bcrypt'] = '^5.1.1';
+//   }
+//   if (options.includeTests) {
+//     devDeps['jest'] = '^29.7.0';
+//     devDeps['supertest'] = '^6.3.3';
+//     devDeps['@jest/globals'] = '^29.7.0';
+//   }
+// }
 
 // ============================================================================
 // CONFIG FUNCTIONS
 // ============================================================================
+
+export function addConditionalDependencies(
+  project: Project,
+  options: CodeGenOptions,
+  dependencies: Record<string, string>,
+  devDependencies: Record<string, string>
+) {
+  // Existing dependencies...
+  
+  // 🆕 ADD DEPENDENCIES BASED ON SELECTED TOOLS
+  if (project.decisions?.selectedTools) {
+    const tools = project.decisions.selectedTools;
+    
+    // Cache layer
+    if (tools['decision-cache'] === 'redis') {
+      dependencies['redis'] = '^4.6.0';
+      dependencies['ioredis'] = '^5.3.0';
+    }
+    
+    // API Gateway
+    if (tools['decision-api-gateway'] === 'kong') {
+      // Add Kong-related dependencies
+    }
+    
+    // Monitoring
+    if (tools['decision-monitoring']) {
+      dependencies['prom-client'] = '^15.0.0';
+    }
+  }
+  
+  // Add dependencies based on smart recommendations
+  if (project.onboardingContext?.analysis?.smartRecommendations) {
+    project.onboardingContext.analysis.smartRecommendations.forEach(rec => {
+      if (rec.priority === 'High' && rec.type === 'security') {
+        dependencies['helmet'] = '^7.1.0';
+        dependencies['express-rate-limit'] = '^7.1.0';
+      }
+    });
+  }
+}
+
 
 export function getCodeGenOptions(
   framework: 'express' | 'fastify' | 'koa' = 'express',

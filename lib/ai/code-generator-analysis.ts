@@ -18,11 +18,41 @@ export interface DatabaseConfig {
     name?: string;
 }
 
+// In code-generator-analysis.ts or wherever your types are defined
 export interface Project {
-    name: string;
-    description: string;
-    schema: Table[];
-    database?: DatabaseConfig;
+  name: string;
+  description?: string;
+  schema: Table[];
+  endpoints?: APIEndpoint[];
+  database?: {
+    type: string;
+    name?: string;
+  };
+  
+  // ADD THESE NEW FIELDS:
+  onboardingContext?: {
+    description?: string;
+    architecture?: any; // High-level architecture
+    lld?: any; // Low-level design
+    database?: string;
+    analysis?: {
+      useCase?: any;
+      databaseRecommendations?: any[];
+      smartRecommendations?: any[];
+      securityRecommendations?: any[];
+      scalingInsights?: any;
+    };
+  };
+  decisions?: {
+    decisions?: Array<{
+      id: string;
+      title: string;
+      category: string;
+      selectedTool?: string;
+      recommendations?: any[];
+    }>;
+    selectedTools?: Record<string, string>;
+  };
 }
 
 export interface CodeGenOptions {

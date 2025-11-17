@@ -148,8 +148,11 @@ function ArchitectureNodeComponent({ data, selected, type }: NodeProps<Architect
     return labels[nodeType as keyof typeof labels] || nodeType
   }
 
+  // Check if this node has API endpoints
+  const hasEndpoints = data.metadata?.endpoints && Array.isArray(data.metadata.endpoints) && data.metadata.endpoints.length > 0
+
   return (
-    <div style={{ width: 256, height: 'auto' }}>
+    <div style={{ width: hasEndpoints ? 320 : 256, height: 'auto' }}>
       <Card
         className={`w-full shadow-md hover:shadow-xl transition-all duration-200 bg-white border ${
           selected ? 'ring-2 ring-[#005BE3] border-[#005BE3]' : 'border-[rgba(55,50,47,0.12)] hover:border-[rgba(55,50,47,0.2)]'
@@ -239,9 +242,65 @@ function ArchitectureNodeComponent({ data, selected, type }: NodeProps<Architect
 
       <CardContent className="p-3 pt-0">
         <div className="space-y-2">
-          <p className="text-[13px] text-gray-600 truncate">{data.description}</p>
+          {/* Show description for non-API nodes */}
+          {!hasEndpoints && (
+            <p className="text-[13px] text-gray-600 truncate">{data.description}</p>
+          )}
           
-          {data.metadata && (
+          {/* Show API endpoint list if available */}
+          {hasEndpoints && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] font-medium text-gray-600">
+                  {data.metadata.endpoints.length} Endpoint{data.metadata.endpoints.length > 1 ? 's' : ''}
+                </span>
+                {data.metadata.authEndpoints !== undefined && (
+                  <div className="flex gap-1">
+                    <Badge variant="outline" className="text-[10px] h-4 px-1.5">
+                      🔒 {data.metadata.authEndpoints}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] h-4 px-1.5">
+                      🌐 {data.metadata.publicEndpoints}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-1 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
+                {data.metadata.endpoints.map((endpoint: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-1.5 p-1.5 bg-gray-50/80 rounded hover:bg-gray-100/80 transition-colors"
+                  >
+                    <Badge
+                      variant="outline"
+                      className="text-[9px] px-1 py-0 h-4 flex-shrink-0 font-semibold"
+                      style={{
+                        borderColor: nodeColor,
+                        color: nodeColor,
+                        backgroundColor: `${nodeColor}15`
+                      }}
+                    >
+                      {endpoint.method}
+                    </Badge>
+                    <div className="flex-1 min-w-0">
+                      <code className="text-[10px] text-[#1d1d1f] font-mono block break-all leading-tight">
+                        {endpoint.path}
+                      </code>
+                      {endpoint.requiresAuth && (
+                        <span className="text-[9px] text-orange-600 inline-block mt-0.5">
+                          🔒 Auth
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Show other metadata */}
+          {data.metadata && !hasEndpoints && (
             <div className="space-y-1.5">
               {data.metadata.technology && (
                 <div className="flex items-center justify-between text-[13px]">
@@ -263,13 +322,6 @@ function ArchitectureNodeComponent({ data, selected, type }: NodeProps<Architect
                 <div className="flex items-center justify-between text-[13px]">
                   <span className="text-gray-500">Tables:</span>
                   <span className="font-medium">{data.metadata.tables}</span>
-                </div>
-              )}
-              
-              {data.metadata.endpoints && Array.isArray(data.metadata.endpoints) && (
-                <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-gray-500">Endpoints:</span>
-                  <span className="font-medium">{data.metadata.endpoints.length}</span>
                 </div>
               )}
               
